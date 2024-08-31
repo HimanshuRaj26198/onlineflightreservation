@@ -3,6 +3,7 @@ import Script from "next/script";
 import { useEffect, useState } from "react";
 const Navbar = () => {
     const [mobMenuOpen, setMobMenuOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     useEffect(() => {
         if (document) {
@@ -155,148 +156,22 @@ const Navbar = () => {
                             </a>
                         </div>
                         <ul className="nav navbar-nav navbar-right">
-                            <li><a href="us/flight.html"> Flights</a></li>
-                            <li><a href="us/car/index.html"> Cars</a></li>
-                            <li><a href="us/hotel/index.html"> Hotels</a></li>
-                            <li className="hidden-md hidden-sm hidden-xs"><a className="all-in-menu dealClick"
+                            <li><a href="/"> Flights</a></li>
+                            {/* <li className="hidden-md hidden-sm hidden-xs"><a className="all-in-menu dealClick"
                                 href="#" > Deals <span
-                                    className="fa fa-angle-down support-icon"></span></a></li>
-                            <li className="visible-md visible-xs visible-sm">
-                                <a className="dealClickMobile" href="#">Deals
-                                </a>
-                                <div className="submenuMobileLsit">
-                                    <h4>Special Deals</h4>
-                                    <ul>
-                                        <li><a href="us/deals/deals-under-99.html">Deals Under $99</a></li>
-                                        <li><a href="us/deals/deals-under-199.html">Deals Under $199</a></li>
-                                        <li><a href="us/deals/cheap-domestic-flights.html">Cheap Domestic Flights</a>
-                                        </li>
-                                        <li><a href="us/deals/international-flights-deals.html">International Flight
-                                            Deals</a></li>
-                                        <li><a href="us/deals/military-flight-deals.html">Military Flight Deals</a></li>
-                                        <li><a href="us/deals/senior-travel-deals.html">Senior Travel Deals</a></li>
-                                        <li><a href="us/deals/cheap-flights-for-students.html">Cheap Flights For
-                                            Students</a></li>
-                                        <li><a href="us/deals/business-class-flight-deals.html">Business Class Flight
-                                            Deals</a></li>
-                                        <li><a href="us/deals/first-class-deals.html">First Class Deals</a></li>
-                                        <li><a href="us/deals/solo-travel-deals.html">Solo Travel Deals</a></li>
-                                        <li><a href="us/deals/group-travel-deals.html">Group Travel Deals</a></li>
-                                    </ul>
-                                    <h4>Domestic Flights</h4>
-                                    <ul>
-                                        <li><a href="us/flights/cheap-flights-to-atlanta-atl-usa.html">Flights to
-                                            Atlanta</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-charlotte-clt-usa.html">Flights to
-                                            Charlotte</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-chicago-chi-usa.html">Flights to
-                                            Chicago</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-dallas-dfw-usa.html">Flights to
-                                            Dallas</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-detroit-dtt-usa.html">Flights to
-                                            Detroit</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-houston-hou-usa.html">Flights to
-                                            Houston</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-miami-mia-usa.html">Flights to
-                                            Miami</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-newyork-nyc-usa.html">Flights to New
-                                            York</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-san-francisco-sfo-usa.html">Flights to
-                                            San Francisco</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-seattle-sea-usa.html">Flights to
-                                            Seattle</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-washington-was-usa.html">Flights to
-                                            Washington</a></li>
-                                    </ul>
-                                    <h4>International Flights</h4>
-                                    <ul>
-                                        <li><a href="us/flights/cheap-flights-to-london-lon-united-kingdom.html">Flights
-                                            to London</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-madrid-mad-spain.html">Flights to
-                                            Madrid</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-manila-mnl-philippines.html">Flights to
-                                            Manila</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-sydney-syd-australia.html">Flights to
-                                            Sydney</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-tel-aviv-tlv-israel.html">Flights to
-                                            Tel Aviv</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-dublin-dub-ireland.html">Flights to
-                                            Dublin</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-amsterdam-ams-netherlands.html">Flights
-                                            to Amsterdam</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-frankfurt-fra-germany.html">Flights to
-                                            Frankfurt</a></li>
-                                        <li><a href="us/flights/cheap-flights-to-rome-rom-italy.html">Flights to
-                                            Rome</a></li>
-                                    </ul>
-                                    <h4>US Airlines</h4>
-                                    <ul>
-                                        <li><a href="us/airlines/jetblue-flights-b6.html">JetBlue Airlines</a></li>
-                                        <li><a href="us/airlines/united-airlines-ua.html">United Airlines</a></li>
-                                        <li><a href="us/airlines/american-airlines-aa.html">American Airlines</a></li>
-                                        <li><a href="us/airlines/spirit-airlines-nk.html">Spirit Airlines</a></li>
-                                        <li><a href="us/airlines/frontier-airlines-f9.html">Frontier Airlines</a></li>
-                                        <li><a href="us/airlines/alaska-airlines-as.html">Alaska Airlines</a></li>
-                                        <li><a href="us/airlines/hawaiian-airlines-ha.html">Hawaiian Airlines</a></li>
-                                        <li><a href="us/airlines/sun-country-airlines-sy.html">Sun Country Airlines</a>
-                                        </li>
-                                        <li><a href="us/airlines/allegiant-air-flights-g4.html">Allegiant Airlines</a>
-                                        </li>
-                                    </ul>
-                                    <h4>Foreign Airlines</h4>
-                                    <ul>
-                                        <li><a href="us/airlines/aeromexico-flights-am.html">Aeromexico Airlines</a>
-                                        </li>
-                                        <li><a href="us/airlines/volaris-airlines-y4.html">Volaris Airlines</a></li>
-                                        <li><a href="us/airlines/caribbean-airlines-bw.html">Caribbean Airlines</a></li>
-                                        <li><a href="us/airlines/westjet-ws.html">Westjet Airlines</a></li>
-                                        <li><a href="us/airlines/air-india-ai.html">Air India</a></li>
-                                        <li><a href="us/airlines/emirates-flights-ek.html">Emirates Airlines</a></li>
-                                        <li><a href="us/airlines/etihad-airways-ey.html">Etihad Airways</a></li>
-                                        <li><a href="us/airlines/lufthansa-flights-lh.html">Lufthansa</a></li>
-                                        <li><a href="us/airlines/turkish-airlines-tk.html">Turkish Airlines</a></li>
-                                        <li><a href="us/airlines/all-nippon-airways-nh.html">All Nippon Airways</a></li>
-                                        <li><a href="us/airlines/cathay-pacific-flights-cx.html">Cathay Pacific
-                                            Airways</a></li>
-                                        <li><a href="us/airlines/philippine-airlines-pr.html">Philippine Airlines</a>
-                                        </li>
-                                        <li><a href="us/airlines/british-airways-ba.html">British Airways</a></li>
-                                    </ul>
-                                </div>
-                            </li>
+                                    className="fa fa-angle-down support-icon"></span></a></li> */}
                             <li className="dropdown">
-                                <a href="#" className="dropdown-toggle" data-toggle="dropdown"
-                                    role="button" aria-haspopup="true" aria-expanded="false">Cruise <img
-                                        src="/assets/images/review-new.gif" className="new_tagicon" /> <span
-                                            className="fa fa-angle-down support-icon"></span></a>
-                                <ul className="dropdown-menu">
-                                    <li><a href="us/cruise.html">Cruise</a></li>
-                                    <li role="separator" className="divider"></li>
-                                    <li><a href="us/cruise/royal-caribbean-cruise.html">Royal Caribbean Cruise</a></li>
-                                    <li role="separator" className="divider"></li>
-                                    <li><a href="us/cruise/disney-cruise.html">Disney Cruise line</a></li>
-                                    <li role="separator" className="divider"></li>
-                                    <li><a href="us/cruise/azamara-cruise.html">Azamara Cruise</a></li>
-                                    <li role="separator" className="divider"></li>
-                                    <li><a href="us/cruise/celebrity-cruise.html">Celebrity Cruise</a></li>
-                                    <li role="separator" className="divider"></li>
-                                    <li><a href="us/cruise/holland-america-cruise.html">Holland America Cruise</a></li>
-                                    <li role="separator" className="divider"></li>
-                                    <li><a href="us/cruise/norwegian-cruise.html">Norwegian Cruise</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="us/reviews.html">Reviews</a></li>
-                            <li className="dropdown">
-                                <a href="#" className="dropdown-toggle" data-toggle="dropdown"
-                                    role="button" aria-haspopup="true" aria-expanded="false">Support <span
-                                        className="fa fa-angle-down support-icon"></span></a>
-                                <ul className="dropdown-menu">
-                                    <li><a href="us/contact-us.html" target="_blank"><i className="fa fa-address-book-o"
+                                <a onClick={() => setDropdownOpen(prev => !prev)} className="dropdown-toggle" data-toggle="dropdown"
+                                    role="button" aria-haspopup="true" aria-expanded="false">Support {dropdownOpen ? <span
+                                        className="fa fa-angle-up support-icon"></span> : <span
+                                            className="fa fa-angle-down support-icon"></span>}</a>
+                                {dropdownOpen && <ul className="dropdown-menu">
+                                    <li><a href="/home/contact-us" target="_blank"><i className="fa fa-address-book-o"
                                         aria-hidden="true"></i> Contact Us</a></li>
                                     <li role="separator" className="divider"></li>
                                     <li><a href=""><i className="fa fa-comment-o"
                                         aria-hidden="true"></i> Live Chat</a></li>
-                                </ul>
+                                </ul>}
                             </li>
                         </ul>
                     </div>

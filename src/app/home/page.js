@@ -173,28 +173,28 @@ const HomePage = () => {
                                     >
                                         <i class="fa fa-plane" aria-hidden="true"></i> Flights
                                     </li>
-                                    <li
+                                    {/* <li
                                         id="carTab"
                                         class="engin-tab"
                                         onclick="clickEngineShow('carEngineId','carTab');"
                                     >
                                         <i class="fa fa-car" aria-hidden="true"></i> Cars
-                                    </li>
-                                    <li
+                                    </li> */}
+                                    {/* <li
                                         id="hotelTab"
                                         class="engin-tab"
                                         onclick="clickEngineShow('hotelEngineId','hotelTab');"
                                     >
                                         <i class="fa fa-building" aria-hidden="true"></i> Hotels
-                                    </li>
-                                    <li
+                                    </li> */}
+                                    {/* <li
                                         id="cruiseTab"
                                         class="engin-tab"
                                         onclick="clickEngineShow('cruiseEngineId','cruiseTab');"
                                     >
                                         <i class="cruise_icon"></i>
                                         Cruise
-                                    </li>
+                                    </li> */}
                                 </ul>
                             </div>
                             <div class="common_searchCntr">
