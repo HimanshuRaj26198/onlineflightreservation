@@ -23263,7 +23263,7 @@ select {
 
 .pet-policy-Block .table_data th,
 .static_content .table_data th {
-    background: #1b75bc;
+    background: #9C7BC0;
     color: #fff;
     white-space: nowrap
 }
@@ -23342,7 +23342,7 @@ select {
 
 .baggage-label {
     padding: 8px 10px;
-    background: #1b75bc;
+    background: #9C7BC0;
     color: #fff;
     width: 45%;
     float: left;

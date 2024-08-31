@@ -14,23 +14,23 @@ const Footer = () => {
                                     <div className="column">
                                         <h4>Quick Links</h4>
                                         <ul>
-                                            <li><a href="/assets/about-us.html" title="About us">About Us</a></li>
-                                            <li><a href="/assets/contact-us.html" title="Contact us">Contact Us</a></li>
-                                            <li><a href="/assets/cancellation-policy.html" title="Cancelation Policy">Cancelation
+                                            <li><a href="/about-us" title="About us">About Us</a></li>
+                                            <li><a href="/contact-us" title="Contact us">Contact Us</a></li>
+                                            <li><a href="/cancellation-policy" title="Cancelation Policy">Cancelation
                                                 Policy</a></li>
-                                            <li><a href="/assets/privacy-policy.html" title="Privacy Policy">Privacy Policy</a>
+                                            <li><a href="/privacy-policy" title="Privacy Policy">Privacy Policy</a>
                                             </li>
-                                            <li><a href="/assets/california-privacy-notice.html">Your California Privacy
+                                            <li><a href="/california-privacy-notice">Your California Privacy
                                                 Rights</a></li>
-                                            <li><a href="/assets/taxes-fees.html#post-ticketing">Post-Ticketing Fees</a></li>
-                                            <li><a href="/assets/taxes-fees.html" title="Taxes &amp; Fees">Taxes &amp; Fees</a>
+                                            <li><a href="/taxes-fee#post-ticketing">Post-Ticketing Fees</a></li>
+                                            <li><a href="/taxes-fee" title="Taxes &amp; Fees">Taxes &amp; Fees</a>
                                             </li>
-                                            <li><a href="/assets/baggage-fees.html" title="Baggage Fees">Baggage Fees</a></li>
-                                            <li><a href="/assets/airlines/web-check-in/online-check-in.html">Online Check-In</a>
+                                            <li><a href="/baggage-fees" title="Baggage Fees">Baggage Fees</a></li>
+                                            <li><a href="/web-checkin">Online Check-In</a>
                                             </li>
-                                            <li><a href="/assets/terms-conditions.html" title="Terms and Conditions">Terms and
+                                            <li><a href="/terms-conditions" title="Terms and Conditions">Terms and
                                                 Conditions</a></li>
-                                            <li><a href="/assets/site-map.html" title="Sitemap">Sitemap</a></li>
+                                            {/* <li><a href="/assets/site-map.html" title="Sitemap">Sitemap</a></li> */}
                                         </ul>
                                     </div>
                                     <div className="column">
@@ -59,27 +59,7 @@ const Footer = () => {
                                         </ul>
                                     </div>
                                     <div className="clearfix visible-xs"></div>
-                                    <div className="column">
-                                        <h4>Top Hotel Destinations</h4>
-                                        <ul>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-houston-hou-9111.html"
-                                                title="Hotels In Houston">Hotels In Houston</a></li>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-orlando-orl-15195.html"
-                                                title="Hotels In Orlando">Hotels In Orlando</a></li>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-fort-lauderdale-fll-7027.html"
-                                                title="Hotels In Fort Lauderdale">Hotels In Fort Lauderdale</a></li>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-las-vegas-las-10801.html"
-                                                title="Hotels In Las Vegas">Hotels In Las Vegas</a></li>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-tampa-tpa-20267.html"
-                                                title="Hotels In Tampa">Hotels In Tampa</a></li>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-miami-mia-12743.html"
-                                                title="Hotels In Miami">Hotels In Miami</a></li>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-boston-bos-2297.html"
-                                                title="Hotels In Boston">Hotels In Boston</a></li>
-                                            <li><a href="/assets/hotel/hotels/hotels-in-cancun-cun-54072.html"
-                                                title="Hotels In Cancun">Hotels In Cancun</a></li>
-                                        </ul>
-                                    </div>
+
                                     <div className="column">
                                         <h4>Top Flight Destinations</h4>
                                         <ul>
@@ -131,7 +111,7 @@ const Footer = () => {
                                                     </div>
                                                     <div className="col-xs-12 terms inputSet">
                                                         <div className="terms"> I would like to receive SMS and email from
-                                                            TourTravelHub.com with the latest offers and promotions. I have
+                                                            onlineflightreservation.com with the latest offers and promotions. I have
                                                             read and agree to the <a target="_blank"
                                                                 href="/assets/terms-conditions.html">Terms and Conditions</a> and
                                                             <a href="/assets/privacy-policy.html" target="_blank">privacy policy
@@ -233,8 +213,8 @@ const Footer = () => {
                             <li><img src="/assets/images/footer/godaddy-ssl.png" alt="godaddy ssl" /></li>
                             <li><img src="/assets/images/footer/cloudfare.png" alt="cloudfare" /></li>
                             <li><img src="/assets/images/footer/mac2.png" alt="mc2" /></li>
-                            <li><a href="#" target="_blank"><img
-                                src="/assets/images/footer/trustpilot-logo.png" alt="trustpilot-logo" /></a></li>
+                            {/* <li><a href="#" target="_blank"><img
+                                src="/assets/images/footer/trustpilot-logo.png" alt="trustpilot-logo" /></a></li> */}
                             <li className="digicert-logo">
                                 <div id="DigiCertClickID_7dlUvcGZ"></div>
                                 {/* <Script
@@ -267,3 +247,4 @@ const Footer = () => {
 }
 
 export default Footer;
+
