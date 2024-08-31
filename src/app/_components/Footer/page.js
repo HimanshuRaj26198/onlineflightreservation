@@ -206,29 +206,29 @@ const Footer = () => {
                     </div>
 
 
-                    <div className="secure__logo">
+                    {/* <div className="secure__logo">
                         <ul>
                             <li><img src="/assets/images/footer/asta-logo.png" alt="asta-logo" /></li>
                             <li><img src="/assets/images/footer/newlogo.png" alt="kogo" /></li>
                             <li><img src="/assets/images/footer/godaddy-ssl.png" alt="godaddy ssl" /></li>
                             <li><img src="/assets/images/footer/cloudfare.png" alt="cloudfare" /></li>
                             <li><img src="/assets/images/footer/mac2.png" alt="mc2" /></li>
-                            {/* <li><a href="#" target="_blank"><img
-                                src="/assets/images/footer/trustpilot-logo.png" alt="trustpilot-logo" /></a></li> */}
+                            <li><a href="#" target="_blank"><img
+                                src="/assets/images/footer/trustpilot-logo.png" alt="trustpilot-logo" /></a></li>
                             <li className="digicert-logo">
                                 <div id="DigiCertClickID_7dlUvcGZ"></div>
-                                {/* <Script
-                                    dangerouslySetInnerHTML={`     var __dcid = __dcid || []; __dcid.push({"cid": "DigiCertClickID_7dlUvcGZ", "tag": "7dlUvcGZ", "seal_format": "dynamic" }); (function () { var cid = document.createElement("script"); cid.async = true; cid.src = "../seal.digicert.com/seals/cascade/seal.min.js"; var s = document.getElementsByTagName("script"); var ls = s[(s.length - 1)]; ls.parentNode.insertBefore(cid, ls.nextSibling); }());`} /> */}
+                                <Script
+                                    dangerouslySetInnerHTML={`     var __dcid = __dcid || []; __dcid.push({"cid": "DigiCertClickID_7dlUvcGZ", "tag": "7dlUvcGZ", "seal_format": "dynamic" }); (function () { var cid = document.createElement("script"); cid.async = true; cid.src = "../seal.digicert.com/seals/cascade/seal.min.js"; var s = document.getElementsByTagName("script"); var ls = s[(s.length - 1)]; ls.parentNode.insertBefore(cid, ls.nextSibling); }());`} />
                             </li>
                             <li><a onclick="window.open('us/security-metrices-certificate4b6d.pdf?v5', 'info', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=no,width=900,height=600, screenX=100,screenY=50')"
                                 href="#"><img src="/assets/images/footer/security-metrices-white.svg"
                                     alt="Security Metrices Certificate" /></a>
                             </li>
                         </ul>
-                    </div>
+                    </div> */}
 
                     <div className="discription__block">
-                        <p>Disclaimer- TourTravelHub is an independent travel portal. Its parent company is d Online Flight Reservation The information that's displayed on this website, www.TourTravelHub.com, is for general
+                        <p>Disclaimer- OnlineFlightReservation is an independent travel portal. Its parent company is d Online Flight Reservation The information that's displayed on this website, www.TourTravelHub.com, is for general
                             purposes. All the necessary steps have been taken to ensure that the information displayed in
                             the website is accurate and up- to-date. However, under no circumstance, We do not provide any
                             warranty or representation, whether implied or expressed, when it comes to the accuracy,

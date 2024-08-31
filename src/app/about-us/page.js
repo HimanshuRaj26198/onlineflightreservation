@@ -23,13 +23,12 @@ const AboutUs = () => {
                                 This is one of the reasons why traveling proves to be a
                                 soul-enriching event. As fun as traveling is, making the necessary
                                 arrangements for your travels is the opposite of fun. This is
-                                where LookByFare comes in. We are a United States based online
+                                where Onlineflightreservation comes in. We are a United States based online
                                 travel portal that offer the best of products and services
                                 pertaining to travel.{" "}
                             </p>
                             <p>
-                                Our parent company is A Red Diamond Affair LLC under whose
-                                guidance we have been able to serve countless customers and
+                                Our parent company have been able to serve countless customers and
                                 achieve utmost customer satisfaction. An important aspect of
                                 serving our customers is understanding the fact that different
                                 types of travelers have varied travel related requirements. Hence,
