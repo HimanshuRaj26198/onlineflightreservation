@@ -148,7 +148,7 @@ const Navbar = () => {
                     </div>
                     <div id="navbar" className={`navbar-collapse ${mobMenuOpen ? "mainMenuOpen" : "main_navigation"}`}>
                         {/* <a href className="mobileMenuClose">X</a> */}
-                        <div style={{ backgroundColor: "#9C7BC0" }} className="pull-right phone-number">
+                        <div style={{ backgroundColor: "#0066b2" }} className="pull-right phone-number">
                             <div className="call_27">Call 24/7 for our best deals</div>
                             <a className="phoneNumber" id="nav_contactNo" href="tel:+1(888) 267-5955">
                                 <img src="/assets/images/uc/newcall3a02.gif?1222" className="call-icon" />

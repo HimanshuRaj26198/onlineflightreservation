@@ -2,13 +2,11 @@ const { default: Script } = require("next/script");
 
 const Footer = () => {
     return <>
-        <footer style={{ backgroundColor: "#9C7BC0" }} className="footer_block">
+        <footer style={{ backgroundColor: "#E52B50" }} className="footer_block">
             <div>
                 <div className="container">
                     <div className="row">
                         <div className="col-md-12">
-
-
                             <div className="footer__link">
                                 <div className="holder">
                                     <div className="column">

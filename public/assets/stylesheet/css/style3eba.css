@@ -9507,7 +9507,7 @@ a:hover {
 }
 
 .search-btn {
-    background: #ff7f00;
+    background: #E52B50;
     color: #fff;
     padding: 10px;
     width: 150px;
@@ -17572,7 +17572,7 @@ select {
 
 .modify_search {
     padding: 12px 20px;
-    background: #ff7f00;
+    background: #E52B50;
     color: #fff;
     border: none;
     border-radius: 5px
@@ -18170,7 +18170,7 @@ select {
     min-height: 35px;
     display: block;
     cursor: pointer;
-    color: #ff7f00
+    color: #E52B50
 }
 
 @media(max-width:767px) {
@@ -18293,7 +18293,7 @@ select {
     padding: 15px 5px;
     text-align: center;
     font-size: 16px;
-    background: #ff7f00;
+    background: #E52B50;
     color: #fff;
     border: 0;
     cursor: pointer;
@@ -20383,7 +20383,7 @@ select {
     min-height: 35px;
     display: block;
     cursor: pointer;
-    color: #ff7f00
+    color: #E52B50
 }
 
 @media(max-width:767px) {
@@ -21311,7 +21311,7 @@ select {
     border-radius: 3px;
     padding: 0 10px 0 2px;
     color: #fff;
-    background: #ff7f00;
+    background: #E52B50;
     font-weight: 600;
     transition: width 2s;
     -webkit-transition: width 2s;
@@ -27614,7 +27614,7 @@ select {
 }
 
 .payment-wrapper .go-button a:hover {
-    background: #ff7f00
+    background: #E52B50
 }
 
 @media(max-width:767px) {

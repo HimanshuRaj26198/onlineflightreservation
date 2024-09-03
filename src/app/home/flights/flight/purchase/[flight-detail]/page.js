@@ -3461,7 +3461,7 @@ const PurchasePage = () => {
                                             </div>
                                         </div>
                                         <div style={{ width: "100%", display: "flex", justifyContent: "center" }} >
-                                            <button style={{ backgroundColor: "#ff7f00", color: "white", fontWeight: 500, textAlign: "center", border: 0, padding: "10px" }} onClick={handleCustomerDetailCollection} >Proceed to add travellers <i class="fa-solid fa-angles-down"></i></button>
+                                            <button style={{ backgroundColor: "#0066b2", color: "white", fontWeight: 500, textAlign: "center", border: 0, padding: "10px" }} onClick={handleCustomerDetailCollection} >Proceed to add travellers <i class="fa-solid fa-angles-down"></i></button>
                                         </div>
                                     </div>
                                 </div>
