@@ -497,7 +497,7 @@ const FlightSearch = ({ airline }) => {
                                 <button
                                     className="search-btn"
                                     onClick={handleSearchFlights}
-                                    style={{ backgroundColor: "#9C7BC0" }}
+                                    style={{ backgroundColor: "#E52B50" }}
                                 >
                                     Search
                                 </button>
