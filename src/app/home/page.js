@@ -200,11 +200,6 @@ const HomePage = () => {
                             <div class="common_searchCntr">
                                 <section id="flightEngineId">
                                     <FlightSearch />
-                                    <script src="/assets/scripts/fltsearchengine3eba.js?v=69.2.7006"></script>
-                                    <script src="/assets/scripts/carsearchengine3eba.js?v=69.2.7006"></script>
-                                    <script src="/assets/scripts/htlsrch3eba.js?v=69.2.7006"></script>
-                                    <script src="/assets/scripts/jquery.validate.min.js"></script>
-                                    <script src="/assets/scripts/jquery.validate.unobtrusive.min.js"></script>
                                 </section>
 
                                 <section id="carEngineId" style={{ display: "none" }}>
@@ -853,7 +848,7 @@ const HomePage = () => {
                                                                                     class="input-icon"
                                                                                 />
                                                                                 <input
-                                                                                    autocomplete="off"
+                                                                                    autoComplete="off"
                                                                                     class="textoverflow ui-autocomplete-input"
                                                                                     id="htlsearch"
                                                                                     name="htlsearch"
@@ -979,7 +974,7 @@ const HomePage = () => {
                                                                                     src="/assets/hotel/images/traveller-icon.png"
                                                                                 />
                                                                                 <input
-                                                                                    autocomplete="off"
+                                                                                    autoComplete="off"
                                                                                     class="hand"
                                                                                     id="roomGuest"
                                                                                     name="roomGuest"
@@ -1211,7 +1206,7 @@ const HomePage = () => {
                                                     minLength="1"
                                                     maxlength="100"
                                                     placeholder="Destination"
-                                                    autocomplete="off"
+                                                    autoComplete="off"
                                                 />
                                                 <span id="cruiseDestErrMsg" class="error-txt"></span>
                                             </div>
@@ -1222,7 +1217,7 @@ const HomePage = () => {
                                                     minLength="1"
                                                     maxlength="100"
                                                     placeholder="Cruise Line"
-                                                    autocomplete="off"
+                                                    autoComplete="off"
                                                 />
                                                 <span id="cruiseLineErrMsg" class="error-txt"></span>
                                             </div>
@@ -1233,7 +1228,7 @@ const HomePage = () => {
                                                     minLength="1"
                                                     maxlength="3"
                                                     placeholder="Cruise Length"
-                                                    autocomplete="off"
+                                                    autoComplete="off"
                                                 />
                                                 <span id="cruiseLengthErrMsg" class="error-txt"></span>
                                             </div>
@@ -1247,7 +1242,7 @@ const HomePage = () => {
                                                     maxlength="100"
                                                     placeholder="Name"
                                                     class="cc"
-                                                    autocomplete="off"
+                                                    autoComplete="off"
                                                 />
                                                 <span id="cruiseGuestNameErrMsg" class="error-txt"></span>
                                             </div>
@@ -1259,7 +1254,7 @@ const HomePage = () => {
                                                     maxlength="100"
                                                     placeholder="Email"
                                                     class="cc"
-                                                    autocomplete="off"
+                                                    autoComplete="off"
                                                 />
                                                 <span id="cruiseGuestEmailErrMsg" class="error-txt"></span>
                                             </div>
@@ -1279,7 +1274,7 @@ const HomePage = () => {
                                                     minLength="10"
                                                     maxlength="15"
                                                     placeholder="Phone No"
-                                                    autocomplete="off"
+                                                    autoComplete="off"
                                                 />
                                                 <span
                                                     id="cruiseGuestPhoneNoErrMsg"
@@ -1356,8 +1351,7 @@ const HomePage = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <script src="/assets/scripts/cruiserequest7590.js?v=69.2.700634"></script>
-                                    <script src="/assets/scripts/countrycode-list7590.js?v=69.2.700634"></script>
+
                                 </section>
                             </div>
                             <Script

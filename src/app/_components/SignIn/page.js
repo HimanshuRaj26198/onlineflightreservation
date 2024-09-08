@@ -109,7 +109,7 @@ const SignInComponent = ({ hideLoginPopup, showSignUp }) => {
                                             id="loginPassword"
                                             autoComplete="off"
                                             ref={passwordRef}
-                                            placeholder="Pin"
+                                            placeholder="Password"
                                         />
                                         <i className="fa fa-lock icon" />
                                         <div

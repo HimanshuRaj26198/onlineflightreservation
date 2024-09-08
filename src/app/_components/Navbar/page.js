@@ -11,7 +11,7 @@ const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [loginPopupVisible, setLoginPopupVisible] = useState(false);
     const [signUpVisible, setSignUpVisible] = useState(false);
-    const [user] = useAuthState(auth);
+    const [user, setUser] = useState(null);
 
     const hideLoginPopup = () => {
         setLoginPopupVisible(false);
@@ -29,6 +29,12 @@ const Navbar = () => {
         setLoginPopupVisible(true);
         setSignUpVisible(false);
     }
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(setUser);
+        return () => unsubscribe();
+    }, []);
+
 
     useEffect(() => {
         if (document) {
@@ -234,7 +240,7 @@ const Navbar = () => {
                                                 target="_blank" className="setting">Settings</a></li>
                                             <li><a href="us/profile/profile/writeus.html" target="_blank"
                                                 className="deal">Write To Us</a></li>
-                                            <li><a onclick="" className="signout">Sign Out</a></li>
+                                            <li><a className="signout">Sign Out</a></li>
                                         </ul>
 
                                     </li>
