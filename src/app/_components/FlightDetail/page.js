@@ -4,14 +4,30 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase/config";
 import { useState } from "react";
 import SignInComponent from "../SignIn/page";
+import SignUpComponent from "../SignUp/page";
 
 const FlightDetail = ({ selectedFlight, travellerDetails }) => {
     const router = useRouter();
     const [user] = useAuthState(auth);
     const [showSignIn, setShowSignIn] = useState(false);
+    const [showSignUp, setShowSignUp] = useState(false);
 
     const hideSignIn = () => {
         setShowSignIn(false);
+    }
+
+    const hideSignUp = () => {
+        setShowSignUp(false);
+    }
+
+    const showSignUpForm = () => {
+        setShowSignIn(false);
+        setShowSignUp(true);
+    }
+
+    const showSignInFor = () => {
+        setShowSignUp(false);
+        setShowSignIn(true);
     }
 
     const handleCotnueViewDetail = () => {
@@ -118,8 +134,8 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
         return `${hours} ${minutes || '00M'}`.trim();
     }
     return <>
-        {showSignIn && <SignInComponent hideLoginPopup={hideSignIn} />}
-
+        {showSignIn && <SignInComponent hideLoginPopup={hideSignIn} showSignUp={showSignUpForm} />}
+        {showSignUp && <SignUpComponent hideSignUp={hideSignUp} showSignIn={showSignInFor} />}
         {/* <!-- flight leg Start here  --> */}
         <div class="flight-leg-info" bis_skin_checked="1">
 
