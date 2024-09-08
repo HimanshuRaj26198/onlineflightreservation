@@ -1,9 +1,34 @@
 "use client"
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import SignInComponent from "../SignIn/page";
+import SignUpComponent from "../SignUp/page";
+import { auth } from "../firebase/config";
+import { signOut } from "firebase/auth";
 const Navbar = () => {
     const [mobMenuOpen, setMobMenuOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [loginPopupVisible, setLoginPopupVisible] = useState(false);
+    const [signUpVisible, setSignUpVisible] = useState(false);
+    const [user] = useAuthState(auth);
+
+    const hideLoginPopup = () => {
+        setLoginPopupVisible(false);
+    }
+    const hideSignUp = () => {
+        setSignUpVisible(false);
+    }
+
+    const showSignUp = () => {
+        setSignUpVisible(true);
+        setLoginPopupVisible(false);
+    }
+
+    const showSignIn = () => {
+        setLoginPopupVisible(true);
+        setSignUpVisible(false);
+    }
 
     useEffect(() => {
         if (document) {
@@ -166,7 +191,7 @@ const Navbar = () => {
                                         className="fa fa-angle-up support-icon"></span> : <span
                                             className="fa fa-angle-down support-icon"></span>}</a>
                                 {dropdownOpen && <ul className="dropdown-menu">
-                                    <li><a href="/home/contact-us" target="_blank"><i className="fa fa-address-book-o"
+                                    <li><a href="/contact-us" target="_blank"><i className="fa fa-address-book-o"
                                         aria-hidden="true"></i> Contact Us</a></li>
                                     <li role="separator" className="divider"></li>
                                     <li><a href=""><i className="fa fa-comment-o"
@@ -180,9 +205,10 @@ const Navbar = () => {
                         <li>
                             <div className="topmenuBox">
                                 <ul id="divlogin" style={{ display: "block" }}>
-                                    <li className="dropdown loginDropdown">
-                                        <a href="#"
-                                            className="login">&nbsp;<span className="hidden-xs">Sign in</span></a>
+                                    <li style={{ cursor: "pointer" }} className="dropdown loginDropdown">
+                                        {!user || !sessionStorage.getItem('user') ? <a onClick={() => setLoginPopupVisible(true)}
+                                            className="login">&nbsp;<span className="hidden-xs">Sign in</span></a> : <a onClick={() => { signOut(auth); sessionStorage.removeItem("user") }}
+                                                className="login">&nbsp;<span className="hidden-xs">Sign out</span></a>}
                                     </li>
                                 </ul>
                                 <ul id="divwelcome" style={{ display: "none" }}>
@@ -312,7 +338,10 @@ const Navbar = () => {
                 </div>
             </div>
 
-        </header></>
+        </header>
+        {loginPopupVisible && !signUpVisible && <SignInComponent hideLoginPopup={hideLoginPopup} showSignUp={showSignUp} />}
+        {signUpVisible && !loginPopupVisible && <SignUpComponent hideSignUp={hideSignUp} showSignIn={showSignIn} />}
+    </>
 }
 
 export default Navbar;

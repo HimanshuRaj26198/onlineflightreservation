@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/app/_components/firebase/config";
 
 const PurchasePage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);

@@ -1,8 +1,29 @@
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../firebase/config";
+import { useState } from "react";
+import SignInComponent from "../SignIn/page";
 
 const FlightDetail = ({ selectedFlight, travellerDetails }) => {
     const router = useRouter();
+    const [user] = useAuthState(auth);
+    const [showSignIn, setShowSignIn] = useState(false);
+
+    const hideSignIn = () => {
+        setShowSignIn(false);
+    }
+
+    const handleCotnueViewDetail = () => {
+        if (!user) {
+            setShowSignIn(true);
+        } else {
+            localStorage.setItem("selectedflight", JSON.stringify(selectedFlight));
+            localStorage.setItem("travellerDetails", JSON.stringify(travellerDetails));
+            router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}`)
+        }
+
+    }
 
     function calculateLayoverTime(flightOffer) {
         const itineraries = flightOffer.itineraries;
@@ -97,6 +118,7 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
         return `${hours} ${minutes || '00M'}`.trim();
     }
     return <>
+        {showSignIn && <SignInComponent hideLoginPopup={hideSignIn} />}
 
         {/* <!-- flight leg Start here  --> */}
         <div class="flight-leg-info" bis_skin_checked="1">
@@ -388,7 +410,7 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
             <div class="row" bis_skin_checked="1">
                 <div class="col-xs-12" bis_skin_checked="1">
                     <div class="price-section pull-right" bis_skin_checked="1">
-                        <button id="btnSelect_sss901" onClick={() => { localStorage.setItem("selectedflight", JSON.stringify(selectedFlight)); localStorage.setItem("travellerDetails", JSON.stringify(travellerDetails)); router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}`) }}>Continue</button>
+                        <button id="btnSelect_sss901" onClick={handleCotnueViewDetail}>Continue</button>
                     </div>
                     <div class="price-section pull-left txt-left" bis_skin_checked="1">
                         <price style={{ cursor: "default" }}>

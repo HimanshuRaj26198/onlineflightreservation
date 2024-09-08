@@ -5,6 +5,7 @@ import Footer from "./_components/Footer/page";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import React from "react";
+import app from "./_components/firebase/config"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,7 +39,6 @@ export default function RootLayout({ children }) {
         {/* <script src="/assets/scripts/latest-jquery-ui.js" ></script> */}
       </head>
       <body className={"results-page"}>
-
         <Navbar />
         <ToastContainer />
         {children}
