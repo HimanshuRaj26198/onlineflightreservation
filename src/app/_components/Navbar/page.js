@@ -26,8 +26,8 @@ const Navbar = () => {
     }
 
     const showSignIn = () => {
-        setLoginPopupVisible(true);
-        setSignUpVisible(false);
+        // setLoginPopupVisible(true);
+        // setSignUpVisible(false);
     }
 
     useEffect(() => {
@@ -210,13 +210,13 @@ const Navbar = () => {
                     <ul className="profile_menu">
                         <li>
                             <div className="topmenuBox">
-                                <ul id="divlogin" style={{ display: "block" }}>
+                                {/* <ul id="divlogin" style={{ display: "block" }}>
                                     <li style={{ cursor: "pointer" }} className="dropdown loginDropdown">
                                         {!user || !sessionStorage.getItem('user') ? <a onClick={() => setLoginPopupVisible(true)}
                                             className="login">&nbsp;<span className="hidden-xs">Sign in</span></a> : <a onClick={() => { signOut(auth); sessionStorage.removeItem("user") }}
                                                 className="login">&nbsp;<span className="hidden-xs">Sign out</span></a>}
                                     </li>
-                                </ul>
+                                </ul> */}
                                 <ul id="divwelcome" style={{ display: "none" }}>
                                     <li className="dropdown loginDropdown">
                                         <a href="#" className="login">

@@ -31,13 +31,13 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
     }
 
     const handleCotnueViewDetail = () => {
-        if (!user) {
-            setShowSignIn(true);
-        } else {
-            localStorage.setItem("selectedflight", JSON.stringify(selectedFlight));
-            localStorage.setItem("travellerDetails", JSON.stringify(travellerDetails));
-            router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}`)
-        }
+        // if (!user) {
+        //     setShowSignIn(true);
+        // } else {
+        localStorage.setItem("selectedflight", JSON.stringify(selectedFlight));
+        localStorage.setItem("travellerDetails", JSON.stringify(travellerDetails));
+        router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}`)
+        // }
 
     }
 
