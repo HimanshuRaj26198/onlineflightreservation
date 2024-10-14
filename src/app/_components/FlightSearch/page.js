@@ -83,7 +83,7 @@ const FlightSearch = ({ airline }) => {
                 const { latitude, longitude } = position.coords;
                 
                 // Call the Amadeus API to get nearest airports based on current latitude and longitude
-                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=200&page%5Blimit%5D=10&sort=analytics.travelers.score`, {
+                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=100&page%5Blimit%5D=10&sort=analytics.travelers.score`, {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
@@ -102,6 +102,10 @@ const FlightSearch = ({ airline }) => {
 
                 // Set the nearest airport list
                 setOriginAirportList(options);
+
+                if (options.length > 0) {
+                    setOriginInputValue(options[0]); // Set the nearest airport as default
+                }
             }, 
             (error) => {
                 console.log("Error fetching geolocation: ", error);
@@ -164,6 +168,7 @@ const FlightSearch = ({ airline }) => {
 
     const handleOriginChange = (selected) => {
         setOrigin(selected);
+        setOriginInputValue(selected);
     }
 
     const handleDestinarionChange = (selected) => {
@@ -271,8 +276,10 @@ const FlightSearch = ({ airline }) => {
                                             className="textoverflow input_destination"
                                             options={originAirportList}
                                             placeholder="Leaving from"
-                                            onInputChange={handleInputChange}
-                                            inputValue={originInputValue}
+                                            // onInputChange={handleInputChange}
+                                            onInputChange={() => setIsLeavingFieldClicked(true)}
+                                            // inputValue={originInputValue}
+                                            value={originInputValue}
                                             onChange={handleOriginChange}
                                         />
                                         <span
