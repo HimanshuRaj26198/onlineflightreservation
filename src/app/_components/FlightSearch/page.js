@@ -29,6 +29,9 @@ const FlightSearch = ({ airline }) => {
     const [infantOnSeatCount, setInfantOnSeatCount] = useState(0);
     const [cabinType, setCabinType] = useState("ECONOMY");
 
+    // for nearest airport
+    const [isLeavingFieldClicked, setIsLeavingFieldClicked] = useState(false); 
+
 
     const [showPax, setShowPax] = useState(false);
 
@@ -72,6 +75,50 @@ const FlightSearch = ({ airline }) => {
         setReturnD(selectedDates[0]);
     }
 
+    // for nearest location
+    const fetchNearestAirports = async () => {
+        try {
+            // Get user's current location using Geolocation API
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const { latitude, longitude } = position.coords;
+                
+                // Call the Amadeus API to get nearest airports based on current latitude and longitude
+                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=200&page%5Blimit%5D=10&sort=analytics.travelers.score`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                
+                let result = await response.json();
+                
+                // Map the response to label and value format
+                let options = result.data.map(a => { 
+                    return { 
+                        label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, 
+                        value: a.iataCode 
+                    }; 
+                });
+
+                // Set the nearest airport list
+                setOriginAirportList(options);
+            }, 
+            (error) => {
+                console.log("Error fetching geolocation: ", error);
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    // useEffect to trigger nearest airport fetching when input is clicked
+    useEffect(() => {
+        if (isLeavingFieldClicked) {
+            fetchNearestAirports();
+        }
+    }, [isLeavingFieldClicked, token]);
+
+
     const filterSourceAirportValue = async () => {
         try {
             let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${originInputValue}&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=analytics.travelers.score&view=FULL`, {
@@ -112,6 +159,7 @@ const FlightSearch = ({ airline }) => {
     const handleInputChange = (newValue) => {
         setOriginInputValue(newValue); // Update the local state with new input
         filterSourceAirportValue(newValue); // Fetch filtered airports based on new input
+        setIsLeavingFieldClicked(true);
     };
 
     const handleOriginChange = (selected) => {
