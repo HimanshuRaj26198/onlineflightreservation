@@ -140,7 +140,6 @@ const FlightSearch = ({ airline, selectedDes}) => {
     // For Image Click
     const handleLocationFromImage = async (selectDes) => {
         try {
-            console.log(selectDes);
 
             // Fetch airports based on the location
             let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${locationName}&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=analytics.travelers.score&view=FULL`, {
