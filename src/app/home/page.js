@@ -4,6 +4,10 @@ import FlightSearch from "../_components/FlightSearch/page";
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import TopDestinationCard from "../_components/TopDestinationCard/page";
+import TopDestinationsArr from "@/assets/top_destination.json";
+
+
 
 const HomePage = () => {
     const secondSetting = {
@@ -62,7 +66,6 @@ const HomePage = () => {
             },
         ],
     };
-
 
 
     return (
@@ -1680,57 +1683,9 @@ const HomePage = () => {
 
                                 <div class="rightCol">
                                     <div class="destination__block">
-                                        <div class="destination_row">
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-los-angeles-lax-usa.html"
-                                            >
-                                                <img src="/assets/images/home/lax.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Los Angeles <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-atlanta-atl-usa.html"
-                                            >
-                                                <img src="/assets/images/home/atl.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Atlanta <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                        </div>
-                                        <div class="destination_row">
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-newyork-nyc-usa.html"
-                                            >
-                                                <img src="/assets/images/home/nyc.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    New York <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-fortlauderdale-fll-usa.html"
-                                            >
-                                                <img src="/assets/images/home/fll.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Fort Lauderdale <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                        </div>
-                                        <div class="row2">
-                                            <a
-                                                class="block big--block"
-                                                href="/assets/flights/cheap-flights-to-washington-was-usa.html"
-                                            >
-                                                <img src="/assets/images/home/was.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Washington D.C. <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                        </div>
+                                        {TopDestinationsArr && TopDestinationsArr.map(a => {
+                                            return <TopDestinationCard destination={a} />
+                                        })}
                                     </div>
                                 </div>
                             </div>
