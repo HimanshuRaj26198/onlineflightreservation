@@ -8,9 +8,9 @@ import 'flatpickr/dist/flatpickr.css';
 
 const FlightSearch = ({ airline, selectedDes}) => {
 
-    
     const router = useRouter();
-    console.log(selectedDes,"Selected Dest");
+
+    // console.log(selectedDes,"Selected Dest");
 
 
     const [tripType, setTripType] = useState("One-Way");
@@ -138,37 +138,42 @@ const FlightSearch = ({ airline, selectedDes}) => {
     }
 
     // For Image Click
-    const handleLocationFromImage = async (selectDes) => {
+    const handleLocationFromImage = async (selectedDes) => {
         try {
-
-            // Fetch airports based on the location
-            let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${locationName}&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=analytics.travelers.score&view=FULL`, {
+         
+            let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${selectedDes}&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=analytics.travelers.score&view=FULL`, {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${token}`  
                 }
             });
+    
             let result = await response.json();
-
-            let options = result.data.map(a => ({
-                label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
-                value: a.iataCode
-            }));
-
-            setDesAirportList(options);
-
-            if (options.length > 0) {
-                setDesInputValue(options[0].label);
-                setDestination(options[0].label);
+    
+            // Map the response to label and value format
+            if (Array.isArray(result.data)) {
+                let options = result.data.map(a => ({
+                    label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
+                    value: a.iataCode
+                }));
+    
+                // Set the nearest airport list
+                setOriginAirportList(options);
+    
+                if (options.length > 0) {
+                    setDesInputValue(options[0].label); 
+                    setDestination(options[0].label);
+                }
             }
         } catch (err) {
-            console.log("Error fetching destination airports from URL location: ", err);
+            console.log(err);
         }
     };
+    
 
     useEffect(() => {
-        handleLocationFromImage();
-    });
+        handleLocationFromImage(selectedDes);
+    },[token]);
 
     const filterDesAirportValue = async () => {
         try {
@@ -192,9 +197,8 @@ const FlightSearch = ({ airline, selectedDes}) => {
     };
 
     const handleInputChange = (newValue) => {
-        setOriginInputValue(newValue); // Update the local state with new input
-        filterSourceAirportValue(newValue); // Fetch filtered airports based on new input
-
+        setOriginInputValue(newValue); 
+        filterSourceAirportValue(newValue); 
     };
 
     const handleOriginChange = (selected) => {
