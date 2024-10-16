@@ -1,0 +1,74 @@
+[
+    {
+        "name": "New York City",
+        "airport": "John F. Kennedy International Airport (JFK)",
+        "iataCode": "JFK",
+        "image": "https://example.com/images/nyc.jpg",
+        "description": "The vibrant city that never sleeps, known for its iconic skyline and diverse culture.",
+        "dateRange": "Aug 30 - Aug 31",
+        "amount": "$550"
+    },
+    {
+        "name": "Los Angeles",
+        "airport": "Los Angeles International Airport (LAX)",
+        "iataCode": "LAX",
+        "image": "https://example.com/images/la.jpg",
+        "description": "Famous for Hollywood, beautiful beaches, and a thriving entertainment scene.",
+        "dateRange": "Sep 1 - Sep 2",
+        "amount": "$480"
+    },
+    {
+        "name": "Chicago",
+        "airport": "O'Hare International Airport (ORD)",
+        "iataCode": "ORD",
+        "image": "https://example.com/images/chicago.jpg",
+        "description": "Known for its stunning architecture, deep-dish pizza, and vibrant arts scene.",
+        "dateRange": "Sep 3 - Sep 4",
+        "amount": "$420"
+    },
+    {
+        "name": "Las Vegas",
+        "airport": "McCarran International Airport (LAS)",
+        "iataCode": "LAS",
+        "image": "https://example.com/images/vegas.jpg",
+        "description": "The entertainment capital of the world, famous for its casinos and nightlife.",
+        "dateRange": "Sep 5 - Sep 6",
+        "amount": "$380"
+    },
+    {
+        "name": "Miami",
+        "airport": "Miami International Airport (MIA)",
+        "iataCode": "MIA",
+        "image": "https://example.com/images/miami.jpg",
+        "description": "A vibrant city known for its beautiful beaches, Art Deco architecture, and nightlife.",
+        "dateRange": "Sep 7 - Sep 8",
+        "amount": "$450"
+    },
+    {
+        "name": "Orlando",
+        "airport": "Orlando International Airport (MCO)",
+        "iataCode": "MCO",
+        "image": "https://example.com/images/orlando.jpg",
+        "description": "Home to world-famous theme parks, including Walt Disney World and Universal Studios.",
+        "dateRange": "Sep 9 - Sep 10",
+        "amount": "$400"
+    },
+    {
+        "name": "San Francisco",
+        "airport": "San Francisco International Airport (SFO)",
+        "iataCode": "SFO",
+        "image": "https://example.com/images/sf.jpg",
+        "description": "Known for the Golden Gate Bridge, diverse culture, and historic cable cars.",
+        "dateRange": "Sep 11 - Sep 12",
+        "amount": "$600"
+    },
+    {
+        "name": "Seattle",
+        "airport": "Seattle-Tacoma International Airport (SEA)",
+        "iataCode": "SEA",
+        "image": "https://example.com/images/seattle.jpg",
+        "description": "Famous for its coffee culture, Space Needle, and vibrant music scene.",
+        "dateRange": "Sep 13 - Sep 14",
+        "amount": "$520"
+    }
+]

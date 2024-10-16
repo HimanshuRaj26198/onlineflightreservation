@@ -18,15 +18,3 @@ const TopDestinationCard = ({ destination }) => {
 
 export default TopDestinationCard;
 
-// const TopDestinationCard = ({ destination }) => {
-//   return (
-//     <a className="block" href={`/flights-to/${destination.name}`}>
-//       <img src="/assets/images/home/lax.jpg" alt="image1" />
-//       <figcaption className="destination__title">
-//         {destination.name} <i className="fa fa-long-arrow-right" />
-//       </figcaption>
-//     </a>
-//   );
-// };
-
-// export default TopDestinationCard;

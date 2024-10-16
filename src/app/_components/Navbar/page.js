@@ -111,28 +111,29 @@ const Navbar = () => {
 
     gtag('config', 'AW-16665917801');`
 
-            //talk to
-            let tawktoScript = document.createElement("script");
+            //talk With Live Chat Code
+            const tawktoScript = document.createElement("script");
             tawktoScript.type = "text/javascript";
             tawktoScript.innerHTML = `(function(){
-          var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-          s1.async=true;
-          s1.src='https://embed.tawk.to/66bce0ce146b7af4a43a7218/1i58ssag4';
-          s1.charset='UTF-8';
-          s1.setAttribute('crossorigin','*');
-          s0.parentNode.insertBefore(s1,s0);
-          })();
-      `
+      var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+      s1.async=true;
+      s1.src='https://embed.tawk.to/66bce0ce146b7af4a43a7218/1i58ssag4';
+      s1.charset='UTF-8';
+      s1.setAttribute('crossorigin','*');
+      s0.parentNode.insertBefore(s1,s0);
+    })();`;
 
             const clarityScript = document.createElement("script");
             clarityScript.innerHTML = `
-            (function(c,l,a,r,i,t,y){
-              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-          })(window, document, "clarity", "script", "nrs7azjqz2");
-      `
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "nrs7azjqz2");`;
 
+
+            document.body.appendChild(tawktoScript);
+            document.body.appendChild(clarityScript);
             document.head.appendChild(customScript);
             document.head.appendChild(gtag);
             document.head.appendChild(inlineScript);
@@ -145,8 +146,18 @@ const Navbar = () => {
                 document.head.removeChild(clarityScript);
                 document.head.removeChild(tawktoScript);
             })
+
         }
     }, [])
+
+    // Function for live chat
+    const showLiveChat = () => {
+        if (window.Tawk_API && window.Tawk_API.showWidget) {
+            window.Tawk_API.showWidget();
+            window.Tawk_API.maximize();
+        }
+    };
+    
     return <>
 
         <header className="navigation_block ">
@@ -200,8 +211,11 @@ const Navbar = () => {
                                     <li><a href="/contact-us" target="_blank"><i className="fa fa-address-book-o"
                                         aria-hidden="true"></i> Contact Us</a></li>
                                     <li role="separator" className="divider"></li>
-                                    <li><a href=""><i className="fa fa-comment-o"
-                                        aria-hidden="true"></i> Live Chat</a></li>
+
+                                    {/* For Live Chat  */}
+                                    <a href="#" id="liveChatBtn" onClick={showLiveChat}>
+                                        <i className="fa fa-comment-o" aria-hidden="true"></i> Live Chat
+                                    </a>
                                 </ul>}
                             </li>
                         </ul>
