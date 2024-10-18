@@ -6,7 +6,7 @@ const TopFlightDestinationCard = ({ destination }) => {
     const router = useRouter();
 
     const handleClick = () => {
-        router.push(`/FlightListing?iataCode=${destination.iataCode}`);
+        router.push(`/FlightListing/iataCode=${destination.iataCode}`);
     };
 
     return (

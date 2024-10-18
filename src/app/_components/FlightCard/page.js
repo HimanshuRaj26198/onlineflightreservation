@@ -1,6 +1,10 @@
 "use client"
 import { useRouter } from "next/navigation";
 const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight }) => {
+    console.log(flight, "FlightLoop")
+
+    // const airlineLogo = flight.logo || 'fallback-image.png';
+
     const router = useRouter();
     function calculateLayoverTime(flightOffer) {
         const itineraries = flightOffer.itineraries;

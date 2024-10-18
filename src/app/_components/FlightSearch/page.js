@@ -6,7 +6,7 @@ import Flatpickr from 'react-flatpickr';
 import { useRouter } from "next/navigation";
 import 'flatpickr/dist/flatpickr.css';
 
-const FlightSearch = ({ airline, selectedDes}) => {
+const FlightSearch = ({ airline, selectedDes }) => {
 
     const router = useRouter();
 
@@ -140,28 +140,28 @@ const FlightSearch = ({ airline, selectedDes}) => {
     // For Image Click
     const handleLocationFromImage = async (selectedDes) => {
         try {
-         
+
             let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${selectedDes}&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=analytics.travelers.score&view=FULL`, {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`  
+                    "Authorization": `Bearer ${token}`
                 }
             });
-    
+
             let result = await response.json();
-    
+
             // Map the response to label and value format
             if (Array.isArray(result.data)) {
                 let options = result.data.map(a => ({
                     label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
                     value: a.iataCode
                 }));
-    
+
                 // Set the nearest airport list
                 setOriginAirportList(options);
-    
+
                 if (options.length > 0) {
-                    setDesInputValue(options[0].label); 
+                    setDesInputValue(options[0].label);
                     setDestination(options[0].label);
                 }
             }
@@ -169,11 +169,11 @@ const FlightSearch = ({ airline, selectedDes}) => {
             console.log(err);
         }
     };
-    
+
 
     useEffect(() => {
         handleLocationFromImage(selectedDes);
-    },[token]);
+    }, [token]);
 
     const filterDesAirportValue = async () => {
         try {
@@ -197,8 +197,8 @@ const FlightSearch = ({ airline, selectedDes}) => {
     };
 
     const handleInputChange = (newValue) => {
-        setOriginInputValue(newValue); 
-        filterSourceAirportValue(newValue); 
+        setOriginInputValue(newValue);
+        filterSourceAirportValue(newValue);
     };
 
     const handleOriginChange = (selected) => {
@@ -251,6 +251,7 @@ const FlightSearch = ({ airline, selectedDes}) => {
     return <>
         <form autocomplete="off" id="FlightForm" >
             <div className="searchBg">
+                {/* Trip */}
                 <div className="trip-type">
                     <ul>
                         <li>
@@ -356,12 +357,12 @@ const FlightSearch = ({ airline, selectedDes}) => {
                                         />
                                         <Select
                                             className="textoverflow input_destination"
-                                            options={desAirportList} 
+                                            options={desAirportList}
                                             placeholder="Going to"
-                                            value={destination} 
-                                            inputValue={desInputValue} 
-                                            onInputChange={handleDesInputChange} 
-                                            onChange={handleDestinarionChange} 
+                                            value={destination}
+                                            inputValue={desInputValue}
+                                            onInputChange={handleDesInputChange}
+                                            onChange={handleDestinarionChange}
                                         />
 
                                         <span
