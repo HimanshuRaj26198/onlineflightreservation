@@ -6,20 +6,24 @@ import Flatpickr from 'react-flatpickr';
 import { useRouter } from "next/navigation";
 import 'flatpickr/dist/flatpickr.css';
 
-const FlightSearch = ({ airline }) => {
+const FlightSearch = ({ airline, selectedDes }) => {
+
     const router = useRouter();
+
+    // console.log(selectedDes,"Selected Dest");
+
 
     const [tripType, setTripType] = useState("One-Way");
     const [token, setToken] = useState("");
 
-    const [depDate, setDepDate] = useState("");
-    const [returnD, setReturnD] = useState("");
+    const [depDate, setDepDate] = useState(new Date());
+    const [returnD, setReturnD] = useState(new Date());
 
     const [destination, setDestination] = useState("");
     const [origin, setOrigin] = useState("");
 
     const [originAirportList, setOriginAirportList] = useState([]);
-    const [originInputValue, setOriginInputValue] = useState("");
+    const [originInputValue, setOriginInputValue] = useState(null);
     const [desAirportList, setDesAirportList] = useState([]);
     const [desInputValue, setDesInputValue] = useState("");
     const [travellerDetail, setTravellerDetail] = useState({ adultCount: 1, childrenCount: 0, infanctCount: 0, cabinType: "ECONOMY" });
@@ -28,10 +32,6 @@ const FlightSearch = ({ airline }) => {
     const [infanctCount, setInfantCount] = useState(0);
     const [infantOnSeatCount, setInfantOnSeatCount] = useState(0);
     const [cabinType, setCabinType] = useState("ECONOMY");
-
-    // for nearest airport
-    const [isLeavingFieldClicked, setIsLeavingFieldClicked] = useState(false); 
-
 
     const [showPax, setShowPax] = useState(false);
 
@@ -81,7 +81,7 @@ const FlightSearch = ({ airline }) => {
             // Get user's current location using Geolocation API
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
-                
+
                 // Call the Amadeus API to get nearest airports based on current latitude and longitude
                 let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=100&page%5Blimit%5D=10&sort=analytics.travelers.score`, {
                     headers: {
@@ -89,39 +89,37 @@ const FlightSearch = ({ airline }) => {
                         "Authorization": `Bearer ${token}`
                     }
                 });
-                
+
                 let result = await response.json();
-                
+
                 // Map the response to label and value format
-                let options = result.data.map(a => { 
-                    return { 
-                        label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, 
-                        value: a.iataCode 
-                    }; 
-                });
+                if (Array.isArray(result.data)) {
+                    // Map the response to label and value format
+                    let options = result.data.map(a => ({
+                        label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
+                        value: a.iataCode
+                    }));
 
-                // Set the nearest airport list
-                setOriginAirportList(options);
+                    // Set the nearest airport list
+                    setOriginAirportList(options);
 
-                if (options.length > 0) {
-                    setOriginInputValue(options[0]); // Set the nearest airport as default
+                    if (options.length > 0) {
+                        setOriginInputValue(options[0].label); // Set the first airport as the default value
+                        setOrigin(options[0].label);
+                    }
                 }
-            }, 
-            (error) => {
-                console.log("Error fetching geolocation: ", error);
-            });
+            },
+                (error) => {
+                    console.log("Error fetching geolocation: ", error);
+                });
         } catch (err) {
             console.log(err);
         }
     };
 
-    // useEffect to trigger nearest airport fetching when input is clicked
     useEffect(() => {
-        if (isLeavingFieldClicked) {
-            fetchNearestAirports();
-        }
-    }, [isLeavingFieldClicked, token]);
-
+        fetchNearestAirports();
+    }, [token]);
 
     const filterSourceAirportValue = async () => {
         try {
@@ -138,6 +136,44 @@ const FlightSearch = ({ airline }) => {
             console.log(err);
         }
     }
+
+    // For Image Click
+    const handleLocationFromImage = async (selectedDes) => {
+        try {
+
+            let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${selectedDes}&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=analytics.travelers.score&view=FULL`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            let result = await response.json();
+
+            // Map the response to label and value format
+            if (Array.isArray(result.data)) {
+                let options = result.data.map(a => ({
+                    label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
+                    value: a.iataCode
+                }));
+
+                // Set the nearest airport list
+                setOriginAirportList(options);
+
+                if (options.length > 0) {
+                    setDesInputValue(options[0].label);
+                    setDestination(options[0].label);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+
+    useEffect(() => {
+        handleLocationFromImage(selectedDes);
+    }, [token]);
 
     const filterDesAirportValue = async () => {
         try {
@@ -156,14 +192,13 @@ const FlightSearch = ({ airline }) => {
     }
 
     const handleDesInputChange = (newValue) => {
-        setDesInputValue(newValue); // Update the local state with new input
-        filterDesAirportValue(newValue); // Fetch filtered airports based on new input
+        setDesInputValue(newValue);
+        filterDesAirportValue(newValue);
     };
 
     const handleInputChange = (newValue) => {
-        setOriginInputValue(newValue); // Update the local state with new input
-        filterSourceAirportValue(newValue); // Fetch filtered airports based on new input
-        setIsLeavingFieldClicked(true);
+        setOriginInputValue(newValue);
+        filterSourceAirportValue(newValue);
     };
 
     const handleOriginChange = (selected) => {
@@ -207,9 +242,16 @@ const FlightSearch = ({ airline }) => {
         fetchToken();
     }, []);
 
+    useEffect(() => {
+        const currentDate = new Date();
+        const defaultDate = new Date(currentDate.setDate(currentDate.getDate() + 7));
+        setReturnD(defaultDate);
+    }, []);
+
     return <>
         <form autocomplete="off" id="FlightForm" >
             <div className="searchBg">
+                {/* Trip */}
                 <div className="trip-type">
                     <ul>
                         <li>
@@ -276,10 +318,8 @@ const FlightSearch = ({ airline }) => {
                                             className="textoverflow input_destination"
                                             options={originAirportList}
                                             placeholder="Leaving from"
-                                            // onInputChange={handleInputChange}
-                                            onInputChange={() => setIsLeavingFieldClicked(true)}
-                                            // inputValue={originInputValue}
-                                            value={originInputValue}
+                                            onInputChange={handleInputChange}
+                                            inputValue={originInputValue}
                                             onChange={handleOriginChange}
                                         />
                                         <span
@@ -319,10 +359,12 @@ const FlightSearch = ({ airline }) => {
                                             className="textoverflow input_destination"
                                             options={desAirportList}
                                             placeholder="Going to"
-                                            onInputChange={handleDesInputChange}
+                                            value={destination}
                                             inputValue={desInputValue}
+                                            onInputChange={handleDesInputChange}
                                             onChange={handleDestinarionChange}
                                         />
+
                                         <span
                                             className="field-validation-valid"
                                             data-valmsg-for="destination"

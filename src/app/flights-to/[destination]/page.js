@@ -1,73 +1,54 @@
 "use client"
 import Script from "next/script";
-import FlightSearch from "../_components/FlightSearch/page";
+import FlightSearch from "@/app/_components/FlightSearch/page";
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import TopDestinationCard from "../_components/TopDestinationCard/page";
+import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import TopDestinationCard from "@/app/_components/TopDestinationCard/page";
 import TopDestinationsArr from "@/assets/top_destination.json";
+import TopFlightDestinationCard from "@/app/_components/TopFlightDestinationCard/page";
 import TopFlightDestinationArr from "@/assets/top_flight_destination.json"
-import TopFlightDestinationCard from "../_components/TopFlightDestinationCard/page";
+
+const settings = {
+    infinite: true,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    arrows: true,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+        {
+            breakpoint: 980,
+            settings: {
+                slidesToShow: 2,
+                slidesToScroll: 1,
+                arrows: false,
+                dots: true,
+            },
+        },
+        {
+            breakpoint: 767,
+            settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: false,
+                dots: true,
+            },
+        },
+    ],
+};
 
 
-const HomePage = () => {
-    const secondSetting = {
-        infinite: true,
-        slidesToShow: 3,
-        slidesToScroll: 1,
-        arrows: true,
-        autoplay: true,
-        autoplaySpeed: 3000,
-        responsive: [
-            {
-                breakpoint: 980,
-                settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 1,
-                    arrows: false,
-                    dots: true,
-                },
-            },
-            {
-                breakpoint: 767,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                    arrows: false,
-                    dots: true,
-                },
-            },
-        ],
-    };
-    const settings = {
-        infinite: true,
-        slidesToShow: 3,
-        slidesToScroll: 1,
-        arrows: true,
-        autoplay: true,
-        autoplaySpeed: 3000,
-        responsive: [
-            {
-                breakpoint: 980,
-                settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 1,
-                    arrows: false,
-                    dots: true,
-                },
-            },
-            {
-                breakpoint: 767,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                    arrows: false,
-                    dots: true,
-                },
-            },
-        ],
-    };
+const DestinationPage = () => {
+    const params = useParams();
 
+
+    const searchParams = useSearchParams();
+    const name = searchParams.get("name");
+
+    console.log(params, "current params");
 
     return (
         <>
@@ -151,7 +132,7 @@ const HomePage = () => {
                                     textShadow: "0px 0px 3px black"
                                 }}
                             >
-                                Cheap Air Tickets & Airline Reservations Online
+                                {name ? `Flights to ${name}` : "Cheap Air Tickets & Airline Reservations Online"}
                             </h1>
                             <span
                                 style={{
@@ -203,7 +184,7 @@ const HomePage = () => {
                             </div>
                             <div class="common_searchCntr">
                                 <section id="flightEngineId">
-                                    <FlightSearch />
+                                    <FlightSearch selectedDes={params.destination !== "" ? params.destination : ""} />
                                 </section>
 
                                 <section id="carEngineId" style={{ display: "none" }}>
@@ -2056,6 +2037,7 @@ const HomePage = () => {
             </div>
         </>
     );
-};
+}
 
-export default HomePage;
+
+export default DestinationPage;         

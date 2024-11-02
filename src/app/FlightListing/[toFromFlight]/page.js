@@ -17,10 +17,6 @@ import airportsDB from "../../../../lib/airports.json";
 
 
 const FlightListing = () => {
-
-    // added comment
-    //comment 2
-
     const params = useParams();
     const searchRef = useRef(null);
     const [FlightList, setFlightList] = useState([]);
