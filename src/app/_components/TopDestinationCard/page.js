@@ -10,7 +10,7 @@ const TopDestinationCard = ({ destination }) => {
       className="block" 
       href={`/flights-to/${sanitizedDestinationName}?name=${encodeURIComponent(destination.name)}&iataCode=${destination.iataCode}`}
     >
-      <img src="/assets/images/home/lax.jpg" alt={destination.name} />
+      <img src={destination.image} alt={destination.name} />
       <figcaption className="destination__title">
         {destination.name} <i className="fa fa-long-arrow-right" />
       </figcaption>

@@ -1483,8 +1483,8 @@ const DestinationPage = () => {
                                     <div class="top__dealbox">
                                         <ul>
 
-                                            {TopFlightDestinationArr && TopFlightDestinationArr.map(des => {
-                                                return <TopFlightDestinationCard key={des.iataCode} destination={des} />
+                                            {TopFlightDestinationArr && TopFlightDestinationArr.flat().map((des, index) => {
+                                                return <TopFlightDestinationCard key={index} destination={des} />;
                                             })}
                                         </ul>
                                     </div>

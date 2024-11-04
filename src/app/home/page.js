@@ -1500,12 +1500,14 @@ const HomePage = () => {
                                 <div class="leftCol">
                                     {/* top flight destination */}
                                     <div class="top__dealbox">
-                                        <ul>
 
-                                            {TopFlightDestinationArr && TopFlightDestinationArr.map(des => {
-                                                return <TopFlightDestinationCard key={des.iataCode} destination={des} />
+                                        <ul>
+                                            {TopFlightDestinationArr && TopFlightDestinationArr.flat().map((des, index) => {
+                                                return <TopFlightDestinationCard key={index} destination={des} />;
                                             })}
                                         </ul>
+
+
                                     </div>
                                     <div class="dealbox__note">
                                         <b>Note:</b> All fares are quoted in USD. Last updated on{" "}

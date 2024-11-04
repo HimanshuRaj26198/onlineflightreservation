@@ -10,20 +10,18 @@ const FlightSearch = ({ airline, selectedDes }) => {
 
     const router = useRouter();
 
-    // console.log(selectedDes,"Selected Dest");
-
+    console.log(selectedDes, "Selected Dest");
+    console.log(airline, "airlines");
 
     const [tripType, setTripType] = useState("One-Way");
     const [token, setToken] = useState("");
 
     const [depDate, setDepDate] = useState(new Date());
     const [returnD, setReturnD] = useState(new Date());
-
     const [destination, setDestination] = useState("");
     const [origin, setOrigin] = useState("");
-
     const [originAirportList, setOriginAirportList] = useState([]);
-    const [originInputValue, setOriginInputValue] = useState(null);
+    const [originInputValue, setOriginInputValue] = useState("");
     const [desAirportList, setDesAirportList] = useState([]);
     const [desInputValue, setDesInputValue] = useState("");
     const [travellerDetail, setTravellerDetail] = useState({ adultCount: 1, childrenCount: 0, infanctCount: 0, cabinType: "ECONOMY" });
@@ -34,7 +32,6 @@ const FlightSearch = ({ airline, selectedDes }) => {
     const [cabinType, setCabinType] = useState("ECONOMY");
 
     const [showPax, setShowPax] = useState(false);
-
     const paxRef = useRef(null);
 
     const handleSearchFlights = (e) => {
@@ -48,9 +45,32 @@ const FlightSearch = ({ airline, selectedDes }) => {
         } else if (tripType === "Round-Trip" && !returnD) {
             toast.error("Select a return date");
         } else {
-            router.push(`/home/flights/flight?origin=${origin.value}&destination=${destination.value}&depDate=${depDate.toISOString().substring(0, 10)}&returnD=${returnD && returnD.toISOString(0, 10)}&adult=${travellerDetail.adultCount}&child=${travellerDetail.childrenCount}&infant=${travellerDetail.infanctCount}&cabin=${travellerDetail.cabinType}&airline=${airline || "all"}&tk=${token}`);
+            router.push(`/home/flights/flight?origin=${origin.value}&destination=${destination.value}&depDate=${depDate && depDate.toISOString().substring(0, 10)}&returnD=${returnD && returnD.toISOString(0, 10).substring(0, 10)}&adult=${travellerDetail.adultCount}&child=${travellerDetail.childrenCount}&infant=${travellerDetail.infanctCount}&cabin=${travellerDetail.cabinType}&tripType=${tripType.toString()}&airline=${airline || "all"}&tk=${token}`);
+
         }
     };
+
+    // For Swap the flight 
+    const swapDepRet = () => {
+        const tempOrigin = origin;
+
+        setOrigin(destination);
+        setDestination(tempOrigin);
+
+        setOriginInputValue(destination.label);
+        setDesInputValue(tempOrigin.label);
+    };
+
+    const clearOriginLocation = () => {
+        setOrigin(null); // Clear the selected option
+        setOriginInputValue(''); // Optionally clear the input field as well
+    };
+
+    const clearDestinationLocation = () => {
+        setDestination(null); // Clear the selected option
+        setDesInputValue(''); // Optionally clear the input field as well
+    };
+
 
     const handleApplyFilter = (e) => {
         e.preventDefault();
@@ -64,7 +84,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
     }
 
     const handleCabinTypeChange = (event) => {
-        setCabinType(event.target.value); // Update state with the selected value
+        setCabinType(event.target.value); 
     };
 
     const handleDepartureChange = (selectedDates) => {
@@ -78,12 +98,11 @@ const FlightSearch = ({ airline, selectedDes }) => {
     // for nearest location
     const fetchNearestAirports = async () => {
         try {
-            // Get user's current location using Geolocation API
+
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
 
-                // Call the Amadeus API to get nearest airports based on current latitude and longitude
-                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=100&page%5Blimit%5D=10&sort=analytics.travelers.score`, {
+                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=100&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=relevance`, {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
@@ -92,9 +111,9 @@ const FlightSearch = ({ airline, selectedDes }) => {
 
                 let result = await response.json();
 
-                // Map the response to label and value format
+
                 if (Array.isArray(result.data)) {
-                    // Map the response to label and value format
+
                     let options = result.data.map(a => ({
                         label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
                         value: a.iataCode
@@ -104,8 +123,8 @@ const FlightSearch = ({ airline, selectedDes }) => {
                     setOriginAirportList(options);
 
                     if (options.length > 0) {
-                        setOriginInputValue(options[0].label); // Set the first airport as the default value
-                        setOrigin(options[0].label);
+                        setOriginInputValue(options[0].label);
+                        setOrigin(options[0]);
                     }
                 }
             },
@@ -162,14 +181,13 @@ const FlightSearch = ({ airline, selectedDes }) => {
 
                 if (options.length > 0) {
                     setDesInputValue(options[0].label);
-                    setDestination(options[0].label);
+                    setDestination(options[0]);
                 }
             }
         } catch (err) {
             console.log(err);
         }
     };
-
 
     useEffect(() => {
         handleLocationFromImage(selectedDes);
@@ -196,6 +214,10 @@ const FlightSearch = ({ airline, selectedDes }) => {
         filterDesAirportValue(newValue);
     };
 
+    const handleDestinarionChange = (selected) => {
+        setDestination(selected)
+    }
+
     const handleInputChange = (newValue) => {
         setOriginInputValue(newValue);
         filterSourceAirportValue(newValue);
@@ -204,10 +226,6 @@ const FlightSearch = ({ airline, selectedDes }) => {
     const handleOriginChange = (selected) => {
         setOrigin(selected);
         setOriginInputValue(selected);
-    }
-
-    const handleDestinarionChange = (selected) => {
-        setDestination(selected)
     }
 
     const fetchToken = async () => {
@@ -229,6 +247,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
             console.log(err);
         }
     }
+
     const handleTripTypeSelection = (type) => {
         if (type === "One-Way") {
             setTripType("One-Way");
@@ -318,8 +337,9 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                             className="textoverflow input_destination"
                                             options={originAirportList}
                                             placeholder="Leaving from"
-                                            onInputChange={handleInputChange}
+                                            value={origin}
                                             inputValue={originInputValue}
+                                            onInputChange={handleInputChange}
                                             onChange={handleOriginChange}
                                         />
                                         <span
@@ -327,19 +347,19 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                             data-valmsg-for="origin"
                                             data-valmsg-replace="true"
                                         ></span>
-                                        <i
+                                        {/* <i
                                             className="clear_field"
                                             id="clrOrigin"
-                                            style={{ display: "none" }}
-                                            onclick="clrlocation('o');"
-                                        ></i>
+                                            style={{ display: origin ? "block" : "none" }}
+                                            onClick={clearOriginLocation}
+                                        ></i> */}
                                     </div>
                                 </div>
                                 <span id="sameSearch" className="error-txt"></span>
                                 <span
                                     className="swap_button"
                                     style={{ cursor: "pointer" }}
-                                    onclick="swapDepRet()"
+                                    onClick={swapDepRet}
                                 >
                                     <i
                                         className="fa fa-exchange"
@@ -370,12 +390,12 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                             data-valmsg-for="destination"
                                             data-valmsg-replace="true"
                                         ></span>
-                                        <i
-                                            className="clear_field destination"
-                                            id="clrDestination"
-                                            style={{ display: "none" }}
-                                            onclick="clrlocation('d');"
-                                        ></i>
+                                        {/* <i
+                                            className="clear_field"
+                                            id="clrOrigin"
+                                            style={{ display: origin ? "block" : "none" }}
+                                            onClick={clearDestinationLocation}
+                                        ></i> */}
                                     </div>
                                 </div>
                                 <span

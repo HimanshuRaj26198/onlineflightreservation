@@ -1,52 +1,482 @@
 "use client"
 import FlightOfferCard from '@/app/_components/FlightOffers/page';
-import FlightSearchWrapper from '@/app/_components/FlightSearchWrapper/page';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import React, { useState, useRef, useEffect } from "react";
-import ShortedFlightCard from '@/app/_components/ShorttestFlightCard/page';
-import AlternateFlightCard from '@/app/_components/AlternateFlightCard/page'
-import NearestFlightCard from '@/app/_components/NearestFlightCard/page'
-import AllFlight from '@/app/_components/AllResult/page'
-import FlightDataArr from '@/assets/Flight_Data_US.json'
 import FlightCard from '@/app/_components/FlightCard/page';
 import airlines from "../../../../lib/airlines.json";
 import airportsDB from "../../../../lib/airports.json";
-
-
-
+import FlightSearch from '@/app/_components/FlightSearch/page';
+import FlightDetail from "@/app/_components/FlightDetail/page";
+import { motion } from 'framer-motion';
+import Loading from "@/app/loading";
+import OfferPopup from "@/app/_components/OfferPopup/page";
+import { useRouter } from "next/navigation";
+import Slider, { Range } from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 
 const FlightListing = () => {
 
+    const timeFilters = [
+        { label: "Early Morning", timeRange: "Before 6am", iconSrc: "/assets/images/listing/em.png", value: "Before 6am" },
+        { label: "Morning", timeRange: "6am - 12pm", iconSrc: "/assets/images/listing/m.png", value: "6am - 12pm" },
+        { label: "Afternoon", timeRange: "12pm - 6pm", iconSrc: "/assets/images/listing/a.png", value: "12pm - 6pm" },
+        { label: "Evening", timeRange: "After 6pm", iconSrc: "/assets/images/listing/e.png", value: "After 6pm" },
+    ];
+
     // added comment
 
-    const params = useParams();
-    const searchRef = useRef(null);
-    const [FlightList, setFlightList] = useState([]);
-    // const iataCode = params.get('iataCode');
+    const searchParams = useSearchParams();
+    const name = searchParams.get("name");
+    const name1 = searchParams.get("name1");
+    const dateRange = searchParams.get("dateRange");
 
+    const router = useRouter();
+
+    const searchRef = useRef(null);
+    const [flightList, setFlightLists] = useState([]);
+    const [selectedFlight, setSelectedFlight] = useState(null);
+    const [flightDetail, setFlightDetailVisible] = useState(false);
+    const [mobileFilterVisible, setMobileFilterVisible] = useState(false);
+    const [openedFilter, setOpenedFilter] = useState("Stops");
+    const [filtersObj, setFiltersObj] = useState({ stops: 0 });
+    const [offerPopupVisible, setOfferPopupVisible] = useState(false);
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [maxHeight, setMaxHeight] = useState("0px");
     const [activeTab, setActiveTab] = useState('all');
+    const [uniqueAirlines, setUniqueAirlines] = useState([]);
+    const searchParam = useSearchParams();
 
 
-    useEffect(()=>{
-        let newFlightList = FlightDataArr.map(a => {
-            a.stops = a.itineraries[0].segments.length - 1;
-            console.log("Flight Data Single", a);
+    const [activeFlight, setActiveFlight] = useState(null);
+    const [filteredFlights, setFilteredFlights] = useState([]);
+    const [stopFilter, setStopFilter] = useState(null)
+    const [selectedTimeFilter, setSelectedTimeFilter] = useState("");
+    const [showMoreAirlines, setShowMoreAirlines] = useState(false);
+    const [appliedFilters, setAppliedFilters] = useState([]);
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
+    const [selectedAirports, setSelectedAirports] = useState([]);
+    const [airlinesDetails, setAirlineDetails] = useState([])
+    const [selectedStop, setSelectedStop] = useState(null);
+    const [selectedAirlines, setSelectedAirlines] = useState([]);
+
+
+    const stopOptions = flightList.flatMap(flight => {
+        const stops = flight.itineraries[0].segments.length - 1;
+        const grandTotal = flight.price.grandTotal;
+
+        return [
+            { label: "Non Stop", value: 0, price: grandTotal, flight },
+            { label: "1 Stop", value: 1, price: grandTotal, flight },
+            { label: "2 Stops", value: 2, price: grandTotal, flight }
+        ].filter(option => option.value <= stops);
+    });
+
+    // Group by stop type and find minimum price
+    const minPriceStops = stopOptions.reduce((acc, option) => {
+
+        if (option.value >= 0 && option.value <= 2) {
+            if (!acc[option.value] || option.price < acc[option.value].price) {
+                acc[option.value] = {
+                    label: option.label,
+                    value: option.value,
+                    price: option.price,
+                    flight: option.flight
+                };
+            }
+        }
+        return acc;
+    }, {});
+
+    
+    // Convert back to an array
+    const availableStops = Object.values(minPriceStops);
+    
+    console.log(availableStops,"MINIMUM PRICES");
+
+    // FILTERING THE FLIGHT
+    useEffect(() => {
+        // console.log("coming here");
+        // console.log({ activeFlight });
+
+        // Filtering the flight based on flight name
+        let tmpData = flightList;
+        if (activeFlight !== null) {
+            tmpData = flightList.filter((obj) => {
+                return obj.validatingAirlineCodes[0] === activeFlight.airlineCode;
+            });
+
+            setAppliedFilters(prev => {
+                const existingFilter = prev.find(filter => filter.type === 'Airline');
+                if (existingFilter) {
+                    return prev.map(filter =>
+                        filter.type === 'Airline' ? { ...filter, value: activeFlight.airlineName } : filter
+                    );
+                }
+                return [...prev, { type: 'Airline', value: activeFlight.airlineName }];
+            });
+            // console.log(tmpData);
+        }
+
+        // Filtering the flight based on stoping 
+
+        if (stopFilter === 'Non Stop') {
+            tmpData = tmpData.filter(flight =>
+                flight.itineraries.every(itinerary => itinerary.segments.length === 1)
+            );
+            setAppliedFilters(prev =>
+                prev.filter(filter => filter.type !== 'Stop').concat({ type: 'Stop', value: 'Non-Stop' })
+            );
+        } else if (stopFilter === '1 Stop') {
+            tmpData = tmpData.filter(flight =>
+                flight.itineraries.some(itinerary => itinerary.segments.length === 2)
+            );
+            setAppliedFilters(prev =>
+                prev.filter(filter => filter.type !== 'Stop').concat({ type: 'Stop', value: 'One-Stop' })
+            );
+        } else if (stopFilter === '2 Stops') {
+            tmpData = tmpData.filter(flight =>
+                flight.itineraries.some(itinerary => itinerary.segments.length > 2)
+            );
+            setAppliedFilters(prev =>
+                prev.filter(filter => filter.type !== 'Stop').concat({ type: 'Stop', value: 'Two or More Stops' })
+            );
+        }
+
+        setFilteredFlights(tmpData);
+
+    }, [activeFlight, flightList, stopFilter])
+
+
+    const handleStopFilter = (type) => {
+        const selectedOption = availableStops.find(option => option.label === type);
+        setSelectedStop(selectedOption);
+        setStopFilter(type);
+    };
+
+    // Filtering the flight based on airport
+    const handleCheckboxChanges = (airportCode) => {
+        setSelectedAirports((prev) => {
+            if (prev.includes(airportCode)) {
+                // Remove airport if it's already selected
+                const newSelected = prev.filter(code => code !== airportCode);
+                setAppliedFilters((filters) => filters.filter(filter => filter.value !== airportCode));
+                return newSelected;
+            } else {
+                // Add airport if it's not selected
+                const newSelected = [...prev, airportCode];
+                setAppliedFilters((filters) => [...filters, { type: 'Airport', value: airportCode }]);
+                return newSelected;
+            }
+        });
+    };
+
+    // Filtering the flight based on Time Zone
+
+    useEffect(() => {
+        if (flightList && flightList.length > 0) {
+            // Filter flights based on selected time filter
+            const filtered = flightList.filter(flight => {
+                const departureTime = new Date(flight.itineraries[0].segments[0].departure.at).getHours();
+
+                switch (selectedTimeFilter) {
+                    case 'Before 6am': // Early Morning: Before 6am
+                        return departureTime < 6;
+                    case '6am - 12pm': // Morning: 6am - 12pm
+                        return departureTime >= 6 && departureTime < 12;
+                    case '12pm - 6pm': // Afternoon: 12pm - 6pm
+                        return departureTime >= 12 && departureTime < 18;
+                    case 'After 6pm': // Evening: After 6pm
+                        return departureTime >= 18;
+                    default:
+                        return true; // No filter, show all flights
+                }
+            });
+
+            // Update filters, replacing the previous time filter if it exists
+            setAppliedFilters(prev =>
+                prev.filter(filter => filter.type !== 'departureTime').concat({ type: 'departureTime', value: selectedTimeFilter })
+            );
+
+            setFilteredFlights(filtered);
+        }
+    }, [flightList, selectedTimeFilter]);
+
+
+    const handleFilterClick = (filter) => {
+        setSelectedTimeFilter(filter);
+    };
+
+    const handleCheckboxChange = (flight) => {
+        const { airlineCode } = flight;
+
+        setSelectedAirlines((prevSelected) => {
+            if (prevSelected.includes(airlineCode)) {
+                // If already selected, remove it
+                return prevSelected.filter(code => code !== airlineCode);
+            } else {
+                // If not selected, add it
+                return [...prevSelected, airlineCode];
+            }
+        });
+        setActiveFlight(prev => (prev && prev.airlineCode === airlineCode) ? null : flight);
+    };
+
+    const variants = {
+        hidden: { x: '100%', opacity: 0 },
+        visible: { x: 0, opacity: 1, transition: { ease: "easeOut", duration: 0.5 } },
+        exit: { x: '100%', opacity: 0, transition: { ease: "easeIn", duration: 0.5 } }
+    };
+
+    const hideOfferPopup = () => {
+        setOfferPopupVisible(false);
+    }
+
+    useEffect(() => {
+        console.log(filtersObj);
+    }, filtersObj);
+
+
+    //Function for Extract the data
+    const processFlightData = (json) => {
+        let flightDetails = [];
+        const uniqueAirlines = new Set();
+
+        json.data.forEach(a => {
+            a.stops = a.itineraries[0].segments.length - 1; // Calculate stops
+
+            // Process each itinerary and segment
             a.itineraries.forEach(b => {
                 b.segments.forEach(segment => {
                     segment.airline = airlines[segment.carrierCode];
                     segment.arrival.airport = airportsDB[segment.arrival.iataCode];
                     segment.departure.airport = airportsDB[segment.departure.iataCode];
-                    // Append the cabin class to the segment
+
+                    // Append cabin class to the segment
                     const cabin = a.travelerPricings[0].fareDetailsBySegment.find(fare => fare.segmentId === segment.id)?.cabin;
                     if (cabin) segment.cabin = cabin;
                 });
             });
-            return a;
+
+            // Create a new object to store combined details
+            const flightDetail = {
+                price: a.price.grandTotal,
+                airlineCode: a.validatingAirlineCodes[0],
+                isNonStop: a.stops === 0,
+                isOnePlusStop: a.stops > 0,
+                airlineName: a.itineraries[0].segments[0].airline.name,
+                airlineLogo: a.itineraries[0].segments[0].airline.logo,
+                departureAirportName: a.itineraries[0].segments[0].departure.airport.name,
+                departureAirportIata: a.itineraries[0].segments[0].departure.iataCode,
+                arrivalAirportName: a.itineraries[0].segments[0].arrival.airport.name,
+                arrivalAirportIata: a.itineraries[0].segments[0].arrival.iataCode,
+                duration: a.itineraries[0].duration,
+            };
+
+            if (!uniqueAirlines.has(flightDetail.airlineCode)) {
+                uniqueAirlines.add(flightDetail.airlineCode);
+                flightDetails.push(flightDetail);
+            }
         });
-        setFlightList(newFlightList)
+
+
+        console.log(flightDetails, "Processed Flight Details");
+        setAirlineDetails(flightDetails)
+
+        return flightDetails;
+    };
+
+    useEffect(() => {
+        const fetchFlightOffers = async () => {
+            let travellersArr = [];
+            if (searchParam.get("adult")) {
+                for (let x = 0; x < parseInt(searchParam.get("adult")); x++) {
+                    travellersArr.push({ id: travellersArr.length + 1, travelerType: "ADULT" })
+                }
+            }
+
+            if (searchParam.get("child")) {
+                for (let x = 0; x < parseInt(searchParam.get("child")); x++) {
+                    travellersArr.push({ id: travellersArr.length + 1, travelerType: "CHILD" })
+                }
+            }
+
+            if (searchParam.get("infant")) {
+                for (let x = 0; x < parseInt(searchParam.get("infant")); x++) {
+                    travellersArr.push({ id: travellersArr.length + 1, travelerType: "SEATED_INFANT" })
+                }
+            }
+
+            console.log(searchParam.get("returnD"));
+            console.log(searchParam.get("depDate"));
+
+
+            let cabinRestrictionObj = {};
+            if (searchParam.get("airline") !== "all") {
+                cabinRestrictionObj = {
+                    "includedCarrierCodes": [searchParam.get("airline")]
+                }
+            }
+
+
+            let query = {
+                "currencyCode": "USD",
+                "originDestinations": [
+                    {
+                        "id": "1",
+                        "originLocationCode": searchParam.get("origin"),
+                        "destinationLocationCode": searchParam.get("destination"),
+                        "departureDateTimeRange": {
+                            "date": searchParam.get("depDate")
+                        }
+                    }
+                ],
+                "travelers": travellersArr,
+                "sources": [
+                    "GDS"
+                ],
+                "searchCriteria": {
+                    "maxFlightOffers": 50,
+                    "flightFilters": {
+                        "cabinRestrictions": [
+                            {
+                                "cabin": searchParam.get("cabin"),
+                                "originDestinationIds": [
+                                    "1"
+                                ]
+                            }
+                        ],
+                        "carrierRestrictions": cabinRestrictionObj
+
+                    },
+
+                }
+            };
+
+            // let query1 = {
+            //     "currencyCode": "USD",
+            //     "originDestinations": [
+            //         {
+            //             "id": "1",
+            //             "originLocationCode": searchParam.get("origin"),
+            //             "destinationLocationCode": searchParam.get("destination"),
+            //             "departureDateTimeRange": {
+            //                 "date": searchParam.get("depDate")
+            //             }
+            //         },
+            //         {
+            //             "id": "2",
+            //             "originLocationCode": searchParam.get("destination"),
+            //             "destinationLocationCode": searchParam.get("origin"),
+            //             "departureDateTimeRange": {
+            //                 "date": searchParam.get("returnD")
+            //             }
+            //         }
+            //     ],
+            //     "travelers": travellersArr,
+            //     "sources": [
+            //         "GDS"
+            //     ],
+            //     "searchCriteria": {
+            //         "maxFlightOffers": 50,
+            //         "flightFilters": {
+            //             "cabinRestrictions": [
+            //                 {
+            //                     "cabin": searchParam.get("cabin"),
+            //                     "originDestinationIds": [
+            //                         "1", "2"
+            //                     ]
+            //                 }
+            //             ],
+            //             "carrierRestrictions": cabinRestrictionObj
+
+            //         },
+
+            //     }
+            // };
+
+
+            try {
+                const response = await fetch("https://api.amadeus.com/v2/shopping/flight-offers", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${searchParam.get("token")}`
+                    },
+                    // body: oneway ? JSON.stringify(query) : JSON.stringify(query1)
+                    body: JSON.stringify(query)
+                });
+                const json = await response.json();
+                console.log(json, "JSON");
+                const FlightList = json.data.map(a => {
+                    a.stops = a.itineraries[0].segments.length - 1;
+                    a.itineraries.forEach(b => {
+                        b.segments.forEach(segment => {
+                            segment.airline = airlines[segment.carrierCode];
+                            segment.arrival.airport = airportsDB[segment.arrival.iataCode];
+                            segment.departure.airport = airportsDB[segment.departure.iataCode];
+                            // Append the cabin class to the segment
+                            const cabin = a.travelerPricings[0].fareDetailsBySegment.find(fare => fare.segmentId === segment.id)?.cabin;
+                            if (cabin) segment.cabin = cabin;
+                        });
+                    });
+                    return a;
+                });
+
+                // let newFlightList;
+
+                // if (!oneway) {
+                //     newFlightList = json.data.map(a => {
+                //         a.stops = a.itineraries[1].segments.length - 1;
+                //         a.itineraries.forEach(b => {
+                //             b.segments.forEach(segment => {
+                //                 segment.airline = airlines[segment.carrierCode];
+                //                 segment.arrival.airport = airportsDB[segment.arrival.iataCode];
+                //                 segment.departure.airport = airportsDB[segment.departure.iataCode];
+                //                 // Append the cabin class to the segment
+                //                 const cabin = a.travelerPricings[0].fareDetailsBySegment.find(fare => fare.segmentId === segment.id)?.cabin;
+                //                 if (cabin) segment.cabin = cabin;
+                //             });
+                //         });
+                //         console.log(newFlightList, "NEWFLIGHTLIST");
+
+                //         return a;
+                //     });
+                // }
+
+                // if (!oneway) {
+                //     setFlightLists(FlightList);
+                // } else {
+                //     const twoway = [...(FlightList || []), ...(newFlightList || [])]
+                //     console.log(twoway, "TWOWAY");
+
+                //     setFlightLists(twoway);
+                // }
+
+
+                // function call data based on json
+                const flightDetails = processFlightData(json);
+
+                setUniqueAirlines(flightDetails);
+
+                setFlightLists(FlightList);
+
+                if (FlightList.length <= 0) {
+                    router.push("/home/no-results");
+                } else {
+                    setFlightLists(FlightList);
+                    setLoading(false);
+                    let offerInterval = setInterval(() => {
+                        if (!offerPopupVisible) {
+                            setOfferPopupVisible(true);
+                        }
+                    }, 25000);
+                }
+            } catch (err) {
+                // router.push("/home/no-results");
+            }
+        }
+        fetchFlightOffers();
     }, [])
 
     const handleTabClick = (tabId) => {
@@ -66,384 +496,184 @@ const FlightListing = () => {
         }
     }, [isSearchVisible]);
 
+    // For Nearest Airports
+
+    const [nearbyAirports, setNearbyAirports] = useState([]);
+
+    useEffect(() => {
+        const fetchNearbyAirports = async () => {
+
+            if (flightList.length === 0) {
+                console.log("No flights available.");
+                return;
+            }
+
+            const arrivalSegment = flightList[0].itineraries[0].segments[0].arrival.airport;
+            const latitude = arrivalSegment.latitude;
+            const longitude = arrivalSegment.longitude;
+
+            console.log(latitude, "HEY Latitude");
+            console.log(longitude, "HEY Longitude");
+
+            try {
+                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=200&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=relevance`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${searchParam.get("tk")}`
+                    }
+                });
+
+                let result = await response.json();
+                console.log(result, "FINAL");
+
+                if (Array.isArray(result.data)) {
+                    // Merge nearby airports with matching flight data
+                    const mergedAirports = result.data.map(airport => {
+                        // Find any matching flight that arrives at this airport
+                        const matchingFlights = flightList.filter(flight =>
+                            flight.itineraries[0].segments.some(segment =>
+                                segment.arrival.airport.iata === airport.iata
+                            )
+                        );
+
+                        return {
+                            ...airport,
+                            matchingFlights // Attach matching flights to each airport
+                        };
+                    });
+
+                    setNearbyAirports(mergedAirports);
+                } else {
+                    console.error('Unexpected API response:', result);
+                    setNearbyAirports([]);
+                }
+
+            } catch (error) {
+                console.error('Error fetching nearby airports:', error);
+                setNearbyAirports([]);
+            }
+        };
+        fetchNearbyAirports();
+    }, [flightList]);
+
+    // Shortest Flight Filtering
+
+    const getShortestFlights = () => {
+        return [...flightList]
+            .sort((a, b) => {
+                return a.itineraries[0].segments.length - b.itineraries[0].segments.length;
+            })
+            .slice(0, 10);
+    }
+
+    const [grandTotal, setGrandTotal] = useState("");
+    const [nearTotal, setNearTotal] = useState("");
+    const [shortestTotal, setShortestTotal] = useState("");
+
+    useEffect(() => {
+
+        const shortestFlights = getShortestFlights();
+
+        const allPrices = Array.isArray(flightList) ? flightList.map(flight => flight.price) : [];
+        const nearbyPrices = Array.isArray(nearbyAirports) ? nearbyAirports.map(flight => flight.price) : [];
+        const shortestPrices = Array.isArray(shortestFlights) ? shortestFlights.map(flight => flight.price) : [];
+
+        console.log(allPrices, "ALL PRICES");
+        console.log(nearbyPrices, "NEARBY");
+        console.log(shortestPrices, "SHORTEST");
+
+
+        if (allPrices.length > 0 || nearbyPrices.length > 0 || shortestPrices.length > 0) {
+            setGrandTotal(allPrices[0]?.grandTotal);
+            setNearTotal(nearbyPrices[0]?.grandTotal);
+            setShortestTotal(shortestPrices[0]?.grandTotal);
+
+            console.log(allPrices[0]?.grandTotal, "MINIMUM-ALL");
+        } else {
+            console.log("allPrices is empty or not defined");
+        }
+
+    }, [flightList, nearbyAirports]);
+
+    // For Price Range Filtering
+
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(1000);
+
+    useEffect(() => {
+        if (flightList.length > 0) {
+            const prices = flightList.map(flight => parseFloat(flight.price.grandTotal));
+            const calculatedMinPrice = Math.min(...prices);
+            const calculatedMaxPrice = Math.max(...prices);
+            setMinPrice(calculatedMinPrice);
+            setMaxPrice(calculatedMaxPrice);
+            setPriceRange({ min: calculatedMinPrice, max: calculatedMaxPrice });
+            setFilteredFlights(flightList);
+        }
+    }, [flightList]);
+
+    const handlePriceChange = (newRange) => {
+        setPriceRange({ min: newRange[0], max: newRange[1] });
+
+        const filtered = flightList.filter(flight => {
+            const flightPrice = parseFloat(flight.price.grandTotal);
+            return flightPrice >= newRange[0] && flightPrice <= newRange[1];
+        });
+
+        // setAppliedFilters(prev =>
+        //     prev.filter(filter => filter.type !== 'price').concat({ type: 'Price range', value: priceRange })
+        // );
+
+        setFilteredFlights(filtered);
+    };
+
+    const resetFilters = () => {
+        setPriceRange({ min: minPrice, max: maxPrice });
+        setFilteredFlights(flightList);
+    };
+
     return (
         <>
-            <noscript>
+            {!offerPopupVisible && flightList && <div onClick={() => setOfferPopupVisible(true)} className="count-top-icon pointer uc-minimize-strip" id="reopen_ucb" bis_skin_checked="1">
+                <div className="strip-content ng-binding" bis_skin_checked="1">
+                    <img src="/assets/images/uc/mob-call.gif" />
+                    <img className="tel-icon" src="/assets/images/uc/telephone-call.svg" />
+                    $  {flightList[0] && flightList[0].travelerPricings[0].price.total - 4}
+                    {/* <span className="Timer">00:14:16</span> */}
+                </div>
+            </div>}
+            {offerPopupVisible && <OfferPopup hideOfferPopup={hideOfferPopup} flight={flightList[0]} />}
+            {/* {loading && <Loading />} */}
+            {flightDetail && <motion.div
+                id="_flight-details"
+                class="flight-details collapse"
+                style={{ display: "block", height: "100% !important", position: "fixed", right: 0, top: 0 }}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={variants}
+                bis_skin_checked="1">
+                <div bis_skin_checked="1">
+                    {/* <!-- Nav tabs --> */}
+                    <div class="leg-top-fix" bis_skin_checked="1">
+                        <div class="detail-head" bis_skin_checked="1">
+                            <a class="close-btn" onClick={() => setFlightDetailVisible(false)} ><img src="/assets/images/uc/cancel.svg" alt=" /" /></a>
+                        </div>
+                        <ul class="flight-leg-tab" role="tablist">
+                            <li role="presentation" class="active deptab"><a href="#" onclick="flightdetailAction(0)" aria-controls="Departure" role="tab" data-toggle="tab"><i class="fa fa-plane" style={{ transform: "rotate(45deg)" }}></i> Departure</a></li>
+                            {/* <!--<li role="presentation" class="pricetab"><a href="#" onclick="flightdetailAction(2)" aria-controls="price" role="tab" data-toggle="tab"><i class="fa fa-file-text" aria-hidden="true"></i> Fare Breakup</a></li>--> */}
+                        </ul>
+                    </div>
+                    <FlightDetail selectedFlight={selectedFlight && selectedFlight} travellerDetails={{ adults: searchParam.get("adult"), child: searchParam.get("child"), infant: searchParam.get("infant"), cabin: searchParam.get("cabin") }} />
+                </div>
+            </motion.div>}
+
+            {/* <noscript>
                 &lt;iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5L5GNW3"
                 height="0" width="0"
                 style="display:none;visibility:hidden"&gt;&lt;/iframe&gt;
-            </noscript>
-            <header>
-                {/* <div className="header-call-strip">
-                    <a id="hdr_contactNo" href="tel:+1-248-274-7239">
-                        <img
-                            src="/us/images/uc/animation-call-white-icon.gif"
-                            width={22}
-                            height={22}
-                        />{" "}
-                        Call Now:
-                        <span id="hdr_span">+1-248-274-7239</span>
-                    </a>
-                </div> */}
-                {/* <header className="navigation_block ">
-                    <nav className="navbar-default navbar-static-top menuBox">
-                        <div className="container">
-                            <div className="navbar-header">
-                                <a
-                                    href="javascript:$zopim.livechat.window.show();"
-                                    className="chat-iconss visible-xs"
-                                    style={{
-                                        position: "absolute",
-                                        right: 78,
-                                        top: "-1px",
-                                        fontSize: 27,
-                                        fontWeight: 700,
-                                        color: "#ff7f00"
-                                    }}
-                                >
-                                    <i className="fa fa-commenting" aria-hidden="true" />
-                                </a>
-                                <button type="button" className="navbar-toggle">
-                                    <span className="sr-only">Toggle navigation</span>
-                                    <span className="icon-bar" />
-                                    <span className="icon-bar" />
-                                    <span className="icon-bar" />
-                                </button>
-                                <a className="navbar-brand" href="/us/">
-                                    <img
-                                        src="/us/images/logo.png"
-                                        alt="https://www.lookbyfare.com/us"
-                                    />
-                                </a>
-                            </div>
-                            <div id="navbar" className="navbar-collapse main_navigation">
-                                <a href="" className="mobileMenuClose">
-                                    X
-                                </a>
-                                <div className="pull-right phone-number">
-                                    <div className="call_27">Call 24/7 for our best deals</div>
-                                    <a
-                                        className="phoneNumber"
-                                        id="nav_contactNo"
-                                        href="tel:+1-248-274-7239"
-                                        onclick="activityTracker($('#nav_contactNo').text(), $('#userSearchId') == undefined ? null : $('#userSearchId').val(), 'n');"
-                                    >
-                                        <img
-                                            src="/us/images/uc/newcall.gif?1222"
-                                            className="call-icon"
-                                        />
-                                        +1-248-274-7239
-                                    </a>
-                                </div>
-                            </div>
-                            <ul className="profile_menu">
-                                <li>
-                                    <div className="topmenuBox">
-                                        <ul id="divlogin" style={{ display: "block" }}>
-                                            <li className="dropdown loginDropdown">
-                                                <a
-                                                    href="javascript:void(0);"
-                                                    onclick="showModalprofile('signIn')"
-                                                    className="login"
-                                                >
-                                                    &nbsp;<span className="hidden-xs">Sign in</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                        <ul id="divwelcome" style={{ display: "none" }}>
-                                            <li className="dropdown loginDropdown">
-                                                <a href="javascript:void(0);" className="login">
-                                                    <span
-                                                        id="displayusername_mob"
-                                                        className="visible-xs short_name"
-                                                    >
-                                                        S
-                                                    </span>
-                                                    <span className="displayusername hidden-xs" />
-                                                    &nbsp;
-                                                    <span className="fa fa-angle-down support-icon hidden-xs" />
-                                                </a>
-                                                <ul className="loginMenu">
-                                                    <li className="visible-xs mobileusername">
-                                                        <div className="welcomename-mobile">
-                                                            <span className="displayusername" />
-                                                        </div>
-                                                    </li>
-                                                    <li>
-                                                        <a onclick="logout();" className="signout">
-                                                            Sign Out
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-                    <div className="submenuLsit">
-                        <div className="holder">
-                            <div className="block">
-                                <h4>Special Deals</h4>
-                                <ul>
-                                    <li>
-                                        <a href="/us/deals/deals-under-99">Deals Under $99</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/deals-under-199">Deals Under $199</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/cheap-domestic-flights">
-                                            Cheap Domestic Flights
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/international-flights-deals">
-                                            International Flight Deals
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/military-flight-deals">
-                                            Military Flight Deals
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/senior-travel-deals">Senior Travel Deals</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/cheap-flights-for-students">
-                                            Cheap Flights For Students
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/business-class-flight-deals">
-                                            Business Class Flight Deals
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/first-class-deals">First Class Deals</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/solo-travel-deals">Solo Travel Deals</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/deals/group-travel-deals">Group Travel Deals</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div className="block bg_gray">
-                                <h4>Domestic Flights</h4>
-                                <ul>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-atlanta-atl-usa">
-                                            Flights to Atlanta
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-charlotte-clt-usa">
-                                            Flights to Charlotte
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-chicago-chi-usa">
-                                            Flights to Chicago
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-dallas-dfw-usa">
-                                            Flights to Dallas
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-detroit-dtt-usa">
-                                            Flights to Detroit
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-houston-hou-usa">
-                                            Flights to Houston
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-miami-mia-usa">
-                                            Flights to Miami
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-newyork-nyc-usa">
-                                            Flights to New York
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-san-francisco-sfo-usa">
-                                            Flights to San Francisco
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-seattle-sea-usa">
-                                            Flights to Seattle
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-washington-was-usa">
-                                            Flights to Washington
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div className="block">
-                                <h4>International Flights</h4>
-                                <ul>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-london-lon-united-kingdom">
-                                            Flights to London
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-madrid-mad-spain">
-                                            Flights to Madrid
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-manila-mnl-philippines">
-                                            Flights to Manila
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-sydney-syd-australia">
-                                            Flights to Sydney
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-tel-aviv-tlv-israel">
-                                            Flights to Tel Aviv
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-dublin-dub-ireland">
-                                            Flights to Dublin
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-amsterdam-ams-netherlands">
-                                            Flights to Amsterdam
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-frankfurt-fra-germany">
-                                            Flights to Frankfurt
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/flights/cheap-flights-to-rome-rom-italy">
-                                            Flights to Rome
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div className="block bg_gray">
-                                <h4>US Airlines</h4>
-                                <ul>
-                                    <li>
-                                        <a href="/us/airlines/jetblue-flights-b6">JetBlue Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/united-airlines-ua">United Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/american-airlines-aa">
-                                            American Airlines
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/spirit-airlines-nk">Spirit Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/frontier-airlines-f9">
-                                            Frontier Airlines
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/alaska-airlines-as">Alaska Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/hawaiian-airlines-ha">
-                                            Hawaiian Airlines
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/sun-country-airlines-sy">
-                                            Sun Country Airlines
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/allegiant-air-flights-g4">
-                                            Allegiant Airlines
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div className="block">
-                                <h4>Foreign Airlines</h4>
-                                <ul>
-                                    <li>
-                                        <a href="/us/airlines/aeromexico-flights-am">
-                                            Aeromexico Airlines
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/volaris-airlines-y4">Volaris Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/caribbean-airlines-bw">
-                                            Caribbean Airlines
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/westjet-ws">Westjet Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/air-india-ai">Air India</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/emirates-flights-ek">Emirates Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/etihad-airways-ey">Etihad Airways</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/lufthansa-lh">Lufthansa</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/turkish-airlines-tk">Turkish Airlines</a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/all-nippon-airways-nh">
-                                            All Nippon Airways
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/cathay-pacific-flights-cx">
-                                            Cathay Pacific Airways
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/philippine-airlines-pr">
-                                            Philippine Airlines
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/us/airlines/british-airways-ba">British Airways</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </header> */}
-                <div className="mobile-overlay" style={{ display: "none" }} />
-            </header>
-            
+            </noscript> */}
+
             <div className="body-content">
                 <div
                     id="_flight-details"
@@ -468,15 +698,17 @@ const FlightListing = () => {
 
                                             {!isSearchVisible ? (
                                                 <div className="search_detail edit-listing-searchdetails hand">
+
+
                                                     <div className="col-sm-8">
-                                                        Oakland &nbsp;
+                                                        {name} &nbsp;
                                                         <b>
                                                             {" "}
                                                             <i className="fa fa-exchange" />{" "}
                                                         </b>
-                                                        &nbsp; Las Vegas
+                                                        &nbsp; {name1}
                                                         <br />
-                                                        Sat 19Oct <b>-</b> Tue 22Oct , 1 Traveler, Economy
+                                                        {dateRange} , 1 Traveler, Economy
                                                     </div>
                                                     <button
                                                         type="button"
@@ -501,7 +733,7 @@ const FlightListing = () => {
                                         overflow: "hidden",
                                         transition: "max-height 0.5s ease-in-out",
                                     }}>
-                                    < FlightSearchWrapper />
+                                    <FlightSearch />
                                 </div>
                             </div>
                         </div>
@@ -671,7 +903,7 @@ const FlightListing = () => {
                         </a>
                         <div className="row">
                             <div className="col-sm-12 col-md-3 col-xs-12">
-                                <div className="show-component-mobile">
+                                <div className={`show-component-mobile ${mobileFilterVisible && "open"}`}>
                                     <div className="filter-main-head">
                                         Filters
                                         <svg
@@ -680,6 +912,7 @@ const FlightListing = () => {
                                             fill="currentColor"
                                             className="bi bi-x close-sidebar"
                                             viewBox="0 0 16 16"
+                                            onClick={() => setMobileFilterVisible(false)}
                                         >
                                             <path
                                                 fillRule="evenodd"
@@ -688,21 +921,18 @@ const FlightListing = () => {
                                         </svg>
                                     </div>
                                     <ul className="filterTabs">
-                                        <li id="filterTabs_tab-1">
-                                            <a data-toggle="tab" href="#tab-1">
-                                                {" "}
+                                        <li id="filterTabs_tab-1" onClick={() => setOpenedFilter("Stops")} className={openedFilter === "Stops" && "active"}>
+                                            <a data-toggle="tab">
                                                 Stops
                                             </a>
                                         </li>
                                         <li id="filterTabs_tab-3">
                                             <a data-toggle="tab" href="#tab-3">
-                                                {" "}
                                                 Price
                                             </a>
                                         </li>
                                         <li id="filterTabs_tab-5">
                                             <a data-toggle="tab" href="#tab-5">
-                                                {" "}
                                                 Airlines
                                             </a>
                                         </li>
@@ -720,35 +950,48 @@ const FlightListing = () => {
                                     <div className="clearfix" />
                                     <div className="holder">
                                         <div className="filter-block">
+
                                             <div className="filter-item filter_top_info">
                                                 <h4>
                                                     <a
                                                         href="javascript:void(0);"
                                                         className="clear-all-filters pull-right hidden-xs"
-                                                        style={{ display: "none" }}
-                                                        onclick="Filter.resetAll()"
+                                                        style={{ display: "block" }}
+                                                        onClick={() => {
+                                                            setSelectedTimeFilter("");
+                                                            setStopFilter(null);
+                                                            setActiveFlight(null);
+                                                            setAppliedFilters([]);
+                                                            setSelectedStop(null)
+                                                            setPriceRange({ min: minPrice, max: maxPrice });
+                                                            setFilteredFlights(flightList);
+                                                            setSelectedAirlines([]);
+                                                        }}
                                                     >
-                                                        {" "}
                                                         Reset all
                                                     </a>
                                                     <i className="fa fa-filter" aria-hidden="true" /> Filter
                                                     your result
                                                 </h4>
                                                 <p className="result-found">
-                                                    <span id="totalResults">994</span> Results Found{" "}
+                                                    <span id="totalResults">{flightList.length}</span> Results Found{" "}
                                                 </p>
                                             </div>
+
                                             <div
                                                 id="tab-1"
-                                                className="filter-item tab-pane"
+                                                className={`filter-item tab-pane ${openedFilter === "Stops" && "active"}`}
                                                 style={{ clear: "both" }}
                                             >
                                                 <div className="head">
                                                     <a
                                                         href="javascript:void(0);"
-                                                        className="headstop"
-                                                        style={{ display: "none" }}
-                                                        onclick="Filter.restFilter('stops')"
+                                                        className="headairport"
+                                                        onClick={() => {
+                                                            setStopFilter(null);
+                                                            setAppliedFilters([]);
+                                                            setSelectedStop(null);
+                                                        }}
                                                     >
                                                         Reset
                                                     </a>
@@ -756,432 +999,176 @@ const FlightListing = () => {
                                                 </div>
                                                 <div className="filter-data">
                                                     <div className="inputSet stopset">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$93.97</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="stops"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                defaultValue={0}
-                                                            />{" "}
-                                                            <span>Non Stop</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet stopset">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$171.47</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="stops"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                defaultValue={1}
-                                                            />{" "}
-                                                            <span>1 Stop</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet stopset">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$236.97</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="stops"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                defaultValue={2}
-                                                            />{" "}
-                                                            <span>2 Stops</span>
-                                                        </label>
+                                                        {availableStops.map(option => (
+                                                            <label className="mode" key={option.value} onClick={() => handleStopFilter(option.label)}>
+                                                                <span className="filter-price">${option.price}</span>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedStop?.value === option.value}
+                                                                    readOnly
+                                                                />
+                                                                <span>{option.label}</span>
+                                                            </label>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <div id="tab-3" className="filter-item tab-pane">
                                                 <div className="head">
-                                                    <a
-                                                        href="javascript:void(0);"
-                                                        className="headprice"
-                                                        style={{ display: "none" }}
-                                                        onclick="Filter.restpricefilter('price')"
-                                                    >
+                                                    <a href="javascript:void(0);" className="headairport" onClick={resetFilters}>
                                                         Reset
                                                     </a>
                                                     Price Range
                                                 </div>
                                                 <div className="filter-data">
                                                     <p className="time-filter-data">
-                                                        <span className="slider-range2 pull-right">$ 831</span>
-                                                        <span className="slider-range">$ 93</span>
+                                                        <span className="slider-range2 pull-right">
+                                                            ${priceRange.max}
+                                                        </span>
+                                                        <span className="slider-range">
+                                                            ${priceRange.min}
+                                                        </span>
                                                     </p>
-                                                    <div className="price-slider-range ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content">
-                                                        <div
-                                                            className="ui-slider-range ui-corner-all ui-widget-header"
-                                                            style={{ left: "0%", width: "100%" }}
-                                                        />
-                                                        <span
-                                                            tabIndex={0}
-                                                            className="ui-slider-handle ui-corner-all ui-state-default"
-                                                            style={{ left: "0%" }}
-                                                        />
-                                                        <span
-                                                            tabIndex={0}
-                                                            className="ui-slider-handle ui-corner-all ui-state-default"
-                                                            style={{ left: "100%" }}
-                                                        />
-                                                    </div>
+                                                    <Slider
+                                                        range
+                                                        min={minPrice}
+                                                        max={maxPrice}
+                                                        value={[priceRange.min, priceRange.max]}
+                                                        onChange={handlePriceChange}
+                                                    />
                                                     <br />
                                                 </div>
                                             </div>
+
                                             <div id="tab-4" className="filter-item tab-pane">
                                                 <div className="head">
                                                     <a
                                                         href="javascript:void(0);"
-                                                        className="headdeptime"
-                                                        style={{ display: "none" }}
-                                                        onclick="Filter.restdepfilter('deptime')"
+                                                        className="headairport"
+                                                        onClick={() => {
+                                                            setSelectedTimeFilter("");
+                                                            setAppliedFilters([]);
+                                                        }}
                                                     >
                                                         Reset
                                                     </a>
-                                                    <i
-                                                        className="fa fa-plane"
-                                                        style={{ transform: "rotate(45deg)" }}
-                                                    />{" "}
-                                                    From Oakland
+                                                    <i className="fa fa-plane" style={{ transform: "rotate(45deg)" }} />{" "}
+                                                    From {searchParam.get("name")}
                                                 </div>
+
                                                 <div className="filter-data mb20">
                                                     <ul className="time_filter _deptimecontainer">
-                                                        <li className="deptimefilter" filtervalue="em">
-                                                            <img
-                                                                src="/us/images/listing/em.png"
-                                                                id="mgem"
-                                                                alt="early morning"
-                                                            />
-                                                            <strong>Early Morning</strong>
-                                                            <div className="time">Before 6am </div>
-                                                        </li>
-                                                        <li className="deptimefilter" filtervalue="m">
-                                                            <img
-                                                                src="/us/images/listing/m.png"
-                                                                id="mgm"
-                                                                alt="Morning"
-                                                            />
-                                                            <strong>Morning</strong>
-                                                            <div className="time">6am - 12pm</div>
-                                                        </li>
-                                                        <li className="deptimefilter" filtervalue="a">
-                                                            <img
-                                                                src="/us/images/listing/a.png"
-                                                                id="mga"
-                                                                alt="Afternoon"
-                                                            />
-                                                            <strong>Afternoon</strong>
-                                                            <div className="time">12pm - 6pm</div>
-                                                        </li>
-                                                        <li className="deptimefilter" filtervalue="e">
-                                                            <img
-                                                                src="/us/images/listing/e.png"
-                                                                id="mge"
-                                                                alt="Evening"
-                                                            />
-                                                            <strong>Evening</strong>
-                                                            <div className="time">After 6pm</div>
-                                                        </li>
+                                                        {timeFilters.map((filter) => (
+                                                            <li
+                                                                key={filter.value}
+                                                                className="deptimefilter"
+                                                                onClick={() => handleFilterClick(filter.value)}
+                                                            >
+                                                                <img src={filter.iconSrc} alt={filter.label} />
+                                                                <strong>{filter.label}</strong>
+                                                                <div className="time">{filter.timeRange}</div>
+                                                            </li>
+                                                        ))}
                                                     </ul>
                                                 </div>
-                                                <div>
-                                                    <div className="head">
-                                                        <a
-                                                            href="javascript:void(0);"
-                                                            className="headrettime"
-                                                            style={{ display: "none" }}
-                                                            onclick="Filter.restretfilter('rettime')"
-                                                        >
-                                                            Reset
-                                                        </a>
-                                                        <i
-                                                            className="fa fa-plane"
-                                                            style={{ transform: "rotate(225deg)" }}
-                                                        />{" "}
-                                                        From Las Vegas
-                                                    </div>
-                                                    <div className="filter-data mb20">
-                                                        <ul className="time_filter _rettimecontainer">
-                                                            <li className="deptimefilter" filtervalue="em">
-                                                                <img
-                                                                    src="/us/images/listing/em.png"
-                                                                    id="rmgem"
-                                                                    alt="early morning"
-                                                                />
-                                                                <strong>Early Morning</strong>
-                                                                <div className="time">Before 6am </div>
-                                                            </li>
-                                                            <li className="deptimefilter" filtervalue="m">
-                                                                <img
-                                                                    src="/us/images/listing/m.png"
-                                                                    id="rmgm"
-                                                                    alt="Morning"
-                                                                />
-                                                                <strong>Morning</strong>
-                                                                <div className="time">6am - 12pm</div>
-                                                            </li>
-                                                            <li className="deptimefilter" filtervalue="a">
-                                                                <img
-                                                                    src="/us/images/listing/a.png"
-                                                                    id="rmga"
-                                                                    alt="Afternoon"
-                                                                />
-                                                                <strong>Afternoon</strong>
-                                                                <div className="time">12pm - 6pm</div>
-                                                            </li>
-                                                            <li className="deptimefilter" filtervalue="e">
-                                                                <img
-                                                                    src="/us/images/listing/e.png"
-                                                                    id="rmge"
-                                                                    alt="Evening"
-                                                                />
-                                                                <strong>Evening</strong>
-                                                                <div className="time">After 6pm</div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
                                             </div>
+
                                             <div id="tab-5" className="filter-item bdrR0 tab-pane">
                                                 <div className="head">
                                                     <a
                                                         href="javascript:void(0);"
-                                                        className="headairline"
-                                                        style={{ display: "none" }}
-                                                        onclick="Filter.restFilter('airline')"
+                                                        className="headairport"
+                                                        onClick={() => {
+                                                            setActiveFlight(null);
+                                                            setSelectedAirlines([]);
+                                                            setAppliedFilters([]);
+                                                        }}
                                                     >
                                                         Reset
                                                     </a>
+
                                                     Airlines
                                                 </div>
                                                 <div className="filter-data">
-                                                    <div className="inputSet ">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$93.97</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Frontier Airlines"
-                                                                defaultValue="F9"
-                                                            />
-                                                            <span>Frontier Airlines</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet ">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$136.98</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Spirit Airlines"
-                                                                defaultValue="NK"
-                                                            />
-                                                            <span>Spirit Airlines</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet ">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$278.97</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Spirit Airlines with others"
-                                                                defaultValue="NK_M"
-                                                            />
-                                                            <span>
-                                                                Spirit Airlines
-                                                                <img src="/us/images/listing/mal-blue.png" />
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet ">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$381.25</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Southwest Airlines"
-                                                                defaultValue="WN"
-                                                            />
-                                                            <span>Southwest Airlines</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet moreairline">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$278.97</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Southwest Airlines with others"
-                                                                defaultValue="WN_M"
-                                                            />
-                                                            <span>
-                                                                Southwest Airlines
-                                                                <img src="/us/images/listing/mal-blue.png" />
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet moreairline">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$400.79</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="United Airlines"
-                                                                defaultValue="UA"
-                                                            />
-                                                            <span>United Airlines</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet moreairline">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$408.19</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Alaska Airlines"
-                                                                defaultValue="AS"
-                                                            />
-                                                            <span>Alaska Airlines</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet moreairline">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$427.94</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Delta Airlines"
-                                                                defaultValue="DL"
-                                                            />
-                                                            <span>Delta Airlines</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet moreairline">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$763.39</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Jetblue"
-                                                                defaultValue="B6"
-                                                            />
-                                                            <span>Jetblue</span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet moreairline">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$453.19</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="Jetblue with others"
-                                                                defaultValue="B6_M"
-                                                            />
-                                                            <span>
-                                                                Jetblue
-                                                                <img src="/us/images/listing/mal-blue.png" />
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet moreairline">
-                                                        <label className="mode">
-                                                            <span className="filter-price">$465.96</span>
-                                                            <input
-                                                                type="checkbox"
-                                                                name="airline"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                airname="American Airlines"
-                                                                defaultValue="AA"
-                                                            />
-                                                            <span>American Airlines</span>
-                                                        </label>
-                                                    </div>
+                                                    {airlinesDetails && airlinesDetails.length > 0 ? (
+                                                        airlinesDetails.slice(0, showMoreAirlines ? airlinesDetails.length : 3).map((flight, index) => (
+                                                            <div className="inputSet" key={index}>
+                                                                <label className="mode">
+                                                                    <span className="filter-price">${flight.price}</span>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        name="airline"
+                                                                        checked={selectedAirlines.includes(flight.airlineCode)}
+                                                                        onChange={() => handleCheckboxChange(flight)}
+                                                                    />
+                                                                    <span>{flight.airlineName}</span>
+                                                                </label>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p>No airlines available</p>
+                                                    )}
                                                     <div className="clearfix" />
                                                     <div className="show-more">
                                                         <a
                                                             href="javascript:void(0);"
                                                             id="moreair"
-                                                            onclick="Filter.showMairline()"
+                                                            onClick={() => setShowMoreAirlines(!showMoreAirlines)}
                                                         >
-                                                            More Airlines <i className="fa fa-angle-down" />
+                                                            {showMoreAirlines ? 'Show Less Airlines' : 'More Airlines'} <i className="fa fa-angle-down" />
                                                         </a>
                                                     </div>
                                                     <div
                                                         className="multi-airline-icon"
-                                                        style={{ margin: "10px 0px 0px" }}
+                                                        style={{ display: "none", margin: "10px 0 0" }}
                                                     >
-                                                        <img src="/us/images/listing/mal-blue.png" /> Indicate
+                                                        <img src="images/airlinesLogo.png" /> Indicate
                                                         Multiple Airline
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <div id="tab-6" className="filter-item tab-pane">
                                                 <div className="head">
                                                     <a
                                                         href="javascript:void(0);"
                                                         className="headairport"
-                                                        style={{ display: "none" }}
-                                                        onclick="Filter.restFilter('airports')"
+                                                        onClick={() => {
+                                                            setSelectedAirports([]);
+                                                            setAppliedFilters([]);
+                                                        }}
                                                     >
                                                         Reset
                                                     </a>
-                                                    <i
-                                                        className="fa fa-plane"
-                                                        style={{ transform: "rotate(45deg)" }}
-                                                    />
-                                                    <span> Departure airports</span>
+                                                    <i className="fa fa-plane" style={{ transform: "rotate(45deg)" }} />
+                                                    <span>Departure Airports</span>
                                                 </div>
                                                 <div className="filter-data">
-                                                    <div className="inputSet ">
-                                                        <label className="mode">
-                                                            <input
-                                                                type="checkbox"
-                                                                name="departureairports"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                defaultValue="SJC"
-                                                            />{" "}
-                                                            <span>SJC (San Jose Municipal) </span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet ">
-                                                        <label className="mode">
-                                                            <input
-                                                                type="checkbox"
-                                                                name="departureairports"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                defaultValue="OAK"
-                                                            />{" "}
-                                                            <span>OAK (Oakland International) </span>
-                                                        </label>
-                                                    </div>
-                                                    <div className="inputSet ">
-                                                        <label className="mode">
-                                                            <input
-                                                                type="checkbox"
-                                                                name="departureairports"
-                                                                onclick="Filter.applyFilter(false)"
-                                                                defaultValue="SFO"
-                                                            />{" "}
-                                                            <span>SFO (San Francisco International) </span>
-                                                        </label>
-                                                    </div>
+                                                    {Array.from(new Set(airlinesDetails.map(flight => flight.departureAirportIata)))
+                                                        .map(airportCode => {
+                                                            const flight = airlinesDetails.find(flight => flight.departureAirportIata === airportCode);
+                                                            return (
+                                                                <div className="inputSet" key={airportCode}>
+                                                                    <label className="mode">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            name="departureairports"
+                                                                            checked={selectedAirports.includes(airportCode)}
+                                                                            onChange={() => handleCheckboxChanges(airportCode)}
+                                                                        />
+                                                                        <span>{flight.departureAirportIata} ({flight.departureAirportName})</span>
+                                                                    </label>
+                                                                </div>
+                                                            );
+                                                        })}
                                                     <div className="clearfix" />
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
+
                                     <div className="mobile-button">
                                         <a
                                             href="javascript:void(0);"
@@ -1199,7 +1186,7 @@ const FlightListing = () => {
                             </div>
                             <div className="col-sm-12 col-md-9 col-xs-12">
                                 <div className="listing-matrix-section">
-                                    <FlightOfferCard />
+                                    <FlightOfferCard airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter} />
                                 </div>
                                 <div className="covid-list hidden-xs">
                                     <b>Note:</b> All the fares displayed are for Round Trip and are in
@@ -1241,27 +1228,40 @@ const FlightListing = () => {
                                     </a>
                                 </div>
                                 <div className="listappliedfiltr hidden-xs">
-                                    <div style={{ float: "left" }}>
-                                        <ul></ul>
-                                    </div>
-                                    <div style={{ float: "left" }}>
-                                        <div
-                                            className="filter-item filter_top_info"
-                                            style={{ marginTop: 2, paddingLeft: 20 }}
-                                        >
-                                            <a
-                                                href="javascript:void(0);"
-                                                className="clear-all-filters pull-right hidden-xs"
-                                                style={{ display: "none" }}
-                                                onclick="Filter.resetAll()"
-                                            >
-                                                {" "}
-                                                Reset all
-                                            </a>
-                                        </div>
-                                    </div>
+                                    {appliedFilters.length > 0 && (
+                                        <>
+                                            <div style={{ float: "left" }}>
+                                                <ul>
+                                                    {appliedFilters.map((filter, index) => (
+                                                        <li key={index}>
+                                                            {filter.type}: {filter.value}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <div style={{ float: "left", marginTop: 2, paddingLeft: 20 }}>
+                                                <div className="filter-item filter_top_info">
+                                                    <a
+                                                        href="javascript:void(0);"
+                                                        className="clear-all-filters pull-right hidden-xs"
+                                                        onClick={() => {
+                                                            setStopFilter(null);
+                                                            setActiveFlight(null);
+                                                            setAppliedFilters([]);
+                                                            setSelectedAirports([]);
+                                                            setSelectedTimeFilter("");
+                                                            setSelectedAirlines([]);
+                                                        }}
+                                                    >
+                                                        Reset all
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="clearfix" />
+
                                 <div className="shorting-tab">
                                     <ul>
                                         <li
@@ -1271,7 +1271,7 @@ const FlightListing = () => {
                                         >
                                             <b>All Results</b>
                                             <br />
-                                            <span id="spn_all_amount">$93.97</span>
+                                            <span id="spn_all_amount">${grandTotal}</span>
                                         </li>
                                         <li
                                             id="nearby"
@@ -1280,7 +1280,7 @@ const FlightListing = () => {
                                         >
                                             <b>Nearby Airport(s)</b>
                                             <br />
-                                            <span id="spn_nearby_amount">$93.97</span>
+                                            <span id="spn_nearby_amount">${nearTotal}</span>
                                         </li>
                                         <li
                                             id="shortest"
@@ -1289,16 +1289,7 @@ const FlightListing = () => {
                                         >
                                             <b>Shortest Flights</b>
                                             <br />
-                                            <span id="spn_shortest_amount">$278.97</span>
-                                        </li>
-                                        <li
-                                            id="flexible"
-                                            className={activeTab === 'flexible' ? 'active' : ''}
-                                            onClick={() => handleTabClick('flexible')}
-                                        >
-                                            <b>Alternate Dates</b>
-                                            <br />
-                                            <span id="spn_flexible_amount">$180.98</span>
+                                            <span id="spn_shortest_amount">${shortestTotal}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -1308,17 +1299,51 @@ const FlightListing = () => {
                                     <div className="row">
                                         <div className="col-md-12 col-xs-12 h-36">
                                             <div className="flexi-content hidden-xs">
-                                                <span>{activeTab === 'all' ? 'All Results' : activeTab === 'nearby' ? 'Nearby Airports' : activeTab === 'shortest' ? 'Shortest Flights' : 'Alternate Dates'}</span>
+                                                <span>
+                                                    {activeTab === 'all'
+                                                        ? 'All Results'
+                                                        : activeTab === 'nearby'
+                                                            ? 'Nearby Airports'
+                                                            : activeTab === 'shortest'
+                                                                ? 'Shortest Flights'
+                                                                : ''}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
 
-                                    {activeTab === 'all' && FlightList.map((flight) => <FlightCard flight={flight} />)}
-                                    {/* {activeTab === 'nearby' && FlightDataArr.nearby.map((flight) => <NearestFlightCard key={flight.id} flight={flight} />)}
-                                    {activeTab === 'shortest' && FlightDataArr.shortest.map((flight) => <ShortedFlightCard key={flight.id} flight={flight} />)}
-                                    {activeTab === 'flexible' && FlightDataArr.flexible.map((flight) => <AlternateFlightCard key={flight.id} flight={flight} />)} */}
+                                    {activeTab === 'all' && filteredFlights.map((flight, index) => (
+                                        <FlightCard
+                                            key={index}
+                                            setSelectedFlight={setSelectedFlight}
+                                            setFlightDetailVisible={setFlightDetailVisible}
+                                            flight={flight}
+                                        />
+                                    ))}
+
+
+                                    {activeTab === 'nearby' && Array.isArray(nearbyAirports) && nearbyAirports.map((flight, index) => (
+                                        <FlightCard
+                                            key={index}
+                                            setSelectedFlight={setSelectedFlight}
+                                            setFlightDetailVisible={setFlightDetailVisible}
+                                            flight={flight}
+                                            oneway={oneway.toString()}
+                                        />
+                                    ))}
+
+
+                                    {activeTab === 'shortest' && getShortestFlights().map((flight, index) => (
+                                        <FlightCard
+                                            key={index}
+                                            setSelectedFlight={setSelectedFlight}
+                                            setFlightDetailVisible={setFlightDetailVisible}
+                                            flight={flight}
+                                        />
+                                    ))}
                                 </div>
+
                                 <div id="containerListing">
                                     <input
                                         type="hidden"
@@ -1326,11 +1351,12 @@ const FlightListing = () => {
                                         id="hdn_DOB_ValidatingDate"
                                         defaultValue="Tue, Oct 22, 2024"
                                     />
-                                    <div className="flexi-content visible-xs">
+                                    {/* <div className="flexi-content visible-xs">
                                         <span className="mobile_alternate hidden-sm hidden-lg hidden-md">
                                             Nearby Airports{" "}
                                         </span>
-                                    </div>
+                                    </div> */}
+
                                     <input type="hidden" defaultValue={994} id="Pcount" />
                                     <input type="hidden" id="sort_all_amt" defaultValue="93.97" />
                                     <input type="hidden" id="sort_nearby_amt" defaultValue="93.97" />
@@ -1467,7 +1493,7 @@ const FlightListing = () => {
                 src="https://td.doubleclick.net/td/rul/765660137?random=1729083125510&cv=11&fst=1729083125510&fmt=3&bg=ffffff&guid=ON&async=1&gtm=45je4ae0v867830889z8832256919za200zb832256919&gcd=13l3l3l3l1l1&dma=0&tag_exp=101686685&u_w=1600&u_h=900&url=https%3A%2F%2Fwww.lookbyfare.com%2Fus%2Flisting%2F3536_9e3fdd9ffa7c4144beeaf521031a82d0&ref=https%3A%2F%2Fwww.lookbyfare.com%2Fus%2Fflights%2Fsearching_new&hn=www.googleadservices.com&frm=0&tiba=Lookbyfare%20%7C%20Available%20Flights&npa=0&pscdl=noapi&auid=1417282342.1728790209&uaa=x86&uab=64&uafvl=Google%2520Chrome%3B129.0.6668.90%7CNot%253DA%253FBrand%3B8.0.0.0%7CChromium%3B129.0.6668.90&uamb=0&uam=&uap=Windows&uapv=15.0.0&uaw=0&fledge=1&data=event%3Dgtag.config%3Bcontent_group%3DSearch%20Listing"
                 style={{ display: "none", visibility: "hidden" }}
             />
-            <iframe
+            {/* <iframe
                 id="_hjSafeContext_83312697"
                 title="_hjSafeContext"
                 tabIndex={-1}
@@ -1480,8 +1506,8 @@ const FlightListing = () => {
                     opacity: "0 !important",
                     pointerEvents: "none !important"
                 }}
-            />
-            <footer className="footer_block">
+            /> */}
+            {/* <footer className="footer_block">
                 <div className="footer__bottom">
                     <div className="container">
                         <div className="top_row">
@@ -1671,13 +1697,13 @@ const FlightListing = () => {
                                 representation, whether implied or expressed, when it comes to the
                                 accuracy, completeness or reliability of the information displayed
                                 on the website. If you need to have any queries answered, you can
-                                write to us at{" "}
-                                <a href="mailto:support@lookbyfare.com">support@lookbyfare.com</a>
+                                write to us at
+                                <a href="mailto:contact@onlineflightreservation.com">contact@onlineflightreservation.com</a>
                             </p>
                         </div>
                     </div>
                 </div>
-            </footer>
+            </footer> */}
             <span className="visible-lg">
                 <button id="scrollBottomtop" className="scroll-top" title="Go to top">
                     <svg
