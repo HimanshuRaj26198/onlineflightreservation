@@ -87,13 +87,23 @@ const FlightSearch = ({ airline, selectedDes }) => {
         setCabinType(event.target.value); 
     };
 
-    const handleDepartureChange = (selectedDates) => {
-        setDepDate(selectedDates[0]);
+    const handleDepartureChange = (date) => {
+        const utcDate = new Date(Date.UTC(date[0].getFullYear(), date[0].getMonth(), date[0].getDate()));
+        setDepDate(utcDate);
     };
 
-    const handleReturnDateChange = (selectedDates) => {
-        setReturnD(selectedDates[0]);
-    }
+    const handleReturnDateChange = (date) => {
+        const utcDate = new Date(Date.UTC(date[0].getFullYear(), date[0].getMonth(), date[0].getDate()));
+        setReturnD(utcDate);
+    };
+
+    // const handleDepartureChange = (selectedDates) => {
+    //     setDepDate(selectedDates[0]);
+    // };
+
+    // const handleReturnDateChange = (selectedDates) => {
+    //     setReturnD(selectedDates[0]);
+    // }
 
     // for nearest location
     const fetchNearestAirports = async () => {

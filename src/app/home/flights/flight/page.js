@@ -69,7 +69,7 @@ const FlightResultCompnent = () => {
 
     const stopOptions = flightList.flatMap(flight => {
         const stops = flight.itineraries[0].segments.length - 1;
-        const grandTotal = flight.price.grandTotal;
+        const grandTotal = parseFloat(flight.price.grandTotal);
 
         return [
             { label: "Non Stop", value: 0, price: grandTotal, flight },
@@ -80,6 +80,9 @@ const FlightResultCompnent = () => {
 
     // Group by stop type and find minimum price
     const minPriceStops = stopOptions.reduce((acc, option) => {
+
+        console.log(option,"OPTIONS");
+        
 
         if (option.value >= 0 && option.value <= 2) {
             if (!acc[option.value] || option.price < acc[option.value].price) {
@@ -174,8 +177,20 @@ const FlightResultCompnent = () => {
 
     const filterFlights = (flights, isArrival) => {
         return flights.filter(flight => {
-            const time = new Date(flight.itineraries[isArrival ? 1 : 0].segments[0].departure.at).getHours();
-            switch (isArrival ? selectedArrivalFilter : selectedDepartureFilter) {
+            // Determine which itinerary to use
+            const itineraryIndex = isArrival && flight.itineraries.length > 1 ? 1 : 0;
+            const segments = flight.itineraries[itineraryIndex]?.segments;
+    
+            if (!segments || segments.length === 0) {
+                return false; 
+            }
+    
+            const time = new Date(segments[0].departure.at).getHours();
+    
+            // Use selected filter based on whether we're filtering arrival or departure
+            const filterValue = isArrival ? selectedArrivalFilter : selectedDepartureFilter;
+    
+            switch (filterValue) {
                 case 'Before 6am':
                     return time < 6;
                 case '6am - 12pm':
@@ -185,11 +200,11 @@ const FlightResultCompnent = () => {
                 case 'After 6pm':
                     return time >= 18;
                 default:
-                    return true;
+                    return true; // No filter applied
             }
         });
     };
-
+    
     useEffect(() => {
         if (flightList && flightList.length > 0) {
             const filtered = filterFlights(flightList, false);
@@ -229,15 +244,10 @@ const FlightResultCompnent = () => {
     const handleCheckboxChange = (flight) => {
         const { airlineCode } = flight;
 
-        setSelectedAirlines((prevSelected) => {
-            if (prevSelected.includes(airlineCode)) {
-                // If already selected, remove it
-                return prevSelected.filter(code => code !== airlineCode);
-            } else {
-                // If not selected, add it
-                return [...prevSelected, airlineCode];
-            }
-        });
+        // Set selected airline to only the one that's currently selected
+        setSelectedAirlines([airlineCode]);
+
+        // Set the active flight or reset if the same airline is clicked
         setActiveFlight(prev => (prev && prev.airlineCode === airlineCode) ? null : flight);
     };
 
@@ -1084,7 +1094,6 @@ const FlightResultCompnent = () => {
                                                 <br />
                                             </div>
                                         </div>
-
 
                                         <div id="tab-4" className="filter-item tab-pane">
                                             <div className="head">
