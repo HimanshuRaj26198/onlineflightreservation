@@ -17,9 +17,6 @@ import airportsDB from "../../../../lib/airports.json";
 
 
 const FlightListing = () => {
-
-    // added comment
-
     const params = useParams();
     const searchRef = useRef(null);
     const [FlightList, setFlightList] = useState([]);
@@ -30,7 +27,7 @@ const FlightListing = () => {
     const [activeTab, setActiveTab] = useState('all');
 
 
-    useEffect(()=>{
+    useEffect(() => {
         let newFlightList = FlightDataArr.map(a => {
             a.stops = a.itineraries[0].segments.length - 1;
             console.log("Flight Data Single", a);
@@ -68,11 +65,12 @@ const FlightListing = () => {
 
     return (
         <>
-            <noscript>
-                &lt;iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5L5GNW3"
-                height="0" width="0"
-                style="display:none;visibility:hidden"&gt;&lt;/iframe&gt;
-            </noscript>
+            {/* <noscript
+                dangerouslySetInnerHTML={{
+                    __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5L5GNW3" height="0" width="0" style="display:none;visibility:hidden;"></iframe>`
+                }}
+            ></noscript> */}
+
             <header>
                 {/* <div className="header-call-strip">
                     <a id="hdr_contactNo" href="tel:+1-248-274-7239">
