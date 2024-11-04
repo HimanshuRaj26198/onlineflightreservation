@@ -88,11 +88,11 @@ const FlightListing = () => {
         return acc;
     }, {});
 
-    
+
     // Convert back to an array
     const availableStops = Object.values(minPriceStops);
-    
-    console.log(availableStops,"MINIMUM PRICES");
+
+    console.log(availableStops, "MINIMUM PRICES");
 
     // FILTERING THE FLIGHT
     useEffect(() => {
@@ -307,8 +307,8 @@ const FlightListing = () => {
                 }
             }
 
-            console.log(searchParam.get("returnD"));
-            console.log(searchParam.get("depDate"));
+            // console.log(searchParam.get("returnD"));
+            // console.log(searchParam.get("depDate"));
 
 
             let cabinRestrictionObj = {};
@@ -1123,7 +1123,7 @@ const FlightListing = () => {
                                                         className="multi-airline-icon"
                                                         style={{ display: "none", margin: "10px 0 0" }}
                                                     >
-                                                        <img src="images/airlinesLogo.png" /> Indicate
+                                                        <img src="https://www.lookbyfare.com/us/images/listing/mal-blue.png" /> Indicate
                                                         Multiple Airline
                                                     </div>
                                                 </div>

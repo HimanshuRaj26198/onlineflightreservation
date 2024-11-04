@@ -1,6 +1,10 @@
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+
+import img from "../../../../public/assets/images/home/mal-blue.png"
+
+
 import React, { useState } from "react";
 
 const FlightOfferCard = ({ airlinesData, setActiveFlight, handleStopFilter }) => {
@@ -102,14 +106,12 @@ const FlightOfferCard = ({ airlinesData, setActiveFlight, handleStopFilter }) =>
                 </div >
                 <div className="matrix_bottom_row">
                     <div className="multi-airline-icon hidden-xs" style={{}}>
-                        <img src="/us/images/listing/mal-blue.png" /> Indicate
+                        <img src="https://www.lookbyfare.com/us/images/listing/mal-blue.png" /> Indicate
                         Multiple Airline
                     </div>
                 </div>
             </div >
         </>
-
-
     )
 }
 

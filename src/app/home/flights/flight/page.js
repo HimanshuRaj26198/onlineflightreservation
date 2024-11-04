@@ -1212,7 +1212,7 @@ const FlightResultCompnent = () => {
                                                     className="multi-airline-icon"
                                                     style={{ display: "none", margin: "10px 0 0" }}
                                                 >
-                                                    <img src="/assets/images/home/mal-blue.png" /> Indicate
+                                                    <img src="https://www.lookbyfare.com/us/images/listing/mal-blue.png" /> Indicate
                                                     Multiple Airline
                                                 </div>
                                             </div>

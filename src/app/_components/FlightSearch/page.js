@@ -71,7 +71,6 @@ const FlightSearch = ({ airline, selectedDes }) => {
         setDesInputValue(''); // Optionally clear the input field as well
     };
 
-
     const handleApplyFilter = (e) => {
         e.preventDefault();
         let filter = travellerDetail;
@@ -84,7 +83,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
     }
 
     const handleCabinTypeChange = (event) => {
-        setCabinType(event.target.value); 
+        setCabinType(event.target.value);
     };
 
     const handleDepartureChange = (date) => {
