@@ -6,18 +6,20 @@ import Flatpickr from 'react-flatpickr';
 import { useRouter } from "next/navigation";
 import 'flatpickr/dist/flatpickr.css';
 
-const FlightSearch = ({ airline }) => {
+const FlightSearch = ({ airline, selectedDes }) => {
+
     const router = useRouter();
+
+    console.log(selectedDes, "Selected Dest");
+    console.log(airline, "airlines");
 
     const [tripType, setTripType] = useState("One-Way");
     const [token, setToken] = useState("");
 
-    const [depDate, setDepDate] = useState("");
-    const [returnD, setReturnD] = useState("");
-
+    const [depDate, setDepDate] = useState(new Date());
+    const [returnD, setReturnD] = useState(new Date());
     const [destination, setDestination] = useState("");
     const [origin, setOrigin] = useState("");
-
     const [originAirportList, setOriginAirportList] = useState([]);
     const [originInputValue, setOriginInputValue] = useState("");
     const [desAirportList, setDesAirportList] = useState([]);
@@ -29,12 +31,7 @@ const FlightSearch = ({ airline }) => {
     const [infantOnSeatCount, setInfantOnSeatCount] = useState(0);
     const [cabinType, setCabinType] = useState("ECONOMY");
 
-    // for nearest airport
-    const [isLeavingFieldClicked, setIsLeavingFieldClicked] = useState(false); 
-
-
     const [showPax, setShowPax] = useState(false);
-
     const paxRef = useRef(null);
 
     const handleSearchFlights = (e) => {
@@ -48,9 +45,32 @@ const FlightSearch = ({ airline }) => {
         } else if (tripType === "Round-Trip" && !returnD) {
             toast.error("Select a return date");
         } else {
-            router.push(`/home/flights/flight?origin=${origin.value}&destination=${destination.value}&depDate=${depDate.toISOString().substring(0, 10)}&returnD=${returnD && returnD.toISOString(0, 10)}&adult=${travellerDetail.adultCount}&child=${travellerDetail.childrenCount}&infant=${travellerDetail.infanctCount}&cabin=${travellerDetail.cabinType}&airline=${airline || "all"}&tk=${token}`);
+            router.push(`/home/flights/flight?origin=${origin.value}&destination=${destination.value}&depDate=${depDate && depDate.toISOString().substring(0, 10)}&returnD=${returnD && returnD.toISOString(0, 10).substring(0, 10)}&adult=${travellerDetail.adultCount}&child=${travellerDetail.childrenCount}&infant=${travellerDetail.infanctCount}&cabin=${travellerDetail.cabinType}&tripType=${tripType.toString()}&airline=${airline || "all"}&tk=${token}`);
+
         }
     };
+
+    // For Swap the flight 
+    const swapDepRet = () => {
+        const tempOrigin = origin;
+
+        setOrigin(destination);
+        setDestination(tempOrigin);
+
+        setOriginInputValue(destination.label);
+        setDesInputValue(tempOrigin.label);
+    };
+
+    const clearOriginLocation = () => {
+        setOrigin(null); // Clear the selected option
+        setOriginInputValue(''); // Optionally clear the input field as well
+    };
+
+    const clearDestinationLocation = () => {
+        setDestination(null); // Clear the selected option
+        setDesInputValue(''); // Optionally clear the input field as well
+    };
+
 
     const handleApplyFilter = (e) => {
         e.preventDefault();
@@ -64,7 +84,7 @@ const FlightSearch = ({ airline }) => {
     }
 
     const handleCabinTypeChange = (event) => {
-        setCabinType(event.target.value); // Update state with the selected value
+        setCabinType(event.target.value); 
     };
 
     const handleDepartureChange = (selectedDates) => {
@@ -78,50 +98,47 @@ const FlightSearch = ({ airline }) => {
     // for nearest location
     const fetchNearestAirports = async () => {
         try {
-            // Get user's current location using Geolocation API
+
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
-                
-                // Call the Amadeus API to get nearest airports based on current latitude and longitude
-                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=100&page%5Blimit%5D=10&sort=analytics.travelers.score`, {
+
+                let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=100&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=relevance`, {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     }
                 });
-                
+
                 let result = await response.json();
-                
-                // Map the response to label and value format
-                let options = result.data.map(a => { 
-                    return { 
-                        label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, 
-                        value: a.iataCode 
-                    }; 
-                });
 
-                // Set the nearest airport list
-                setOriginAirportList(options);
 
-                if (options.length > 0) {
-                    setOriginInputValue(options[0]); // Set the nearest airport as default
+                if (Array.isArray(result.data)) {
+
+                    let options = result.data.map(a => ({
+                        label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
+                        value: a.iataCode
+                    }));
+
+                    // Set the nearest airport list
+                    setOriginAirportList(options);
+
+                    if (options.length > 0) {
+                        setOriginInputValue(options[0].label);
+                        setOrigin(options[0]);
+                    }
                 }
-            }, 
-            (error) => {
-                console.log("Error fetching geolocation: ", error);
-            });
+            },
+                (error) => {
+                    console.log("Error fetching geolocation: ", error);
+                });
         } catch (err) {
             console.log(err);
         }
     };
 
-    // useEffect to trigger nearest airport fetching when input is clicked
     useEffect(() => {
-        if (isLeavingFieldClicked) {
-            fetchNearestAirports();
-        }
-    }, [isLeavingFieldClicked, token]);
-
+        fetchNearestAirports();
+    }, [token]);
 
     const filterSourceAirportValue = async () => {
         try {
@@ -138,6 +155,43 @@ const FlightSearch = ({ airline }) => {
             console.log(err);
         }
     }
+
+    // For Image Click
+    const handleLocationFromImage = async (selectedDes) => {
+        try {
+
+            let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${selectedDes}&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=analytics.travelers.score&view=FULL`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            let result = await response.json();
+
+            // Map the response to label and value format
+            if (Array.isArray(result.data)) {
+                let options = result.data.map(a => ({
+                    label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
+                    value: a.iataCode
+                }));
+
+                // Set the nearest airport list
+                setOriginAirportList(options);
+
+                if (options.length > 0) {
+                    setDesInputValue(options[0].label);
+                    setDestination(options[0]);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    useEffect(() => {
+        handleLocationFromImage(selectedDes);
+    }, [token]);
 
     const filterDesAirportValue = async () => {
         try {
@@ -156,23 +210,22 @@ const FlightSearch = ({ airline }) => {
     }
 
     const handleDesInputChange = (newValue) => {
-        setDesInputValue(newValue); // Update the local state with new input
-        filterDesAirportValue(newValue); // Fetch filtered airports based on new input
+        setDesInputValue(newValue);
+        filterDesAirportValue(newValue);
     };
 
+    const handleDestinarionChange = (selected) => {
+        setDestination(selected)
+    }
+
     const handleInputChange = (newValue) => {
-        setOriginInputValue(newValue); // Update the local state with new input
-        filterSourceAirportValue(newValue); // Fetch filtered airports based on new input
-        setIsLeavingFieldClicked(true);
+        setOriginInputValue(newValue);
+        filterSourceAirportValue(newValue);
     };
 
     const handleOriginChange = (selected) => {
         setOrigin(selected);
         setOriginInputValue(selected);
-    }
-
-    const handleDestinarionChange = (selected) => {
-        setDestination(selected)
     }
 
     const fetchToken = async () => {
@@ -194,6 +247,7 @@ const FlightSearch = ({ airline }) => {
             console.log(err);
         }
     }
+
     const handleTripTypeSelection = (type) => {
         if (type === "One-Way") {
             setTripType("One-Way");
@@ -207,9 +261,16 @@ const FlightSearch = ({ airline }) => {
         fetchToken();
     }, []);
 
+    useEffect(() => {
+        const currentDate = new Date();
+        const defaultDate = new Date(currentDate.setDate(currentDate.getDate() + 7));
+        setReturnD(defaultDate);
+    }, []);
+
     return <>
         <form autocomplete="off" id="FlightForm" >
             <div className="searchBg">
+                {/* Trip */}
                 <div className="trip-type">
                     <ul>
                         <li>
@@ -276,10 +337,9 @@ const FlightSearch = ({ airline }) => {
                                             className="textoverflow input_destination"
                                             options={originAirportList}
                                             placeholder="Leaving from"
-                                            // onInputChange={handleInputChange}
-                                            onInputChange={() => setIsLeavingFieldClicked(true)}
-                                            // inputValue={originInputValue}
-                                            value={originInputValue}
+                                            value={origin}
+                                            inputValue={originInputValue}
+                                            onInputChange={handleInputChange}
                                             onChange={handleOriginChange}
                                         />
                                         <span
@@ -287,19 +347,19 @@ const FlightSearch = ({ airline }) => {
                                             data-valmsg-for="origin"
                                             data-valmsg-replace="true"
                                         ></span>
-                                        <i
+                                        {/* <i
                                             className="clear_field"
                                             id="clrOrigin"
-                                            style={{ display: "none" }}
-                                            onclick="clrlocation('o');"
-                                        ></i>
+                                            style={{ display: origin ? "block" : "none" }}
+                                            onClick={clearOriginLocation}
+                                        ></i> */}
                                     </div>
                                 </div>
                                 <span id="sameSearch" className="error-txt"></span>
                                 <span
                                     className="swap_button"
                                     style={{ cursor: "pointer" }}
-                                    onclick="swapDepRet()"
+                                    onClick={swapDepRet}
                                 >
                                     <i
                                         className="fa fa-exchange"
@@ -319,21 +379,23 @@ const FlightSearch = ({ airline }) => {
                                             className="textoverflow input_destination"
                                             options={desAirportList}
                                             placeholder="Going to"
-                                            onInputChange={handleDesInputChange}
+                                            value={destination}
                                             inputValue={desInputValue}
+                                            onInputChange={handleDesInputChange}
                                             onChange={handleDestinarionChange}
                                         />
+
                                         <span
                                             className="field-validation-valid"
                                             data-valmsg-for="destination"
                                             data-valmsg-replace="true"
                                         ></span>
-                                        <i
-                                            className="clear_field destination"
-                                            id="clrDestination"
-                                            style={{ display: "none" }}
-                                            onclick="clrlocation('d');"
-                                        ></i>
+                                        {/* <i
+                                            className="clear_field"
+                                            id="clrOrigin"
+                                            style={{ display: origin ? "block" : "none" }}
+                                            onClick={clearDestinationLocation}
+                                        ></i> */}
                                     </div>
                                 </div>
                                 <span

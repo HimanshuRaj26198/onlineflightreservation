@@ -1,7 +1,15 @@
 "use client"
 import { useRouter } from "next/navigation";
-const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight }) => {
+import { useEffect, useState } from 'react';
+
+const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight, oneway }) => {
+
+    console.log(flight, "FlightLoop")
+
     const router = useRouter();
+
+    const isOneWay = oneway === 'true'
+
     function calculateLayoverTime(flightOffer) {
         const itineraries = flightOffer.itineraries;
         const layovers = [];
@@ -40,6 +48,7 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight }) => {
             console.log("Not a valid date");
         }
     };
+
     const getTimeFromDate = (date) => {
         let newDate = new Date(date);
 
@@ -64,7 +73,7 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight }) => {
         const regex = /PT(\d+H)?(\d+M)?/;
 
         // Use the regex to extract hours and minutes
-        const matches = ptString.match(regex);
+        const matches = ptString?.match(regex);
 
         // Initialize hours and minutes
         let hours = '';
@@ -85,6 +94,7 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight }) => {
         // Return the formatted duration as "XH YM"
         return `${hours} ${minutes || '00M'}`.trim();
     }
+
     return <>
         {flight && <div onClick={() => { setSelectedFlight(flight); setFlightDetailVisible(true) }} className="result-block FTT3001">
             <div className="row">
@@ -103,156 +113,472 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight }) => {
                     <div className="col-sm-10 col-xs-12" id="fltlst">
                         <div className="depart-flight">
                             <a className="xs-dis-blck" href="javascript:void(0);">
-                                <div className="row">
-                                    <div className="col-sm-3 col-xs-12 no-padding-left">
-                                        <span className="price-section visible-xs">
-                                            <price>
-                                                ${flight.travelerPricings[0].price.total}
-                                                <div className="per-adult"> {flight.travelerPricings[0].price.total}</div>
-                                                <div
-                                                    className="per-adult"
-                                                    style={{ display: "none" }}
-                                                >
-                                                    <div
-                                                        className="afflop afffred_10100"
-                                                        amt={10100}
-                                                    ></div>
-                                                </div>
-                                            </price>
-                                        </span>
-                                        <div className="airline-detail">
-                                            <img
-                                                src={flight.itineraries[0].segments[0].airline.logo}
-                                                onerror="if (this.src != 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png') this.src = 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png';"
-                                            />
-                                            <div className="name">
-                                                {flight.itineraries[0].segments[0].airline.name}
-                                                <span className="tooltip-custom">
-                                                    <div className="promo-detail">
-                                                        <span className="arrow" />
-                                                        <p className="mb5px">
-                                                            32A AIRBUS A320 (SHARKLETS) 123-180 STD
-                                                            Seats
-                                                        </p>
-                                                    </div>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-7 col-xs-12">
-                                        <div className="flex-date flex-highlight">
-                                            {getFormattedDate(flight.itineraries[0].segments[0].departure.at)}
-                                        </div>
-                                        <div className="leg-details">
-                                            <div className="city text-right">
-                                                <div className="time">
-                                                    <strong>{getTimeFromDate(flight.itineraries[0].segments[0].departure.at)}</strong>
-                                                </div>
-                                                <div className="code">
-                                                    <span className=" tooltip-custom minor-txt">
-                                                        {flight.itineraries[0].segments[0].departure.iataCode}
-                                                        <div className="promo-detail">
-                                                            <span className="arrow" />
-                                                            <p
-                                                                className="mb5px"
-                                                                style={{ textAlign: "left" }}
-                                                            >
-                                                                {flight.itineraries[0].segments[0].departure.airport.name}, {flight.itineraries[0].segments[0].departure.airport.city}
-                                                            </p>
-                                                        </div>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div className="connnecting-block">
-                                            <div className="leg-points">
-                                                {flight.itineraries[0].segments.length > 1 && <div className="tooltip-custom">
-                                                    <span className="visible-xs layovertimemob">
-                                                        <span
-                                                            style={{ width: "auto" }}
-                                                            className="fa fa-clock-o"
+                                {
+                                    isOneWay ?
+                                        (
+                                            <div className="row">
+                                                <div className="col-sm-3 col-xs-12 no-padding-left">
+                                                    <span className="price-section visible-xs">
+                                                        <price>
+                                                            ${flight.travelerPricings[0].price.total}
+                                                            <div className="per-adult"> {flight.travelerPricings[0].price.total}</div>
+                                                            <div
+                                                                className="per-adult"
+                                                                style={{ display: "none" }}
+                                                            >
+                                                                <div
+                                                                    className="afflop afffred_10100"
+                                                                    amt={10100}
+                                                                ></div>
+                                                            </div>
+                                                        </price>
+                                                    </span>
+                                                    <div className="airline-detail">
+                                                        <img
+                                                            src={flight.itineraries[0].segments[0].airline.logo}
+                                                            onerror="if (this.src != 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png') this.src = 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png';"
                                                         />
-                                                        {extractDuration(flight.itineraries[0].duration)}
-                                                    </span>
-                                                    <span>
-                                                        <div className="layovertime hidden-xs">
-                                                            {flight.itineraries[0].segments.length > 1 && calculateLayoverTime(flight)[0].itineraries.layover_time}
+                                                        <div className="name">
+                                                            {flight.itineraries[0].segments[0].airline.name}
+                                                            <span className="tooltip-custom">
+                                                                <div className="promo-detail">
+                                                                    <span className="arrow" />
+                                                                    <p className="mb5px">
+                                                                        32A AIRBUS A320 (SHARKLETS) 123-180 STD
+                                                                        Seats
+                                                                    </p>
+                                                                </div>
+                                                            </span>
                                                         </div>
-                                                        <i />
-                                                        <div className="destination_code">
-                                                            <b>{flight.itineraries[0].segments.length > 1 && flight.itineraries[0].segments[1].departure.iataCode}</b>
-                                                        </div>
-                                                    </span>
-                                                    <div className="promo-detail">
-                                                        <p>
-                                                            <strong>Flight Duration: </strong>{extractDuration(flight.itineraries[0].duration)}
-                                                        </p>
-                                                        {flight.itineraries[0].segments.length > 1 && flight.itineraries[0].segments.map((a, i) => {
-                                                            if (i !== 0) {
-                                                                return <p>
-                                                                    <strong>Layover {i}:</strong> {extractDuration(a.duration)},
-                                                                    {a.departure.airport ? a.departure.airport.name : ""}, {a.departure.airport ? a.departure.airport.city : ""}
-                                                                </p>
-                                                            }
-                                                        })}
-
                                                     </div>
-                                                </div>}
-                                            </div>
-                                        </div>
-
-                                        <div className="leg-details">
-                                            <div className="city">
-
-                                                <div className="time">
-
-                                                    <strong>{getTimeFromDate(flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.at)}</strong>
-                                                    <sup />
                                                 </div>
-                                                <div className="code">
-                                                    <span className="  tooltip-custom minor-txt">
-                                                        {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode}
-                                                        <div className="promo-detail">
-                                                            <span className="arrow" />
-                                                            <p
-                                                                className="mb5px"
-                                                                style={{ textAlign: "left" }}
-                                                            >
-                                                                {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.airport.name}, {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.airport.city}
-                                                            </p>
+                                                
+                                                <div className="col-sm-7 col-xs-12">
+                                                    <div className="flex-date flex-highlight">
+                                                        {getFormattedDate(flight.itineraries[0].segments[0].departure.at)}
+                                                    </div>
+                                                    <div className="leg-details">
+                                                        <div className="city text-right">
+                                                            <div className="time">
+                                                                <strong>{getTimeFromDate(flight.itineraries[0].segments[0].departure.at)}</strong>
+                                                            </div>
+                                                            <div className="code">
+                                                                <span className=" tooltip-custom minor-txt">
+                                                                    {flight.itineraries[0].segments[0].departure.iataCode}
+                                                                    <div className="promo-detail">
+                                                                        <span className="arrow" />
+                                                                        <p
+                                                                            className="mb5px"
+                                                                            style={{ textAlign: "left" }}
+                                                                        >
+                                                                            {flight.itineraries[0].segments[0].departure.airport.name}, {flight.itineraries[0].segments[0].departure.airport.city}
+                                                                        </p>
+                                                                    </div>
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                    </span>
+                                                    </div>
+
+                                                    <div className="connnecting-block">
+                                                        <div className="leg-points">
+                                                            {flight.itineraries[0].segments.length > 1 && <div className="tooltip-custom">
+                                                                <span className="visible-xs layovertimemob">
+                                                                    <span
+                                                                        style={{ width: "auto" }}
+                                                                        className="fa fa-clock-o"
+                                                                    />
+                                                                    {extractDuration(flight.itineraries[0].duration)}
+                                                                </span>
+                                                                <span>
+                                                                    <div className="layovertime hidden-xs">
+                                                                        {flight.itineraries[0].segments.length > 1 && calculateLayoverTime(flight)[0].itineraries.layover_time}
+                                                                    </div>
+                                                                    <i />
+                                                                    <div className="destination_code">
+                                                                        <b>{flight.itineraries[0].segments.length > 1 && flight.itineraries[0].segments[1].departure.iataCode}</b>
+                                                                    </div>
+                                                                </span>
+                                                                <div className="promo-detail">
+                                                                    <p>
+                                                                        <strong>Flight Duration: </strong>{extractDuration(flight.itineraries[0].duration)}
+                                                                    </p>
+                                                                    {flight.itineraries[0].segments.length > 1 && flight.itineraries[0].segments.map((a, i) => {
+                                                                        if (i !== 0) {
+                                                                            return <p>
+                                                                                <strong>Layover {i}:</strong> {extractDuration(a.duration)},
+                                                                                {a.departure.airport ? a.departure.airport.name : ""}, {a.departure.airport ? a.departure.airport.city : ""}
+                                                                            </p>
+                                                                        }
+                                                                    })}
+
+                                                                </div>
+                                                            </div>}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="leg-details">
+                                                        <div className="city">
+
+                                                            <div className="time">
+
+                                                                <strong>{getTimeFromDate(flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.at)}</strong>
+                                                                <sup />
+                                                            </div>
+                                                            <div className="code">
+                                                                <span className="  tooltip-custom minor-txt">
+                                                                    {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode}
+                                                                    <div className="promo-detail">
+                                                                        <span className="arrow" />
+                                                                        <p
+                                                                            className="mb5px"
+                                                                            style={{ textAlign: "left" }}
+                                                                        >
+                                                                            {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.airport.name}, {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.airport.city}
+                                                                        </p>
+                                                                    </div>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-sm-2 col-xs-12 p0px hidden-xs">
+                                                    <div
+                                                        className="trip-time"
+                                                        style={{
+                                                            fontSize: 12,
+                                                            width: 80,
+                                                            paddingTop: 20,
+                                                            color: "#333"
+                                                        }}
+                                                    >
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            width={12}
+                                                            height={12}
+                                                            fill="currentColor"
+                                                            className="bi bi-clock"
+                                                            viewBox="0 0 16 16"
+                                                            style={{ verticalAlign: "middle" }}
+                                                        >
+                                                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"></path>
+                                                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"></path>
+                                                        </svg>
+                                                        {extractDuration(flight.itineraries[0].duration)}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-sm-2 col-xs-12 p0px hidden-xs">
-                                        <div
-                                            className="trip-time"
-                                            style={{
-                                                fontSize: 12,
-                                                width: 80,
-                                                paddingTop: 20,
-                                                color: "#333"
-                                            }}
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width={12}
-                                                height={12}
-                                                fill="currentColor"
-                                                className="bi bi-clock"
-                                                viewBox="0 0 16 16"
-                                                style={{ verticalAlign: "middle" }}
-                                            >
-                                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"></path>
-                                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"></path>
-                                            </svg>
-                                            {extractDuration(flight.itineraries[0].duration)}
-                                        </div>
-                                    </div>
-                                </div>
+                                        ) : (
+                                            <>
+                                                <div className="row">
+                                                    <div className="col-sm-3 col-xs-12 no-padding-left">
+                                                        <span className="price-section visible-xs">
+                                                            <price>
+                                                                ${flight.travelerPricings[0].price.total}
+                                                                <div className="per-adult"> {flight.travelerPricings[0].price.total}</div>
+                                                                <div
+                                                                    className="per-adult"
+                                                                    style={{ display: "none" }}
+                                                                >
+                                                                    <div
+                                                                        className="afflop afffred_10100"
+                                                                        amt={10100}
+                                                                    ></div>
+                                                                </div>
+                                                            </price>
+                                                        </span>
+                                                        <div className="airline-detail">
+                                                            <img
+                                                                src={flight.itineraries[0].segments[0].airline.logo}
+                                                                onerror="if (this.src != 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png') this.src = 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png';"
+                                                            />
+                                                            <div className="name">
+                                                                {flight.itineraries[0].segments[0].airline.name}
+                                                                <span className="tooltip-custom">
+                                                                    <div className="promo-detail">
+                                                                        <span className="arrow" />
+                                                                        <p className="mb5px">
+                                                                            32A AIRBUS A320 (SHARKLETS) 123-180 STD
+                                                                            Seats
+                                                                        </p>
+                                                                    </div>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="col-sm-7 col-xs-12">
+                                                        <div className="flex-date flex-highlight">
+                                                            {getFormattedDate(flight.itineraries[0].segments[0].departure.at)}
+                                                        </div>
+                                                        <div className="leg-details">
+                                                            <div className="city text-right">
+                                                                <div className="time">
+                                                                    <strong>{getTimeFromDate(flight.itineraries[0].segments[0].departure.at)}</strong>
+                                                                </div>
+                                                                <div className="code">
+                                                                    <span className=" tooltip-custom minor-txt">
+                                                                        {flight.itineraries[0].segments[0].departure.iataCode}
+                                                                        <div className="promo-detail">
+                                                                            <span className="arrow" />
+                                                                            <p
+                                                                                className="mb5px"
+                                                                                style={{ textAlign: "left" }}
+                                                                            >
+                                                                                {flight.itineraries[0].segments[0].departure.airport.name}, {flight.itineraries[0].segments[0].departure.airport.city}
+                                                                            </p>
+                                                                        </div>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="connnecting-block">
+                                                            <div className="leg-points">
+                                                                {flight.itineraries[0].segments.length > 1 && <div className="tooltip-custom">
+                                                                    <span className="visible-xs layovertimemob">
+                                                                        <span
+                                                                            style={{ width: "auto" }}
+                                                                            className="fa fa-clock-o"
+                                                                        />
+                                                                        {extractDuration(flight.itineraries[0].duration)}
+                                                                    </span>
+                                                                    <span>
+                                                                        <div className="layovertime hidden-xs">
+                                                                            {flight.itineraries[0].segments.length > 1 && calculateLayoverTime(flight)[0].itineraries.layover_time}
+                                                                        </div>
+                                                                        <i />
+                                                                        <div className="destination_code">
+                                                                            <b>{flight.itineraries[0].segments.length > 1 && flight.itineraries[0].segments[1].departure.iataCode}</b>
+                                                                        </div>
+                                                                    </span>
+                                                                    <div className="promo-detail">
+                                                                        <p>
+                                                                            <strong>Flight Duration: </strong>{extractDuration(flight.itineraries[0].duration)}
+                                                                        </p>
+                                                                        {flight.itineraries[0].segments.length > 1 && flight.itineraries[0].segments.map((a, i) => {
+                                                                            if (i !== 0) {
+                                                                                return <p>
+                                                                                    <strong>Layover {i}:</strong> {extractDuration(a.duration)},
+                                                                                    {a.departure.airport ? a.departure.airport.name : ""}, {a.departure.airport ? a.departure.airport.city : ""}
+                                                                                </p>
+                                                                            }
+                                                                        })}
+
+                                                                    </div>
+                                                                </div>}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="leg-details">
+                                                            <div className="city">
+
+                                                                <div className="time">
+
+                                                                    <strong>{getTimeFromDate(flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.at)}</strong>
+                                                                    <sup />
+                                                                </div>
+                                                                <div className="code">
+                                                                    <span className="  tooltip-custom minor-txt">
+                                                                        {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode}
+                                                                        <div className="promo-detail">
+                                                                            <span className="arrow" />
+                                                                            <p
+                                                                                className="mb5px"
+                                                                                style={{ textAlign: "left" }}
+                                                                            >
+                                                                                {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.airport.name}, {flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.airport.city}
+                                                                            </p>
+                                                                        </div>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="col-sm-2 col-xs-12 p0px hidden-xs">
+                                                        <div
+                                                            className="trip-time"
+                                                            style={{
+                                                                fontSize: 12,
+                                                                width: 80,
+                                                                paddingTop: 20,
+                                                                color: "#333"
+                                                            }}
+                                                        >
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width={12}
+                                                                height={12}
+                                                                fill="currentColor"
+                                                                className="bi bi-clock"
+                                                                viewBox="0 0 16 16"
+                                                                style={{ verticalAlign: "middle" }}
+                                                            >
+                                                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"></path>
+                                                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"></path>
+                                                            </svg>
+                                                            {extractDuration(flight.itineraries[0].duration)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="row">
+                                                    <div className="col-sm-3 col-xs-12 no-padding-left">
+                                                        <span className="price-section visible-xs">
+                                                            <price>
+                                                                ${flight.travelerPricings[0].price.total}
+                                                                <div className="per-adult"> {flight.travelerPricings[0].price.total}</div>
+                                                                <div
+                                                                    className="per-adult"
+                                                                    style={{ display: "none" }}
+                                                                >
+                                                                    <div
+                                                                        className="afflop afffred_10100"
+                                                                        amt={10100}
+                                                                    ></div>
+                                                                </div>
+                                                            </price>
+                                                        </span>
+                                                        <div className="airline-detail">
+                                                            <img
+                                                                src={flight.itineraries[0].segments[0].airline.logo}
+                                                                onerror="if (this.src != 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png') this.src = 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png';"
+                                                            />
+                                                            <div className="name">
+                                                                {flight.itineraries[0].segments[0].airline.name}
+                                                                <span className="tooltip-custom">
+                                                                    <div className="promo-detail">
+                                                                        <span className="arrow" />
+                                                                        <p className="mb5px">
+                                                                            32A AIRBUS A320 (SHARKLETS) 123-180 STD
+                                                                            Seats
+                                                                        </p>
+                                                                    </div>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="col-sm-7 col-xs-12">
+                                                        <div className="flex-date flex-highlight">
+                                                            {getFormattedDate(flight.itineraries[1]?.segments[0].departure.at)}
+                                                        </div>
+                                                        <div className="leg-details">
+                                                            <div className="city text-right">
+                                                                <div className="time">
+                                                                    <strong>{getTimeFromDate(flight.itineraries[1]?.segments[0].departure.at)}</strong>
+                                                                </div>
+                                                                <div className="code">
+                                                                    <span className=" tooltip-custom minor-txt">
+                                                                        {flight.itineraries[1]?.segments[0].departure.iataCode}
+                                                                        <div className="promo-detail">
+                                                                            <span className="arrow" />
+                                                                            <p
+                                                                                className="mb5px"
+                                                                                style={{ textAlign: "left" }}
+                                                                            >
+                                                                                {flight.itineraries[1]?.segments[0].departure.airport.name}, {flight.itineraries[1]?.segments[0].departure.airport.city}
+                                                                            </p>
+                                                                        </div>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="connnecting-block">
+                                                            <div className="leg-points">
+                                                                {flight.itineraries[1]?.segments.length > 1 && <div className="tooltip-custom">
+                                                                    <span className="visible-xs layovertimemob">
+                                                                        <span
+                                                                            style={{ width: "auto" }}
+                                                                            className="fa fa-clock-o"
+                                                                        />
+                                                                        {extractDuration(flight.itineraries[1].duration)}
+                                                                    </span>
+                                                                    <span>
+                                                                        <div className="layovertime hidden-xs">
+                                                                            {flight.itineraries[1]?.segments.length > 1 && calculateLayoverTime(flight)[0].itineraries.layover_time}
+                                                                        </div>
+                                                                        <i />
+                                                                        <div className="destination_code">
+                                                                            <b>{flight.itineraries[1]?.segments.length > 1 && flight.itineraries[1]?.segments[1].departure.iataCode}</b>
+                                                                        </div>
+                                                                    </span>
+                                                                    <div className="promo-detail">
+                                                                        <p>
+                                                                            <strong>Flight Duration: </strong>{extractDuration(flight.itineraries[1].duration)}
+                                                                        </p>
+                                                                        {flight.itineraries[1]?.segments.length > 1 && flight.itineraries[1]?.segments.map((a, i) => {
+                                                                            if (i !== 0) {
+                                                                                return <p>
+                                                                                    <strong>Layover {i}:</strong> {extractDuration(a.duration)},
+                                                                                    {a.departure.airport ? a.departure.airport.name : ""}, {a.departure.airport ? a.departure.airport.city : ""}
+                                                                                </p>
+                                                                            }
+                                                                        })}
+
+                                                                    </div>
+                                                                </div>}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="leg-details">
+                                                            <div className="city">
+
+                                                                <div className="time">
+
+                                                                    <strong>{getTimeFromDate(flight.itineraries[1]?.segments[flight.itineraries[1]?.segments.length - 1].arrival.at)}</strong>
+                                                                    <sup />
+                                                                </div>
+                                                                <div className="code">
+                                                                    <span className="  tooltip-custom minor-txt">
+                                                                        {flight.itineraries[1]?.segments[flight.itineraries[1]?.segments.length - 1].arrival.iataCode}
+                                                                        <div className="promo-detail">
+                                                                            <span className="arrow" />
+                                                                            <p
+                                                                                className="mb5px"
+                                                                                style={{ textAlign: "left" }}
+                                                                            >
+                                                                                {flight.itineraries[1]?.segments[flight.itineraries[1]?.segments.length - 1].arrival.airport.name}, {flight.itineraries[1]?.segments[flight.itineraries[1]?.segments.length - 1].arrival.airport.city}
+                                                                            </p>
+                                                                        </div>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="col-sm-2 col-xs-12 p0px hidden-xs">
+                                                        <div
+                                                            className="trip-time"
+                                                            style={{
+                                                                fontSize: 12,
+                                                                width: 80,
+                                                                paddingTop: 20,
+                                                                color: "#333"
+                                                            }}
+                                                        >
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width={12}
+                                                                height={12}
+                                                                fill="currentColor"
+                                                                className="bi bi-clock"
+                                                                viewBox="0 0 16 16"
+                                                                style={{ verticalAlign: "middle" }}
+                                                            >
+                                                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"></path>
+                                                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"></path>
+                                                            </svg>
+                                                            {extractDuration(flight.itineraries[1]?.duration)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )
+                                }
                             </a>
                         </div>
                     </div>

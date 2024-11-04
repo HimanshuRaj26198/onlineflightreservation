@@ -1,0 +1,170 @@
+[
+    [
+        {
+            "source": {
+                "name": "New York City",
+                "airport": "John F. Kennedy International Airport (JFK)",
+                "iataCode": "JFK"
+            },
+            "destination": {
+                "name": "Los Angeles",
+                "airport": "Los Angeles International Airport (LAX)",
+                "iataCode": "LAX"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/nyc.jpg",
+            "description": "Flight from New York City to Los Angeles.",
+            "dateRange": "Nov 1 - Nov 2",
+            "depDate": "2024-11-01",
+            "returnDate": "2024-11-02",
+            "amount": "$550",
+            "travelerType": "Adult" 
+        }
+    ],
+    [
+        {
+            "source": {
+                "name": "Los Angeles",
+                "airport": "Los Angeles International Airport (LAX)",
+                "iataCode": "LAX"
+            },
+            "destination": {
+                "name": "Chicago",
+                "airport": "O'Hare International Airport (ORD)",
+                "iataCode": "ORD"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/la.jpg",
+            "description": "Flight from Los Angeles to Chicago.",
+            "dateRange": "Nov 3 - Nov 4",
+            "depDate": "2024-11-03",
+            "returnDate": "2024-11-04",
+            "amount": "$480",
+            "travelerType": "Child" 
+        }
+    ],
+    [
+        {
+            "source": {
+                "name": "Chicago",
+                "airport": "O'Hare International Airport (ORD)",
+                "iataCode": "ORD"
+            },
+            "destination": {
+                "name": "Las Vegas",
+                "airport": "McCarran International Airport (LAS)",
+                "iataCode": "LAS"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/chicago.jpg",
+            "description": "Flight from Chicago to Las Vegas.",
+            "dateRange": "Nov 5 - Nov 6",
+            "depDate": "2024-11-05",
+            "returnDate": "2024-11-06",
+            "amount": "$420",
+            "travelerType": "Adult" 
+        }
+    ],
+    [
+        {
+            "source": {
+                "name": "Las Vegas",
+                "airport": "McCarran International Airport (LAS)",
+                "iataCode": "LAS"
+            },
+            "destination": {
+                "name": "Miami",
+                "airport": "Miami International Airport (MIA)",
+                "iataCode": "MIA"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/vegas.jpg",
+            "description": "Flight from Las Vegas to Miami.",
+            "dateRange": "Nov 7 - Nov 8",
+            "depDate": "2024-11-07",
+            "returnDate": "2024-11-08",
+            "amount": "$380",
+            "travelerType": "Infant" 
+        }
+    ],
+    [
+        {
+            "source": {
+                "name": "Miami",
+                "airport": "Miami International Airport (MIA)",
+                "iataCode": "MIA"
+            },
+            "destination": {
+                "name": "Orlando",
+                "airport": "Orlando International Airport (MCO)",
+                "iataCode": "MCO"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/miami.jpg",
+            "description": "Flight from Miami to Orlando.",
+            "dateRange": "Nov 9 - Nov 10",
+            "depDate": "2024-11-09",
+            "returnDate": "2024-11-10",
+            "amount": "$450",
+            "travelerType": "Adult" 
+        }
+    ],
+    [
+        {
+            "source": {
+                "name": "Orlando",
+                "airport": "Orlando International Airport (MCO)",
+                "iataCode": "MCO"
+            },
+            "destination": {
+                "name": "San Francisco",
+                "airport": "San Francisco International Airport (SFO)",
+                "iataCode": "SFO"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/orlando.jpg",
+            "description": "Flight from Orlando to San Francisco.",
+            "dateRange": "Nov 11 - Nov 12",
+            "depDate": "2024-11-11",
+            "returnDate": "2024-11-12",
+            "amount": "$400",
+            "travelerType": "Child" 
+        }
+    ],
+    [
+        {
+            "source": {
+                "name": "San Francisco",
+                "airport": "San Francisco International Airport (SFO)",
+                "iataCode": "SFO"
+            },
+            "destination": {
+                "name": "Seattle",
+                "airport": "Seattle-Tacoma International Airport (SEA)",
+                "iataCode": "SEA"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/sf.jpg",
+            "description": "Flight from San Francisco to Seattle.",
+            "dateRange": "Nov 13 - Nov 14",
+            "depDate": "2024-11-13",
+            "returnDate": "2024-11-14",
+            "amount": "$600",
+            "travelerType": "Adult" 
+        }
+    ],
+    [
+        {
+            "source": {
+                "name": "Seattle",
+                "airport": "Seattle-Tacoma International Airport (SEA)",
+                "iataCode": "SEA"
+            },
+            "destination": {
+                "name": "New York City",
+                "airport": "John F. Kennedy International Airport (JFK)",
+                "iataCode": "JFK"
+            },
+            "image": "https://cmsrepository.com/static/flights/flight/airlinelogo-png/seattle.jpg",
+            "description": "Flight from Seattle to New York City.",
+            "dateRange": "Nov 15 - Nov 16",
+            "depDate": "2024-11-15",
+            "returnDate": "2024-11-16",
+            "amount": "$520",
+            "travelerType": "Adult" 
+        }
+    ]
+]

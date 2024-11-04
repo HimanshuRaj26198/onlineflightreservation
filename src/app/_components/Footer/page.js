@@ -232,9 +232,9 @@ const Footer = () => {
                             warranty or representation, whether implied or expressed, when it comes to the accuracy,
                             completeness or reliability of the information displayed on the website. If you need to have any
                             queries answered, you can write to us at <a
-                                href="cdn-cgi/l/email-protection.html#71020401011e0305311d1e1e1a1308171003145f121e1c"><span
+                                href="mailto:contact@onlineflightreservation.com"><span
                                     className="__cf_email__"
-                                    data-cfemail="ddaea8adadb2afa99db1b2b2b6bfa4bbbcafb8f3beb2b0">[email&#160;protected]</span></a>
+                                    data-cfemail="ddaea8adadb2afa99db1b2b2b6bfa4bbbcafb8f3beb2b0">contact@onlineflightreservation.com</span></a>
                         </p>
                     </div>
                 </div>

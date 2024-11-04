@@ -1,4 +1,38 @@
+'use client'
+
+import React, { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import FlightSearch from "@/app/_components/FlightSearch/page";
+
 const NoResults = () => {
+
+    const [isSearchVisible, setIsSearchVisible] = useState(false);
+    const searchRef = useRef(null);
+    const [maxHeight, setMaxHeight] = useState("0px");
+
+    const searchParam = useSearchParams();
+
+
+    const origin = searchParam.get("origin");
+    const destination = searchParam.get("destination");
+    const depDate = searchParam.get("depdate");
+    const returnD = searchParam.get("returnD");
+
+
+    const handleEditSearchClick = () => {
+        setIsSearchVisible(!isSearchVisible);
+    };
+
+    useEffect(() => {
+
+        if (isSearchVisible) {
+            setMaxHeight(`${searchRef.current.scrollHeight}px`);
+        } else {
+            setMaxHeight("0px");
+        }
+    }, [isSearchVisible]);
+
+
     return <div className="body-content" bis_skin_checked={1}>
         <div
             id="_flight-details"
@@ -23,12 +57,40 @@ const NoResults = () => {
                         >
                             <div className="row" bis_skin_checked={1}>
                                 <div className="" bis_skin_checked={1}>
-                                    <button
-                                        type="button"
-                                        className="modify_search pull-right edit-listing-search"
-                                    >
-                                        Edit Search
-                                    </button>
+                                    <div className="">
+
+                                        {/* Conditionally render search details or close button */}
+
+                                        {!isSearchVisible ? (
+                                            <div className="search_detail edit-listing-searchdetails hand">
+
+
+                                                <div className="col-sm-8">
+                                                    {origin} &nbsp;
+                                                    <b>
+                                                        {" "}
+                                                        <i className="fa fa-exchange" />{" "}
+                                                    </b>
+                                                    &nbsp; {destination}
+                                                    <br />
+                                                    {depDate} , 1 Traveler, Economy
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="modify_search pull-right edit-listing-search"
+                                                    onClick={handleEditSearchClick}
+                                                >
+                                                    Edit Search
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick} >
+                                                Close{/* */} [x]
+                                            </a>
+                                        )}
+
+                                    </div>
+
                                     <div className="col-sm-8" bis_skin_checked={1}>
                                         Patna &nbsp;
                                         <b>
@@ -44,6 +106,14 @@ const NoResults = () => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div ref={searchRef}
+                            style={{
+                                maxHeight: maxHeight,
+                                overflow: "hidden",
+                                transition: "max-height 0.5s ease-in-out",
+                            }}>
+                            <FlightSearch />
                         </div>
                         <div
                             className="expend_search"
