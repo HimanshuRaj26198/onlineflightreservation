@@ -362,6 +362,9 @@ const FlightResultCompnent = () => {
                 }
             }
 
+            console.log(cabinRestrictionObj,"ARRRRRRRRRRR");
+            
+
 
             let query = {
                 "currencyCode": "USD",
@@ -511,7 +514,7 @@ const FlightResultCompnent = () => {
 
                 setFlightList(FlightList);
                 if (FlightList.length <= 0) {
-                    router.push(`/home/no-results/origin=${origin1}&destination=${destination1}&depDate=${depDate1}&returnD=${returnD1}`);
+                    router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
                 } else {
                     setFlightList(FlightList);
                     setLoading(false);
@@ -522,7 +525,7 @@ const FlightResultCompnent = () => {
                     }, 25000);
                 }
             } catch (err) {
-                router.push(`/home/no-results/origin=${origin1}&destination=${destination1}&depDate=${depDate1}&returnD=${returnD1}`);
+                router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
             }
         }
         fetchFlightOffers();
