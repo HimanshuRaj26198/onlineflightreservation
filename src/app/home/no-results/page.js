@@ -26,6 +26,16 @@ const NoResults = () => {
         }
     }, [isSearchVisible]);
 
+    const [isFlightSearchVisible, setFlightSearchVisible] = useState(false);
+
+    // Handler to open FlightSearch component
+    const openFlightSearch = () => {
+        setFlightSearchVisible(true);
+    }
+    const closeFlightSearch = () => {
+        setFlightSearchVisible(false);
+    };
+
 
     return <div className="body-content" bis_skin_checked={1}>
         <div
@@ -105,37 +115,60 @@ const NoResults = () => {
         <div className="mobile-header-fixed" bis_skin_checked={1}>
             <div className="mobile-itenery modifySearchMobile" bis_skin_checked={1}>
                 <div className="result-itenery" bis_skin_checked={1}>
-                    <div className="row" bis_skin_checked={1}>
-                        <div className="col-xs-12" bis_skin_checked={1}>
-                            <a>
-                                <div className="modify-src-btn" bis_skin_checked={1}>
-                                    <img src="/us/images/svg/edit-icon.svg" alt="" />
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <a href="javascript:void(0);" onClick={openFlightSearch}>
+                                <div className="modify-src-btn">
+                                    <img
+                                        src="https://www.lookbyfare.com/us/images/svg/edit-icon.svg"
+                                        alt="Edit Icon"
+                                    />
                                 </div>
                             </a>
-                            <div className="city-itenery" bis_skin_checked={1}>
-                                <div className="column" bis_skin_checked={1}>
+                            {isFlightSearchVisible && (
+                                <div className="flight-search-modal">
+                                    <FlightSearch />
+                                    {/* Close button styled as "X" */}
+                                    <button
+                                        onClick={closeFlightSearch}
+                                        className="close-btn"
+                                        aria-label="Close"
+                                    >
+                                        &times; {/* The "X" symbol */}
+                                    </button>
+                                </div>
+                            )}
+                            <div className="city-itenery">
+                                <div className="column">
                                     <p className="airportCode">{searchParam.get("origin")}</p>
                                 </div>
-                                <div className="column" bis_skin_checked={1}>
-                                    <div className="airporticon" bis_skin_checked={1}>
+                                <div className="column">
+                                    <div className="airporticon">
                                         <b>
-                                            {" "}
-                                            <i
-                                                className="fa fa-long-arrow-right"
-                                                aria-hidden="true"
-                                            />{" "}
+                                            <i className="fa fa-long-arrow-right" aria-hidden="true" />
                                         </b>
                                     </div>
                                 </div>
-                                <div className="column" bis_skin_checked={1}>
+                                <div className="column">
                                     <p className="airportCode">{searchParam.get("destination")}</p>
                                 </div>
-                                <div className="clearfix" bis_skin_checked={1} />
-                                <div className="itenery-date" bis_skin_checked={1}>
-                                    {searchParam.get("depDate")}
-                                    <span className="traveller-xxs">
-                                        <span>&nbsp; | &nbsp;</span>1 Traveler
-                                    </span>
+                                <div className="clearfix" />
+
+                                <div className="itenery-date">
+
+                                    {searchParam.get("tripType") === 'Round-Trip' ? (
+                                        <>
+                                            {searchParam.get("depDate")}, {searchParam.get("returnD")},
+                                            <span>1 Traveler</span>,
+                                            {searchParam.get("cabin")}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {searchParam.get("depDate")},
+                                            <span>1 Traveler</span>,
+                                            {searchParam.get("cabin")}
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>

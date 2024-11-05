@@ -17027,6 +17027,28 @@ select {
     position: relative
 }
 
+@media (max-width: 767px) {
+    .results-page .modify-engine-wrapper.open {
+        display: block;
+        background: #1b75bc;
+        padding: 20px 0;
+        position: fixed;
+        left: 0px;
+        top: 0;
+        z-index: 5;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    .results-page .modify-engine-wrapper {
+        display: none;
+    }
+}
+
+
 @media(max-width:767px) {
     .modify-engine.hotel-modify-engine-wrapper {
         display: none

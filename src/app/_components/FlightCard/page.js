@@ -153,7 +153,7 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight, oneway 
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div className="col-sm-7 col-xs-12">
                                                     <div className="flex-date flex-highlight">
                                                         {getFormattedDate(flight.itineraries[0].segments[0].departure.at)}
@@ -773,6 +773,7 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight, oneway 
                 </div>
             </div>
         </div>}
+
     </>
 }
 

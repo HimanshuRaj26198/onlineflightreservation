@@ -234,7 +234,7 @@ const Footer = () => {
                             queries answered, you can write to us at <a
                                 href="mailto:contact@onlineflightreservation.com"><span
                                     className="__cf_email__"
-                                    data-cfemail="ddaea8adadb2afa99db1b2b2b6bfa4bbbcafb8f3beb2b0">contact@onlineflightreservation.com</span></a>
+                                    data-cfemail="ddaea8adadb2afa99db1b2b2b6bfa4bbbcafb8f3beb2b0"><b>contact@onlineflightreservation.com</b></span></a>
                         </p>
                     </div>
                 </div>

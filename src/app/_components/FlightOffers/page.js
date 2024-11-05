@@ -2,8 +2,6 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import img from "../../../../public/assets/images/home/mal-blue.png"
-
 
 import React, { useState } from "react";
 
@@ -17,15 +15,15 @@ const FlightOfferCard = ({ airlinesData, setActiveFlight, handleStopFilter }) =>
 
     const settings = {
         dots: false,
-        infinite: true,
+        infinite: airlinesData.length > 1, 
         speed: 500,
-        slidesToShow: 3,
+        slidesToShow: airlinesData.length === 1 ? 1 : 3, 
         slidesToScroll: 1,
         responsive: [
             {
                 breakpoint: 1024,
                 settings: {
-                    slidesToShow: 4,
+                    slidesToShow: airlinesData.length === 1 ? 1 : 3,
                     slidesToScroll: 1,
                     infinite: true,
                     dots: false,
