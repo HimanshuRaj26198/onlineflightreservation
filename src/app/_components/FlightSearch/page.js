@@ -334,7 +334,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                     <div className="col-xs-12">
                         <div className="error-txt" id="sameSearchdup"></div>
                         <div className="row">
-                            <div className="col-sm-6 col-lg-3 ">
+                            <div className=" col-xs-12 col-sm-6 col-lg-3 ">
                                 <div className="input-city">
                                     <label className="form-label">Leaving from</label>
                                     <div className="relative">
@@ -376,7 +376,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                     ></i>
                                 </span>
                             </div>
-                            <div className="col-sm-6 col-lg-3 ">
+                            <div className=" col-xs-12 col-sm-6 col-lg-3 ">
                                 <div className="input-city">
                                     <label className="form-label">Going to</label>
                                     <div className="relative">

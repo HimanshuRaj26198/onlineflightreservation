@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/app/_components/firebase/config";
+import { useRouter } from "next/navigation";
 import countryCodeArr from "@/assets/Country_Code.json"
 import PassengerForm from "@/app/_components/PassengerForm/page";
 import CountrySelect from "@/app/_components/CountrySelectList/page";
@@ -20,6 +21,8 @@ const PurchasePage = () => {
     const [selectedCountry, setSelectedCountry] = useState(countryCodeArr[0]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [countries, setCountries] = useState([]);
+
+    const router = useRouter();
 
     useEffect(() => {
         setCountries(countryCodeArr);
@@ -222,6 +225,7 @@ const PurchasePage = () => {
             console.log("Not a valid date");
         }
     };
+
     const getTimeFromDate = (date, fullhours) => {
         let newDate = new Date(date);
 
@@ -292,14 +296,19 @@ const PurchasePage = () => {
     const printEvent = (e) => {
         console.log(e.target)
     };
+
+    const gotolisting = () => {
+        router.back();
+    }
+
     return <>
         {selectedFlight && <div className="body-content" bis_skin_checked="1">
             <div className="payment-wrapper kaxsdc" data-event="load" bis_skin_checked={1}>
                 <div className="container" bis_skin_checked={1}>
                     <div className="row" bis_skin_checked={1}>
                         <div className="col-sm-2 col-xs-12" bis_skin_checked={1}>
-                            <div className="go-button" bis_skin_checked={1}>
-                                <a href={""} onclick="gotolisting()">
+                            <div className="go-button">
+                                <a href="#" onClick={gotolisting}>
                                     <i className="fa fa-angle-left" aria-hidden="true" /> Change Flight
                                 </a>
                             </div>

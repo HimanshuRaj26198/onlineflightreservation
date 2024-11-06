@@ -20362,15 +20362,17 @@ select {
 }
 
 .flight-details .popup-price-strip {
+
     background: #ededed;
-    padding: 0 20px 10px;
+    padding: 0 20px 10px 20px;
     border-top: 1px solid #eee;
     margin: 0 -20px;
     width: 600px;
-    position: fixed;
+    position: sticky;
     bottom: 0;
     border-radius: 0;
-    z-index: 2
+    z-index: 2;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
 @media(max-width:767px) {
