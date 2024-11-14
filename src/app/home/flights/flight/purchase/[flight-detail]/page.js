@@ -30,10 +30,10 @@ const PurchasePage = () => {
 
     const router = useRouter();
 
-    const handleCountrySelect = (country) => {
-        setSelectedCountry(country);
-        setIsDropdownOpen(false);
-    };
+    // const handleCountrySelect = (country) => {
+    //     setSelectedCountry(country);
+    //     setIsDropdownOpen(false);
+    // };
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -142,30 +142,24 @@ const PurchasePage = () => {
         } else if (phoneRef === "") {
             toast.error("Please add the phone first!")
         } else {
-            let contactFormData = new FormData();
-            contactFormData.append("Email", emailRef.current.value);
-            contactFormData.append("Mobile", phoneRef.current.value);
-            contactFormData.append("AlternateMobile", alternateNumRef.current.value);
-            contactFormData.append("CountryCode", selectedCountry.dialCode);
+            const contactData = {
+                Email: emailRef.current.value,
+                Mobile: phoneRef.current.value,
+                AlternateMobile: alternateNumRef.current.value,
+                CountryCode: selectedCountry.dialCode
+            };
 
-            console.log("Email: ", emailRef.current.value);
-            console.log("Mobile: ", phoneRef.current.value);
-            console.log("AlternateMobile: ", alternateNumRef.current.value);
-            console.log("Country Code: ", selectedCountry.dialCode);
-
+            // Log the data to verify
+            console.log("CONTACT DATA: ", contactData);
             fetch("https://script.google.com/macros/s/AKfycbwVmb-Fq-ph0V-Buszfxf-iww-DuyO7M7s7APz-3-yNsDeXO3XWQCG3-djqs9kJ1X1CdA/exec",
                 {
                     method: "POST",
-                    body: contactFormData
+                    body: contactData
                 }
             ).then(res => console.log(res), setFormFilled(true)).catch(err => console.log(err));
         }
 
     }
-
-    // const handleGenderChange = (e) => {
-    //     setGender(e.target.value);
-    // }
 
     const handleTravlerDetails = (e) => {
         e.preventDefault();
@@ -213,8 +207,8 @@ const PurchasePage = () => {
         }
     };
 
+    // Initialize counters and totals
     function summarizeTravelers(travelers) {
-        // Initialize counters and totals
         const counts = {
             adults: { count: 0, total: 0 },
             child: { count: 0, total: 0 },
@@ -383,6 +377,8 @@ const PurchasePage = () => {
         router.back();
     }
 
+    // For Country Code
+
     useEffect(() => {
         const getLocation = async () => {
             try {
@@ -425,7 +421,6 @@ const PurchasePage = () => {
     }, [currentYear]);
 
     // For add more adult
-
     const [travelers, setTravelers] = useState([
         {
             id: Date.now(),
@@ -436,6 +431,11 @@ const PurchasePage = () => {
             dobMonth: '',
             dobDate: '',
             dobYear: '',
+            emergencyContactName: '',
+            phoneCode: '',
+            tsaPrecheckNumber: '',
+            redressNumber: '',
+            emergencyContactNumber:'',
         },
     ]);
 
@@ -478,8 +478,24 @@ const PurchasePage = () => {
                 dobMonth: '',
                 dobDate: '',
                 dobYear: '',
+                emergencyContactName: '',
+                phoneCode: '',
+                tsaPrecheckNumber: '',
+                redressNumber: '',
+                emergencyContactNumber:'',
             },
         ]);
+    };
+
+    // Handle country selection from dropdown
+    const handleCountrySelect = (country) => {
+        setSelectedCountry(country);
+        const updatedTravelers = [...travelers];
+        updatedTravelers.forEach((traveler, index) => {
+            traveler.phoneCode = country.dialCode;
+        });
+        setTravelers(updatedTravelers);
+        setIsDropdownOpens(false);
     };
 
     // Remove a traveler from the list
@@ -1474,7 +1490,7 @@ const PurchasePage = () => {
                                                                         type="radio"
                                                                         defaultValue={1}
                                                                         value="1"
-                                                                        checked={gender === '1'}
+                                                                        checked={adult.gender === '1'}
                                                                         onChange={() => handleGenderChange(index, '1')}
                                                                     />
                                                                     <span>Male</span>
@@ -1491,7 +1507,7 @@ const PurchasePage = () => {
                                                                         type="radio"
                                                                         defaultValue={2}
                                                                         value="2"
-                                                                        checked={gender === '2'}
+                                                                        checked={adult.gender === '2'}
                                                                         onChange={() => handleGenderChange(index, '2')}
                                                                     />
                                                                     <span>Female</span>
@@ -1598,11 +1614,12 @@ const PurchasePage = () => {
                                                                     <label>Emergency contact name</label>
                                                                     <input
                                                                         className="alphanumeric nonvalidateTxt"
-                                                                        id="flightBookingRequest_Contact_EmergencyContactName"
-                                                                        name="flightBookingRequest.Contact.EmergencyContactName"
+                                                                        id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                        name="emergencyContactName"
                                                                         placeholder="Name"
                                                                         type="text"
-                                                                        defaultValue=""
+                                                                        value={adult.emergencyContactName}
+                                                                        onChange={(e) => handleInputChange(index, e)}
                                                                     />
                                                                 </div>
                                                                 <div className="col-sm-7 col-xs-12">
@@ -1634,17 +1651,32 @@ const PurchasePage = () => {
                                                                                     </div>
                                                                                     <input
                                                                                         className="nonvalidateTxt"
-                                                                                        id="PhoneCode"
-                                                                                        name="flightBookingRequest.Contact.Intcode"
+                                                                                        id={`PhoneCode_${index}`}
+                                                                                        name="phoneCode"
                                                                                         placeholder="e.g"
                                                                                         readOnly
                                                                                         type="tel"
-                                                                                        value={selectedCountry.dialCode}
+                                                                                        value={adult.phoneNumber}
+                                                                                        onChange={(e) => handleInputChange(index, e)}
+
                                                                                     />
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+                                                                        <div className="col-sm-7 col-xs-12">
+                                                                            <label>Emergency contact number</label>
+                                                                            <input
+                                                                                className="alphanumeric nonvalidateTxt"
+                                                                                id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                                name="emergencyContactNumber"
+                                                                                placeholder="Name"
+                                                                                type="text"
+                                                                                value={adult.emergencyContactNumber}
+                                                                                onChange={(e) => handleInputChange(index, e)}
+                                                                            />
+                                                                        </div>
                                                                     </div>
+
                                                                     <div className="row">
                                                                         <div className="col-sm-6 col-xs-12">
                                                                             <label>
@@ -1664,11 +1696,12 @@ const PurchasePage = () => {
                                                                             </label>
                                                                             <input
                                                                                 className="nonvalidateTxt alphanumericbothwithoutspace"
-                                                                                id="flightBookingRequest_PassengerList_0__TSAPrecheckNumber"
-                                                                                name="flightBookingRequest.PassengerList[0].TSAPrecheckNumber"
+                                                                                id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
+                                                                                name="tsaPrecheckNumber"
                                                                                 placeholder="Known Traveler Number (Optional)"
                                                                                 type="text"
-                                                                                defaultValue=""
+                                                                                value={adult.tsaPrecheckNumber}
+                                                                                onChange={(e) => handleInputChange(index, e)}
                                                                             />
                                                                         </div>
                                                                         <div className="col-sm-6 col-xs-12">
@@ -1689,23 +1722,27 @@ const PurchasePage = () => {
                                                                             </label>
                                                                             <input
                                                                                 className="numeric nonvalidateTxt"
-                                                                                id="flightBookingRequest_PassengerList_0__TSARedressNumber"
-                                                                                name="flightBookingRequest.PassengerList[0].TSARedressNumber"
+                                                                                id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
+                                                                                name="redressNumber"
                                                                                 placeholder="(Optional)"
                                                                                 type="number"
-                                                                                defaultValue=""
+                                                                                value={adult.redressNumber}
+                                                                                onChange={(e) => handleInputChange(index, e)}
                                                                             />
                                                                         </div>
                                                                     </div>
                                                                 </div>
+
                                                             </div>
                                                         </div>
                                                     )}
                                                 </div>
 
-                                                <button type="button" onClick={() => removeAdult(index)}>
-                                                    Remove this Adult
-                                                </button>
+                                                {travelers.length > 1 && (
+                                                    <button type="button" onClick={() => removeAdult(travelers.length - 1)}>
+                                                        Remove Last Adult
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                         <button type="button" onClick={addMoreAdult}>
