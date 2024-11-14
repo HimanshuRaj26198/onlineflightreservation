@@ -36007,3 +36007,51 @@ body {
 .moreairline {
     display: none
 }
+
+.modify-engine-wrapper {
+    background: #1b75bc;
+    padding: 10px 0 10px 0;
+    position: relative;
+}
+
+@media (max-width: 767px) {
+    .results-page .modify-engine-wrapper.open {
+        display: block;
+        background: #1b75bc;
+        padding: 20px 0;
+        position: fixed;
+        left: 0px;
+        top: 0;
+        z-index: 5;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+}
+@media (max-width: 767px) {
+    .results-page .modify-engine-wrapper {
+        display: none;
+    }
+}
+.modify-engine-wrapper {
+    background: #1b75bc;
+    padding: 10px 0 10px 0;
+    position: relative;
+}
+
+@media (max-width: 767px) {
+    .visible-xs {
+        display: block !important;
+    }
+}
+.visible-xs {
+    display: none !important;
+}
+
+.airline-matrix-mobile ul {
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}

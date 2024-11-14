@@ -399,8 +399,7 @@ const FlightResultCompnent = () => {
                                     "1"
                                 ]
                             }
-                        ],
-                        "carrierRestrictions": cabinRestrictionObj
+                        ]
 
                     },
 
@@ -442,8 +441,7 @@ const FlightResultCompnent = () => {
                                     "1", "2"
                                 ]
                             }
-                        ],
-                        "carrierRestrictions": cabinRestrictionObj
+                        ]
 
                     },
 
@@ -543,7 +541,6 @@ const FlightResultCompnent = () => {
     };
 
     useEffect(() => {
-
         if (isSearchVisible) {
             setMaxHeight(`${searchRef.current.scrollHeight}px`);
         } else {
@@ -890,6 +887,7 @@ const FlightResultCompnent = () => {
                     <div className="result-itenery">
                         <div className="row">
                             <div className="col-xs-12">
+
                                 <a href="javascript:void(0);" onClick={openFlightSearch}>
                                     <div className="modify-src-btn">
                                         <img
@@ -898,22 +896,43 @@ const FlightResultCompnent = () => {
                                         />
                                     </div>
                                 </a>
+
+
+                                {/* For Recheck Tommorow */}
+
                                 {isFlightSearchVisible && (
-                                    <div className="flight-search-modal">
-                                        <FlightSearch />
-                                        {/* Close (X) button */}
-                                        <button
-                                            onClick={closeFlightSearch}
-                                            className="close-btn"
-                                            aria-label="Close"
-                                        >
-                                            &times;
-                                        </button>
+                                    <div className="modify-engine-wrapper open">
+                                        <a
+                                            href="javascript:void(0);"
+                                            className="close-sidebar fa fa-close"
+                                            onClick={() => setFlightSearchVisible(false)}
+                                        />
+
+                                        <div className="holder">
+                                            <div className="modify-engine">
+                                                <div className="container">
+                                                    <div className="search_detail edit-listing-searchdetails hand">
+                                                        {!isSearchVisible ? (
+                                                            <FlightSearch />
+                                                        ) : (
+                                                            <a
+                                                                className="close-listing-search visible-lg visible-md"
+                                                                onClick={() => setIsSearchVisible(false)}
+                                                            >
+                                                                Close {/* [x] */}
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
+
+                                {/* Flight itinerary details */}
                                 <div className="city-itenery">
                                     <div className="column">
-                                        <p className="airportCode">{searchParam.get("origin")}</p>
+                                        <p className="airportCode">{origin}</p>
                                     </div>
                                     <div className="column">
                                         <div className="airporticon">
@@ -923,23 +942,20 @@ const FlightResultCompnent = () => {
                                         </div>
                                     </div>
                                     <div className="column">
-                                        <p className="airportCode">{searchParam.get("destination")}</p>
+                                        <p className="airportCode">{destination}</p>
                                     </div>
                                     <div className="clearfix" />
 
                                     <div className="itenery-date">
-
-                                        {searchParam.get("tripType") === 'Round-Trip' ? (
+                                        {searchParam.get('tripType') === 'Round-Trip' ? (
                                             <>
-                                                {searchParam.get("depDate")}, {searchParam.get("returnD")},
-                                                <span>{total} Traveler</span>,
-                                                {searchParam.get("cabin")}
+                                                {searchParam.get('depDate')}, {searchParam.get('returnD')},{' '}
+                                                <span>{total} Traveler</span>, {searchParam.get('cabin')}
                                             </>
                                         ) : (
                                             <>
-                                                {searchParam.get("depDate")},
-                                                <span>{total} Traveler</span>,
-                                                {searchParam.get("cabin")}
+                                                {searchParam.get('depDate')},{' '}
+                                                <span>{total} Traveler</span>, {searchParam.get('cabin')}
                                             </>
                                         )}
                                     </div>

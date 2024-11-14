@@ -1,29 +1,15 @@
 import React, { useState } from 'react';
 
-const PassengerForm = () => {
+const PassengerForm = ({
+    index,
+    lastName,
+    dobMonth,
+    dobDate,
+    dobYear,
+    handleInputChange,
+}) => {
     const currentYear = new Date().getFullYear();
-    const [lastName, setLastName] = useState('');
-    const [dobMonth, setDobMonth] = useState('');
-    const [dobDate, setDobDate] = useState('');
-    const [dobYear, setDobYear] = useState('');
-
-    const years = Array.from({ length: currentYear - 1913 }, (_, i) => currentYear - i); // Generates years from current year to 1914
-
-    const handleLastNameChange = (e) => {
-        setLastName(e.target.value);
-    };
-
-    const handleDobMonthChange = (e) => {
-        setDobMonth(e.target.value);
-    };
-
-    const handleDobDateChange = (e) => {
-        setDobDate(e.target.value);
-    };
-
-    const handleDobYearChange = (e) => {
-        setDobYear(e.target.value);
-    };
+    const years = Array.from({ length: currentYear - 1913 }, (_, i) => currentYear - i);
 
     return (
         <div className="row">
@@ -33,15 +19,11 @@ const PassengerForm = () => {
                 </label>
                 <input
                     className="Traveler esname alphanumeric"
-                    data-val="true"
-                    data-val-required="The LastName field is required."
-                    id="flightBookingRequest_PassengerList_0__LastName"
-                    maxLength={54}
-                    name="flightBookingRequest.PassengerList[0].LastName"
+                    name="lastName" // Use a simpler name that matches your state
+                    value={lastName}
+                    onChange={(e) => handleInputChange(index, e)}
                     placeholder="Last Name"
                     type="text"
-                    value={lastName}
-                    onChange={handleLastNameChange}
                 />
                 <span
                     className="field-validation-valid"
@@ -50,27 +32,24 @@ const PassengerForm = () => {
                 />
                 <span className="required_mobile">*</span>
             </div>
+
             <div className="col-sm-7 col-xs-12">
                 <div className="row">
                     <div className="col-xs-12">
                         <label>
-                            <span>
-                                Date of Birth <small>(above 18)</small>
-                            </span>
+                            Date of Birth <small>(above 18)</small>
                             <span className="required">*</span>
                         </label>
                     </div>
+
+                    {/* Date of Birth Month */}
                     <div className="col-sm-4 col-xs-4 month">
                         <div className="form-righterrow">
                             <select
                                 className="Traveler"
-                                data-val="true"
-                                data-val-number="The field DobMonth must be a number."
-                                data-val-required="The DobMonth field is required."
-                                id="DobMonth_0"
-                                name="flightBookingRequest.PassengerList[0].DobMonth"
+                                name="dobMonth" // Use a consistent name for DOB fields
                                 value={dobMonth}
-                                onChange={handleDobMonthChange}
+                                onChange={(e) => handleInputChange(index, e)}
                             >
                                 <option value="">Month</option>
                                 {Array.from({ length: 12 }, (_, i) => (
@@ -79,21 +58,17 @@ const PassengerForm = () => {
                                     </option>
                                 ))}
                             </select>
-                            <span
-                                className="field-validation-valid"
-                                data-valmsg-for="flightBookingRequest.PassengerList[0].DobMonth"
-                                data-valmsg-replace="true"
-                            />
                         </div>
                     </div>
+
+                    {/* Date of Birth Day */}
                     <div className="col-sm-4 col-xs-4 day">
                         <div className="form-righterrow">
                             <select
                                 className="Traveler"
-                                id="DobDate_0"
-                                name="flightBookingRequest.PassengerList[0].DobDate"
+                                name="dobDate" // Use a consistent name for DOB fields
                                 value={dobDate}
-                                onChange={handleDobDateChange}
+                                onChange={(e) => handleInputChange(index, e)}
                             >
                                 <option value="">Day</option>
                                 {Array.from({ length: 31 }, (_, i) => (
@@ -102,21 +77,17 @@ const PassengerForm = () => {
                                     </option>
                                 ))}
                             </select>
-                            <span
-                                className="field-validation-valid"
-                                data-valmsg-for="flightBookingRequest.PassengerList[0].DobDate"
-                                data-valmsg-replace="true"
-                            />
                         </div>
                     </div>
+
+                    {/* Date of Birth Year */}
                     <div className="col-sm-4 col-xs-4 year">
                         <div className="form-righterrow">
                             <select
                                 className="Traveler"
-                                id="DobYear_0"
-                                name="flightBookingRequest.PassengerList[0].DobYear"
+                                name="dobYear" // Use a consistent name for DOB fields
                                 value={dobYear}
-                                onChange={handleDobYearChange}
+                                onChange={(e) => handleInputChange(index, e)}
                             >
                                 <option value="">Year</option>
                                 {years.map((year) => (
@@ -125,11 +96,6 @@ const PassengerForm = () => {
                                     </option>
                                 ))}
                             </select>
-                            <span
-                                className="field-validation-valid"
-                                data-valmsg-for="flightBookingRequest.PassengerList[0].DobYear"
-                                data-valmsg-replace="true"
-                            />
                         </div>
                     </div>
                 </div>

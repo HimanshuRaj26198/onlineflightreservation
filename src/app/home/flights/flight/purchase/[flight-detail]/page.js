@@ -7,7 +7,7 @@ import { auth } from "@/app/_components/firebase/config";
 import { useRouter } from "next/navigation";
 import countryCodeArr from "@/assets/Country_Code.json"
 import PassengerForm from "@/app/_components/PassengerForm/page";
-import CountrySelect from "@/app/_components/CountrySelectList/page";
+import BillingInfo from "@/app/_components/billingInfo/page";
 
 const PurchasePage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);
@@ -18,15 +18,17 @@ const PurchasePage = () => {
     const emailRef = useRef("");
     const phoneRef = useRef("");
     const alternateNumRef = useRef("");
+    const firstNameRef = useRef();
+    const middleNameRef = useRef();
+    const [gender, setGender] = useState('1');
     const [selectedCountry, setSelectedCountry] = useState(countryCodeArr[0]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [countries, setCountries] = useState([]);
+    const [isDropdownOpens, setIsDropdownOpens] = useState(false);
+    const [isMoreInfoVisible, setIsMoreInfoVisible] = useState(false);
+    const [year, setYears] = useState([]);
+    const currentYear = new Date().getFullYear();
 
     const router = useRouter();
-
-    useEffect(() => {
-        setCountries(countryCodeArr);
-    }, [countryCodeArr]);
 
     const handleCountrySelect = (country) => {
         setSelectedCountry(country);
@@ -35,6 +37,9 @@ const PurchasePage = () => {
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
+    };
+    const toggleDropdowns = () => {
+        setIsDropdownOpens(!isDropdownOpens);
     };
 
     const styles = {
@@ -74,8 +79,43 @@ const PurchasePage = () => {
             background: '#f0f0f0',
         },
     };
-
-
+    const styles1 = {
+        flagDropdown: {
+            position: 'relative',
+            cursor: 'pointer',
+        },
+        selectedFlag: {
+            display: 'flex',
+            alignItems: 'center',
+        },
+        downArrow: {
+            width: 0,
+            height: 0,
+            borderLeft: '5px solid transparent',
+            borderRight: '5px solid transparent',
+            borderTop: '5px solid #000', // Change color as needed
+            marginLeft: '120px',
+        },
+        countryList: {
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            background: 'white',
+            border: '1px solid #ccc',
+            zIndex: 1000,
+            maxHeight: '200px',
+            overflowY: 'auto',
+            display: isDropdownOpens ? 'block' : 'none',
+        },
+        countryItem: {
+            padding: '10px',
+            cursor: 'pointer',
+        },
+        countryItemHover: {
+            background: '#f0f0f0',
+        },
+    };
 
     const [travellerCount, setTravellerCount] = useState({
         "adults": {
@@ -106,6 +146,13 @@ const PurchasePage = () => {
             contactFormData.append("Email", emailRef.current.value);
             contactFormData.append("Mobile", phoneRef.current.value);
             contactFormData.append("AlternateMobile", alternateNumRef.current.value);
+            contactFormData.append("CountryCode", selectedCountry.dialCode);
+
+            console.log("Email: ", emailRef.current.value);
+            console.log("Mobile: ", phoneRef.current.value);
+            console.log("AlternateMobile: ", alternateNumRef.current.value);
+            console.log("Country Code: ", selectedCountry.dialCode);
+
             fetch("https://script.google.com/macros/s/AKfycbwVmb-Fq-ph0V-Buszfxf-iww-DuyO7M7s7APz-3-yNsDeXO3XWQCG3-djqs9kJ1X1CdA/exec",
                 {
                     method: "POST",
@@ -114,6 +161,42 @@ const PurchasePage = () => {
             ).then(res => console.log(res), setFormFilled(true)).catch(err => console.log(err));
         }
 
+    }
+
+    // const handleGenderChange = (e) => {
+    //     setGender(e.target.value);
+    // }
+
+    const handleTravlerDetails = (e) => {
+        e.preventDefault();
+
+        let contactFormData = new FormData();
+
+        contactFormData.append("FirstName", firstNameRef.current.value);
+        contactFormData.append("MiddleName", middleNameRef.current.value || "");
+        contactFormData.append("Gender", gender);
+
+        // Log form data to the console
+        console.log("First Name:", firstNameRef.current.value);
+        console.log("Middle Name:", middleNameRef.current.value);
+        console.log("Gender:", gender);
+
+        // fetch("https://script.google.com/macros/s/AKfycbwVmb-Fq-ph0V-Buszfxf-iww-DuyO7M7s7APz-3-yNsDeXO3XWQCG3-djqs9kJ1X1CdA/exec", {
+        //     method: "POST",
+        //     body: contactFormData
+        // })
+        //     .then(res => {
+        //         if (res.ok) {
+        //             toast.success("Form submitted successfully!");
+        //             setFormFilled(true); // Update form status
+        //         } else {
+        //             toast.error("There was an error submitting the form.");
+        //         }
+        //     })
+        //     .catch(err => {
+        //         console.log("Error:", err);
+        //         toast.error("Something went wrong. Please try again.");
+        //     });
     }
 
     // Function to handle the scroll event
@@ -175,7 +258,6 @@ const PurchasePage = () => {
             totalPrice: totalPrice.toFixed(2)
         };
     }
-
 
     useEffect(() => {
         if (window) {
@@ -300,6 +382,116 @@ const PurchasePage = () => {
     const gotolisting = () => {
         router.back();
     }
+
+    useEffect(() => {
+        const getLocation = async () => {
+            try {
+                const response = await fetch('http://ip-api.com/json');
+                const data = await response.json();
+                console.log("DataGeo", data);
+
+                if (data.status === 'fail') {
+                    // console.error('Failed to fetch location');
+                } else {
+                    const userCountryCode = data.countryCode;
+                    // console.log("userCountry",userCountryCode);
+
+                    const country = countryCodeArr.find(c => c.countryCode.toUpperCase() === userCountryCode);
+                    console.log(country, "CountryCode-1");
+
+                    setSelectedCountry(country || countryCodeArr[0]);
+                }
+            } catch (err) {
+                console.error('Error fetching location:', err);
+            } finally {
+                // setLoading(false); // Stop loading once the data is fetched
+            }
+        };
+
+        getLocation();
+    }, []);
+
+    const toggleMoreInfo = (e) => {
+        e.preventDefault();
+        setIsMoreInfoVisible(!isMoreInfoVisible);
+    };
+
+    useEffect(() => {
+        const yearList = [];
+        for (let i = 0; i < 12; i++) {
+            yearList.push(currentYear + i);
+        }
+        setYears(yearList);
+    }, [currentYear]);
+
+    // For add more adult
+
+    const [travelers, setTravelers] = useState([
+        {
+            id: Date.now(),
+            gender: '1', // Default gender
+            firstName: '',
+            middleName: '',
+            lastName: '',
+            dobMonth: '',
+            dobDate: '',
+            dobYear: '',
+        },
+    ]);
+
+    // Helper function to get years for DOB
+    const getYears = () => {
+        const currentYear = new Date().getFullYear();
+        return Array.from({ length: 100 }, (_, index) => currentYear - index);
+    };
+
+    const years = getYears();
+
+    // Handle input changes for each traveler
+    const handleInputChange = (index, e) => {
+        const { name, value } = e.target;
+        const updatedTravelers = [...travelers];
+        updatedTravelers[index] = {
+            ...updatedTravelers[index],
+            [name]: value,
+        };
+        setTravelers(updatedTravelers);
+    };
+
+    // Handle gender change for each traveler
+    const handleGenderChange = (index, genderValue) => {
+        const updatedTravelers = [...travelers];
+        updatedTravelers[index].gender = genderValue;
+        setTravelers(updatedTravelers);
+    };
+
+    // Add another adult traveler
+    const addMoreAdult = () => {
+        setTravelers([
+            ...travelers,
+            {
+                id: Date.now(),
+                gender: '1',
+                firstName: '',
+                middleName: '',
+                lastName: '',
+                dobMonth: '',
+                dobDate: '',
+                dobYear: '',
+            },
+        ]);
+    };
+
+    // Remove a traveler from the list
+    const removeAdult = (index) => {
+        const updatedTravelers = travelers.filter((_, i) => i !== index);
+        setTravelers(updatedTravelers);
+    };
+
+    useEffect(() => {
+        console.log('Traveler Data:', travelers);
+    }, [travelers]);
+
 
     return <>
         {selectedFlight && <div className="body-content" bis_skin_checked="1">
@@ -1051,6 +1243,10 @@ const PurchasePage = () => {
                                             </div>
                                             <div className="col-sm-8 col-xs-12" bis_skin_checked={1}>
                                                 <div className="row" bis_skin_checked={1}>
+                                                    {/* <div style={{ fontSize: '24px' }}>
+                                                      
+                                                        {countryCode && <p>Your country code is: <strong>{countryCode}</strong></p>}
+                                                    </div> */}
                                                     {/* Country Code */}
                                                     <div className="col-sm-3 col-xs-12">
                                                         <label>
@@ -1201,7 +1397,7 @@ const PurchasePage = () => {
                                     </div>
                                 </div>
                                 <div id="div_Traveler" className="step2" bis_skin_checked={1}>
-                                    {formedFilled && <div className="form-box" bis_skin_checked={1}>
+                                    {formedFilled && <div className="form-box" bis_skin_checked={1} onSubmit={handleTravlerDetails} >
                                         <div className="mainheading" bis_skin_checked={1}>
                                             <img
                                                 src="/assets/images/svg/p-traveller-information.svg"
@@ -1254,3726 +1450,269 @@ const PurchasePage = () => {
                                             type="hidden"
                                             defaultValue={1}
                                         />
-                                        <div className="head" id="p0_wrapper" bis_skin_checked={1}>
-                                            Adult 1
-                                            <p>Passenger details must match your passport or photo ID</p>
-                                        </div>
-                                        <div className="gender-type" bis_skin_checked={1}>
-                                            <ul>
-                                                <li>
-                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                        <label>
-                                                            <input
-                                                                defaultChecked="checked"
-                                                                data-val="true"
-                                                                data-val-number="The field Gender must be a number."
-                                                                data-val-required="The Gender field is required."
-                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                onclick="selectTitle(0, 1 )"
-                                                                type="radio"
-                                                                defaultValue={1}
-                                                            />
-                                                            <span>Male</span>
+                                        {/* New Section */}
+                                        {travelers.map((adult, index) => (
+                                            <div key={adult.id}>
+
+                                                <div className="head" id="p0_wrapper" bis_skin_checked={1}>
+                                                    Adult {index + 1}
+                                                    <p>Passenger details must match your passport or photo ID</p>
+                                                </div>
+                                                <div className="gender-type" bis_skin_checked={1}>
+                                                    <ul>
+                                                        <li>
+                                                            <div className="inputSet" bis_skin_checked={1}>
+                                                                <label>
+                                                                    <input
+                                                                        defaultChecked="checked"
+                                                                        data-val="true"
+                                                                        data-val-number="The field Gender must be a number."
+                                                                        data-val-required="The Gender field is required."
+                                                                        id="flightBookingRequest_PassengerList_0__Gender"
+                                                                        name="flightBookingRequest.PassengerList[0].Gender"
+                                                                        onclick="selectTitle(0, 1 )"
+                                                                        type="radio"
+                                                                        defaultValue={1}
+                                                                        value="1"
+                                                                        checked={gender === '1'}
+                                                                        onChange={() => handleGenderChange(index, '1')}
+                                                                    />
+                                                                    <span>Male</span>
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div className="inputSet" bis_skin_checked={1}>
+                                                                <label>
+                                                                    <input
+                                                                        id="flightBookingRequest_PassengerList_0__Gender"
+                                                                        name="flightBookingRequest.PassengerList[0].Gender"
+                                                                        onclick="selectTitle(0, 2 )"
+                                                                        type="radio"
+                                                                        defaultValue={2}
+                                                                        value="2"
+                                                                        checked={gender === '2'}
+                                                                        onChange={() => handleGenderChange(index, '2')}
+                                                                    />
+                                                                    <span>Female</span>
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                    <div className="clearfix" bis_skin_checked={1} />
+                                                </div>
+                                                <div className="row" bis_skin_checked={1}>
+                                                    <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                        <label className="label_hide_mobile">
+                                                            First Name<span className="required">*</span>
                                                         </label>
+                                                        <input
+                                                            className="Traveler esname alphanumeric"
+                                                            data-val="true"
+                                                            data-val-required="The FirstName field is required."
+                                                            id="flightBookingRequest_PassengerList_0__FirstName"
+                                                            maxLength={54}
+                                                            name="firstName"
+                                                            value={adult.firstName}
+                                                            onChange={(e) => handleInputChange(index, e)}
+                                                            placeholder="First Name"
+                                                            type="text"
+                                                            defaultValue=""
+                                                        />
+                                                        <span
+                                                            className="field-validation-valid"
+                                                            data-valmsg-for="flightBookingRequest.PassengerList[0].FirstName"
+                                                            data-valmsg-replace="true"
+                                                        />
+                                                        <span className="required_mobile">*</span>
                                                     </div>
-                                                </li>
-                                                <li>
-                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                        <label>
-                                                            <input
-                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                onclick="selectTitle(0, 2 )"
-                                                                type="radio"
-                                                                defaultValue={2}
-                                                            />
-                                                            <span>Female</span>
+                                                    <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                        <label className="label_hide_mobile">
+                                                            Middle Name<small> (Optional)</small>
                                                         </label>
+                                                        <input
+                                                            className="nonvalidateTxt esname alphanumeric"
+                                                            id="flightBookingRequest_PassengerList_0__MiddleName"
+                                                            maxLength={54}
+                                                            name="middleName"
+                                                            value={adult.middleName}
+                                                            onChange={(e) => handleInputChange(index, e)}
+                                                            onBlur={(e) => printEvent(e)}
+                                                            placeholder="Middle Name (Optional)"
+                                                            type="text"
+                                                            defaultValue=""
+                                                        />
                                                     </div>
-                                                </li>
-                                            </ul>
-                                            <div className="clearfix" bis_skin_checked={1} />
-                                        </div>
-                                        <div className="row" bis_skin_checked={1}>
-                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
-                                                <label className="label_hide_mobile">
-                                                    First Name<span className="required">*</span>
-                                                </label>
-                                                <input
-                                                    className="Traveler esname alphanumeric"
-                                                    data-val="true"
-                                                    data-val-required="The FirstName field is required."
-                                                    id="flightBookingRequest_PassengerList_0__FirstName"
-                                                    maxLength={54}
-                                                    name="flightBookingRequest.PassengerList[0].FirstName"
-                                                    placeholder="First Name"
-                                                    type="text"
-                                                    defaultValue=""
-                                                />
-                                                <span
-                                                    className="field-validation-valid"
-                                                    data-valmsg-for="flightBookingRequest.PassengerList[0].FirstName"
-                                                    data-valmsg-replace="true"
-                                                />
-                                                <span className="required_mobile">*</span>
-                                            </div>
-                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
-                                                <label className="label_hide_mobile">
-                                                    Middle Name<small> (Optional)</small>
-                                                </label>
-                                                <input
-                                                    className="nonvalidateTxt esname alphanumeric"
-                                                    id="flightBookingRequest_PassengerList_0__MiddleName"
-                                                    maxLength={54}
-                                                    name="flightBookingRequest.PassengerList[0].MiddleName"
-                                                    onBlur={() => printEvent()}
-                                                    placeholder="Middle Name (Optional)"
-                                                    type="text"
-                                                    defaultValue=""
-                                                />
-                                            </div>
-                                        </div>
-                                        {/* Passenger Form */}
-                                        <PassengerForm />
-                                        <div
-                                            id="dobMsg_0"
-                                            style={{
-                                                display: "none",
-                                                color: "#f00",
-                                                paddingBottom: 10,
-                                                fontSize: 13
-                                            }}
-                                            bis_skin_checked={1}
-                                        >
-                                            <i
-                                                className="fa fa-angle-double-right"
-                                                style={{ display: "none" }}
-                                                id="dobMsgI_0"
-                                            />
-                                            <i
-                                                className="fa fa-angle-double-right"
-                                                style={{ display: "none" }}
-                                                id="paxMsgI_0"
-                                            />
-                                        </div>
-                                        <div className="imp-msg" bis_skin_checked={1}>
-                                            <div className="more-info" bis_skin_checked={1}>
-                                                <a
-                                                    href="#pasngrOD_0"
-                                                    id="pasngrMI_0"
-                                                    data-toggle="collapse"
-                                                    onclick="showDetail('0');"
-                                                    className="collapsed"
-                                                    aria-expanded="false"
+                                                </div>
+                                                {/* Passenger Form */}
+                                                <PassengerForm
+                                                    index={index}
+                                                    lastName={adult.lastName}
+                                                    dobMonth={adult.dobMonth}
+                                                    dobDate={adult.dobDate}
+                                                    dobYear={adult.dobYear}
+                                                    handleInputChange={handleInputChange} />
+
+                                                <div
+                                                    id="dobMsg_0"
+                                                    style={{
+                                                        display: "none",
+                                                        color: "#f00",
+                                                        paddingBottom: 10,
+                                                        fontSize: 13
+                                                    }}
+                                                    bis_skin_checked={1}
                                                 >
-                                                    (+) More Info
-                                                </a>
-                                                <small className="ffsmall_text">
-                                                    (Optional TSA Precheck and Redress Number)
-                                                </small>
-                                            </div>
-                                            <div className="mb20" bis_skin_checked={1} />
-                                        </div>
-                                        <div
-                                            id="pasngrOD_0"
-                                            className="pasngrOD_0 collapse"
-                                            aria-expanded="false"
-                                            bis_skin_checked={1}
-                                        >
-                                            <div className="row" id="emergency_0" bis_skin_checked={1}>
-                                                <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
-                                                    <label>Emergency contact name</label>
-                                                    <input
-                                                        className="alphanumeric nonvalidateTxt"
-                                                        id="flightBookingRequest_Contact_EmergencyContactName"
-                                                        name="flightBookingRequest.Contact.EmergencyContactName"
-                                                        placeholder="Name"
-                                                        type="text"
-                                                        defaultValue=""
+                                                    <i
+                                                        className="fa fa-angle-double-right"
+                                                        style={{ display: "none" }}
+                                                        id="dobMsgI_0"
+                                                    />
+                                                    <i
+                                                        className="fa fa-angle-double-right"
+                                                        style={{ display: "none" }}
+                                                        id="paxMsgI_0"
                                                     />
                                                 </div>
-                                                <div className="col-sm-7 col-xs-12" bis_skin_checked={1}>
-                                                    <div className="row" bis_skin_checked={1}>
-                                                        <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
-                                                            <label>Country code</label>
-                                                            <div className="country-code mb20" bis_skin_checked={1}>
-                                                                <div className="intl-tel-input" bis_skin_checked={1}>
-                                                                    <div
-                                                                        className="flag-dropdown f16"
-                                                                        bis_skin_checked={1}
-                                                                    >
-                                                                        <div
-                                                                            className="selected-flag"
-                                                                            bis_skin_checked={1}
-                                                                        >
-                                                                            <div className="flag us" bis_skin_checked={1}>
-                                                                                <div
-                                                                                    className="down-arrow"
-                                                                                    bis_skin_checked={1}
-                                                                                ></div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <ul className="country-list hide">
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={93}
-                                                                                data-country-code="af"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag af"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Afghanistan
-                                                                                </span>
-                                                                                <span className="dial-code">+93</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={355}
-                                                                                data-country-code="al"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag al"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Albania</span>
-                                                                                <span className="dial-code">+355</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={213}
-                                                                                data-country-code="dz"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag dz"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Algeria</span>
-                                                                                <span className="dial-code">+213</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1684}
-                                                                                data-country-code="as"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag as"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    American Samoa
-                                                                                </span>
-                                                                                <span className="dial-code">+1684</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={376}
-                                                                                data-country-code="ad"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ad"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Andorra</span>
-                                                                                <span className="dial-code">+376</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={244}
-                                                                                data-country-code="ao"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ao"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Angola</span>
-                                                                                <span className="dial-code">+244</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1264}
-                                                                                data-country-code="ai"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ai"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Anguilla</span>
-                                                                                <span className="dial-code">+1264</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={672}
-                                                                                data-country-code="aq"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag aq"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Antarctica
-                                                                                </span>
-                                                                                <span className="dial-code">+672</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1268}
-                                                                                data-country-code="ag"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ag"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Antigua and Barbuda
-                                                                                </span>
-                                                                                <span className="dial-code">+1268</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={54}
-                                                                                data-country-code="ar"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ar"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Argentina
-                                                                                </span>
-                                                                                <span className="dial-code">+54</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={374}
-                                                                                data-country-code="am"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag am"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Armenia</span>
-                                                                                <span className="dial-code">+374</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={297}
-                                                                                data-country-code="aw"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag aw"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Aruba</span>
-                                                                                <span className="dial-code">+297</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={61}
-                                                                                data-country-code="au"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag au"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Australia
-                                                                                </span>
-                                                                                <span className="dial-code">+61</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={43}
-                                                                                data-country-code="at"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag at"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Austria</span>
-                                                                                <span className="dial-code">+43</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={994}
-                                                                                data-country-code="az"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag az"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Azerbaijan
-                                                                                </span>
-                                                                                <span className="dial-code">+994</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1242}
-                                                                                data-country-code="bs"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bs"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Bahamas</span>
-                                                                                <span className="dial-code">+1242</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={973}
-                                                                                data-country-code="bh"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bh"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Bahrain</span>
-                                                                                <span className="dial-code">+973</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={880}
-                                                                                data-country-code="bd"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bd"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Bangladesh
-                                                                                </span>
-                                                                                <span className="dial-code">+880</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1246}
-                                                                                data-country-code="bb"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bb"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Barbados</span>
-                                                                                <span className="dial-code">+1246</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={375}
-                                                                                data-country-code="by"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag by"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Belarus</span>
-                                                                                <span className="dial-code">+375</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={32}
-                                                                                data-country-code="be"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag be"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Belgium</span>
-                                                                                <span className="dial-code">+32</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={501}
-                                                                                data-country-code="bz"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bz"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Belize</span>
-                                                                                <span className="dial-code">+501</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={229}
-                                                                                data-country-code="bj"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bj"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Benin</span>
-                                                                                <span className="dial-code">+229</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1441}
-                                                                                data-country-code="bm"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bm"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Bermuda</span>
-                                                                                <span className="dial-code">+1441</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={975}
-                                                                                data-country-code="bt"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bt"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Bhutan</span>
-                                                                                <span className="dial-code">+975</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={591}
-                                                                                data-country-code="bo"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bo"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Bolivia</span>
-                                                                                <span className="dial-code">+591</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={599}
-                                                                                data-country-code="bq"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bq"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Bonaire, Sint Eustatius and Saba
-                                                                                </span>
-                                                                                <span className="dial-code">+599</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={387}
-                                                                                data-country-code="ba"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ba"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Bosnia Herzegovina
-                                                                                </span>
-                                                                                <span className="dial-code">+387</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={267}
-                                                                                data-country-code="bw"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bw"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Botswana</span>
-                                                                                <span className="dial-code">+267</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={55}
-                                                                                data-country-code="br"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag br"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Brazil</span>
-                                                                                <span className="dial-code">+55</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={246}
-                                                                                data-country-code="io"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag io"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    British Indian Ocean Territory
-                                                                                </span>
-                                                                                <span className="dial-code">+246</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1284}
-                                                                                data-country-code="vg"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag vg"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    British Virgin Islands
-                                                                                </span>
-                                                                                <span className="dial-code">+1284</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={673}
-                                                                                data-country-code="bn"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bn"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Brunei Darussalam
-                                                                                </span>
-                                                                                <span className="dial-code">+673</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={359}
-                                                                                data-country-code="bg"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bg"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Bulgaria</span>
-                                                                                <span className="dial-code">+359</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={226}
-                                                                                data-country-code="bf"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bf"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Burkina Faso
-                                                                                </span>
-                                                                                <span className="dial-code">+226</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={257}
-                                                                                data-country-code="bi"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag bi"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Burundi</span>
-                                                                                <span className="dial-code">+257</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={855}
-                                                                                data-country-code="kh"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag kh"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Cambodia</span>
-                                                                                <span className="dial-code">+855</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={237}
-                                                                                data-country-code="cm"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag cm"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Cameroon</span>
-                                                                                <span className="dial-code">+237</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1}
-                                                                                data-country-code="ca"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ca"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Canada</span>
-                                                                                <span className="dial-code">+1</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={238}
-                                                                                data-country-code="cv"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag cv"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Cape Verde
-                                                                                </span>
-                                                                                <span className="dial-code">+238</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={1345}
-                                                                                data-country-code="ky"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag ky"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Cayman Islands
-                                                                                </span>
-                                                                                <span className="dial-code">+1345</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={236}
-                                                                                data-country-code="cf"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag cf"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Central African Republic
-                                                                                </span>
-                                                                                <span className="dial-code">+236</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={235}
-                                                                                data-country-code="td"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag td"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Chad</span>
-                                                                                <span className="dial-code">+235</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={56}
-                                                                                data-country-code="cl"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag cl"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">Chile</span>
-                                                                                <span className="dial-code">+56</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={86}
-                                                                                data-country-code="cn"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag cn"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">China</span>
-                                                                                <span className="dial-code">+86</span>
-                                                                            </li>
-                                                                            <li
-                                                                                className="country"
-                                                                                data-dial-code={61}
-                                                                                data-country-code="cx"
-                                                                            >
-                                                                                <div
-                                                                                    className="flag cx"
-                                                                                    bis_skin_checked={1}
-                                                                                />
-                                                                                <span className="country-name">
-                                                                                    Christmas Island
-                                                                                </span>
-                                                                                <span className="dial-code">+61</span>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{61}"
-                                                                                data-country-code="cc"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cc"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Cocos Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+61</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{57}"
-                                                                                data-country-code="co"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag co"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Colombia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+57</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{269}"
-                                                                                data-country-code="km"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag km"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Comoros
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+269</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{682}"
-                                                                                data-country-code="ck"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ck"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Cook Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+682</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{506}"
-                                                                                data-country-code="cr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Costa Rica
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+506</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{385}"
-                                                                                data-country-code="hr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag hr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Croatia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+385</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{53}"
-                                                                                data-country-code="cu"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cu"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Cuba</span>
-                                                                                    <span classname="dial-code">+53</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{599}"
-                                                                                data-country-code="cw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Curacao
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+599</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{357}"
-                                                                                data-country-code="cy"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cy"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Cyprus</span>
-                                                                                    <span classname="dial-code">+357</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{420}"
-                                                                                data-country-code="cz"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cz"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Czech Republic
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+420</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{243}"
-                                                                                data-country-code="cd"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cd"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Democratic Republic of the Congo
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+243</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{45}"
-                                                                                data-country-code="dk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag dk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Denmark
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+45</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{253}"
-                                                                                data-country-code="dj"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag dj"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Djibouti
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+253</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1767}"
-                                                                                data-country-code="dm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag dm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Dominica
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1767</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1849}"
-                                                                                data-country-code="do"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag do"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Dominican Republic
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1849</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{670}"
-                                                                                data-country-code="tl"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tl"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        East Timor
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+670</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{593}"
-                                                                                data-country-code="ec"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ec"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Ecuador
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+593</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{20}"
-                                                                                data-country-code="eg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag eg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Egypt</span>
-                                                                                    <span classname="dial-code">+20</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{503}"
-                                                                                data-country-code="sv"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sv"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        El Salvador
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+503</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{240}"
-                                                                                data-country-code="gq"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gq"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Equatorial Guinea
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+240</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{291}"
-                                                                                data-country-code="er"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag er"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Eritrea
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+291</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{372}"
-                                                                                data-country-code="ee"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ee"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Estonia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+372</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{268}"
-                                                                                data-country-code="sz"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sz"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Eswatini
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+268</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{251}"
-                                                                                data-country-code="et"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag et"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Ethiopia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+251</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{500}"
-                                                                                data-country-code="fk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag fk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Falkland Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+500</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{298}"
-                                                                                data-country-code="fo"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag fo"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Faroe Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+298</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{679}"
-                                                                                data-country-code="fj"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag fj"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Fiji</span>
-                                                                                    <span classname="dial-code">+679</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{358}"
-                                                                                data-country-code="fi"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag fi"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Finland
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+358</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{33}"
-                                                                                data-country-code="fr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag fr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">France</span>
-                                                                                    <span classname="dial-code">+33</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{594}"
-                                                                                data-country-code="gf"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gf"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        French Guiana
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+594</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{689}"
-                                                                                data-country-code="pf"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pf"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        French Polynesia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+689</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{241}"
-                                                                                data-country-code="ga"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ga"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Gabon</span>
-                                                                                    <span classname="dial-code">+241</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{220}"
-                                                                                data-country-code="gm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Gambia</span>
-                                                                                    <span classname="dial-code">+220</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{995}"
-                                                                                data-country-code="ge"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ge"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Georgia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+995</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{49}"
-                                                                                data-country-code="de"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag de"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Germany
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+49</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{233}"
-                                                                                data-country-code="gh"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gh"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Ghana</span>
-                                                                                    <span classname="dial-code">+233</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{350}"
-                                                                                data-country-code="gi"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gi"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Gibraltar
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+350</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{30}"
-                                                                                data-country-code="gr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Greece</span>
-                                                                                    <span classname="dial-code">+30</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{299}"
-                                                                                data-country-code="gl"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gl"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Greenland
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+299</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1473}"
-                                                                                data-country-code="gd"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gd"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Grenada
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1473</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{590}"
-                                                                                data-country-code="gp"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gp"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Guadeloupe
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+590</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1671}"
-                                                                                data-country-code="gu"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gu"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Guam</span>
-                                                                                    <span classname="dial-code">+1671</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{502}"
-                                                                                data-country-code="gt"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gt"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Guatemala
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+502</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{441481}"
-                                                                                data-country-code="gg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Guernsey
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+441481</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{224}"
-                                                                                data-country-code="gn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Guinea</span>
-                                                                                    <span classname="dial-code">+224</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{245}"
-                                                                                data-country-code="gw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Guinea-Bissau
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+245</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{592}"
-                                                                                data-country-code="gy"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gy"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Guyana</span>
-                                                                                    <span classname="dial-code">+592</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{509}"
-                                                                                data-country-code="ht"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ht"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Haiti</span>
-                                                                                    <span classname="dial-code">+509</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{672}"
-                                                                                data-country-code="hm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag hm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Heard Island and McDonald Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+672</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{504}"
-                                                                                data-country-code="hn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag hn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Honduras
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+504</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{852}"
-                                                                                data-country-code="hk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag hk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Hong Kong
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+852</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{36}"
-                                                                                data-country-code="hu"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag hu"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Hungary
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+36</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{354}"
-                                                                                data-country-code="is"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag is"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Iceland
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+354</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{91}"
-                                                                                data-country-code="in"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag in"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">India</span>
-                                                                                    <span classname="dial-code">+91</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{62}"
-                                                                                data-country-code="id"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag id"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Indonesia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+62</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{98}"
-                                                                                data-country-code="ir"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ir"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Iran</span>
-                                                                                    <span classname="dial-code">+98</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{964}"
-                                                                                data-country-code="iq"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag iq"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Iraq</span>
-                                                                                    <span classname="dial-code">+964</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{353}"
-                                                                                data-country-code="ie"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ie"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Ireland
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+353</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{441624}"
-                                                                                data-country-code="im"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag im"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Isle of Man
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+441624</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{972}"
-                                                                                data-country-code="il"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag il"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Israel</span>
-                                                                                    <span classname="dial-code">+972</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{39}"
-                                                                                data-country-code="it"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag it"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Italy</span>
-                                                                                    <span classname="dial-code">+39</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{225}"
-                                                                                data-country-code="ci"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ci"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Ivory Coast
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+225</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1876}"
-                                                                                data-country-code="jm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag jm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Jamaica
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1876</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{81}"
-                                                                                data-country-code="jp"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag jp"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Japan</span>
-                                                                                    <span classname="dial-code">+81</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{441534}"
-                                                                                data-country-code="je"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag je"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Jersey</span>
-                                                                                    <span classname="dial-code">+441534</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{962}"
-                                                                                data-country-code="jo"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag jo"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Jordan</span>
-                                                                                    <span classname="dial-code">+962</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{7}"
-                                                                                data-country-code="kz"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag kz"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Kazakhstan
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+7</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{254}"
-                                                                                data-country-code="ke"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ke"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Kenya</span>
-                                                                                    <span classname="dial-code">+254</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{686}"
-                                                                                data-country-code="ki"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ki"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Kiribati
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+686</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{965}"
-                                                                                data-country-code="kw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag kw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Kuwait</span>
-                                                                                    <span classname="dial-code">+965</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{996}"
-                                                                                data-country-code="kg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag kg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Kyrgyzstan
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+996</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{856}"
-                                                                                data-country-code="la"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag la"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Lao Peoples Democratic Republic
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+856</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{371}"
-                                                                                data-country-code="lv"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag lv"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Latvia</span>
-                                                                                    <span classname="dial-code">+371</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{961}"
-                                                                                data-country-code="lb"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag lb"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Lebanon
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+961</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{266}"
-                                                                                data-country-code="ls"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ls"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Lesotho
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+266</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{231}"
-                                                                                data-country-code="lr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag lr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Liberia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+231</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{218}"
-                                                                                data-country-code="ly"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ly"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Libya</span>
-                                                                                    <span classname="dial-code">+218</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{423}"
-                                                                                data-country-code="li"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag li"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Liechtenstein
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+423</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{370}"
-                                                                                data-country-code="lt"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag lt"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Lithuania
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+370</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{352}"
-                                                                                data-country-code="lu"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag lu"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Luxembourg
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+352</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{853}"
-                                                                                data-country-code="mo"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mo"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Macau</span>
-                                                                                    <span classname="dial-code">+853</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{261}"
-                                                                                data-country-code="mg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Madagascar
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+261</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{265}"
-                                                                                data-country-code="mw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Malawi</span>
-                                                                                    <span classname="dial-code">+265</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{60}"
-                                                                                data-country-code="my"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag my"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Malaysia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+60</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{960}"
-                                                                                data-country-code="mv"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mv"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Maldives
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+960</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{223}"
-                                                                                data-country-code="ml"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ml"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Mali</span>
-                                                                                    <span classname="dial-code">+223</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{356}"
-                                                                                data-country-code="mt"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mt"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Malta</span>
-                                                                                    <span classname="dial-code">+356</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{692}"
-                                                                                data-country-code="mh"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mh"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Marshall Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+692</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{596}"
-                                                                                data-country-code="mq"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mq"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Martinique
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+596</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{222}"
-                                                                                data-country-code="mr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Mauritania
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+222</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{230}"
-                                                                                data-country-code="mu"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mu"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Mauritius
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+230</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{262}"
-                                                                                data-country-code="yt"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag yt"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Mayotte
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+262</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{52}"
-                                                                                data-country-code="mx"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mx"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Mexico</span>
-                                                                                    <span classname="dial-code">+52</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{691}"
-                                                                                data-country-code="fm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag fm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Micronesia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+691</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{373}"
-                                                                                data-country-code="md"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag md"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Moldova
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+373</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{377}"
-                                                                                data-country-code="mc"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mc"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Monaco</span>
-                                                                                    <span classname="dial-code">+377</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{976}"
-                                                                                data-country-code="mn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Mongolia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+976</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{382}"
-                                                                                data-country-code="me"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag me"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Montenegro
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+382</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1664}"
-                                                                                data-country-code="ms"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ms"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Montserrat
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1664</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{212}"
-                                                                                data-country-code="ma"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ma"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Morocco
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+212</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{258}"
-                                                                                data-country-code="mz"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mz"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Mozambique
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+258</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{95}"
-                                                                                data-country-code="mm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Myanmar
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+95</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{264}"
-                                                                                data-country-code="na"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag na"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Namibia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+264</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{674}"
-                                                                                data-country-code="nr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag nr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Nauru</span>
-                                                                                    <span classname="dial-code">+674</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{977}"
-                                                                                data-country-code="np"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag np"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Nepal</span>
-                                                                                    <span classname="dial-code">+977</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{31}"
-                                                                                data-country-code="nl"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag nl"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Netherlands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+31</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{687}"
-                                                                                data-country-code="nc"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag nc"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        New Caledonia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+687</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{64}"
-                                                                                data-country-code="nz"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag nz"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        New Zealand
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+64</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{505}"
-                                                                                data-country-code="ni"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ni"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Nicaragua
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+505</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{227}"
-                                                                                data-country-code="ne"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ne"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Niger</span>
-                                                                                    <span classname="dial-code">+227</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{234}"
-                                                                                data-country-code="ng"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ng"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Nigeria
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+234</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{683}"
-                                                                                data-country-code="nu"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag nu"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Niue</span>
-                                                                                    <span classname="dial-code">+683</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{672}"
-                                                                                data-country-code="nf"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag nf"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Norfolk Island
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+672</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{850}"
-                                                                                data-country-code="kp"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag kp"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        North Korea
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+850</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1670}"
-                                                                                data-country-code="mp"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mp"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Northern Mariana Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1670</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{47}"
-                                                                                data-country-code="no"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag no"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Norway</span>
-                                                                                    <span classname="dial-code">+47</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{968}"
-                                                                                data-country-code="om"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag om"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Oman</span>
-                                                                                    <span classname="dial-code">+968</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{92}"
-                                                                                data-country-code="pk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Pakistan
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+92</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{680}"
-                                                                                data-country-code="pw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Palau</span>
-                                                                                    <span classname="dial-code">+680</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{970}"
-                                                                                data-country-code="ps"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ps"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Palestinian Territory, Occupied
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+970</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{507}"
-                                                                                data-country-code="pa"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pa"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Panama</span>
-                                                                                    <span classname="dial-code">+507</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{675}"
-                                                                                data-country-code="pg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Papua New Guinea
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+675</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{595}"
-                                                                                data-country-code="py"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag py"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Paraguay
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+595</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{51}"
-                                                                                data-country-code="pe"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pe"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Peru</span>
-                                                                                    <span classname="dial-code">+51</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{63}"
-                                                                                data-country-code="ph"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ph"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Philippines
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+63</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{64}"
-                                                                                data-country-code="pn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Pitcairn
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+64</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{48}"
-                                                                                data-country-code="pl"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pl"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Poland</span>
-                                                                                    <span classname="dial-code">+48</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{351}"
-                                                                                data-country-code="pt"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pt"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Portugal
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+351</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1787}"
-                                                                                data-country-code="pr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Puerto Rico
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1787</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{974}"
-                                                                                data-country-code="qa"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag qa"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Qatar</span>
-                                                                                    <span classname="dial-code">+974</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{389}"
-                                                                                data-country-code="mk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Republic of Macedonia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+389</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{242}"
-                                                                                data-country-code="cg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag cg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Republic of the Congo
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+242</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{262}"
-                                                                                data-country-code="re"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag re"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Reunion
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+262</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{40}"
-                                                                                data-country-code="ro"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ro"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Romania
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+40</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{7}"
-                                                                                data-country-code="ru"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ru"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Russia</span>
-                                                                                    <span classname="dial-code">+7</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{250}"
-                                                                                data-country-code="rw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag rw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Rwanda</span>
-                                                                                    <span classname="dial-code">+250</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{590}"
-                                                                                data-country-code="bl"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag bl"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Saint Barthelemy
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+590</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{290}"
-                                                                                data-country-code="sh"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sh"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Saint Helena
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+290</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{590}"
-                                                                                data-country-code="mf"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag mf"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Saint Martin
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+590</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{685}"
-                                                                                data-country-code="ws"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ws"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Samoa</span>
-                                                                                    <span classname="dial-code">+685</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{378}"
-                                                                                data-country-code="sm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        San Marino
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+378</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{239}"
-                                                                                data-country-code="st"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag st"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Sao Tome and Principe
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+239</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{966}"
-                                                                                data-country-code="sa"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sa"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Saudi Arabia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+966</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{221}"
-                                                                                data-country-code="sn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Senegal
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+221</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{381}"
-                                                                                data-country-code="rs"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag rs"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Serbia</span>
-                                                                                    <span classname="dial-code">+381</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{248}"
-                                                                                data-country-code="sc"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sc"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Seychelles
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+248</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{232}"
-                                                                                data-country-code="sl"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sl"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Sierra Leone
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+232</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{65}"
-                                                                                data-country-code="sg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Singapore
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+65</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1721}"
-                                                                                data-country-code="sx"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sx"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Sint Maarten
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1721</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{421}"
-                                                                                data-country-code="sk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Slovakia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+421</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{386}"
-                                                                                data-country-code="si"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag si"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Slovenia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+386</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{677}"
-                                                                                data-country-code="sb"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sb"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Solomon Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+677</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{252}"
-                                                                                data-country-code="so"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag so"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Somalia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+252</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{27}"
-                                                                                data-country-code="za"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag za"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        South Africa
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+27</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{500}"
-                                                                                data-country-code="gs"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gs"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        South Georgia and the South Sandwich
-                                                                                        Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+500</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{82}"
-                                                                                data-country-code="kr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag kr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        South Korea
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+82</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{211}"
-                                                                                data-country-code="ss"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ss"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        South Sudan
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+211</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{34}"
-                                                                                data-country-code="es"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag es"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Spain</span>
-                                                                                    <span classname="dial-code">+34</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{94}"
-                                                                                data-country-code="lk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag lk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Sri Lanka
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+94</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1869}"
-                                                                                data-country-code="kn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag kn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        St. Christopher (St. Kitts) Nevis
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1869</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1758}"
-                                                                                data-country-code="lc"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag lc"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        St. Lucia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1758</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{508}"
-                                                                                data-country-code="pm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag pm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        St. Pierre and Miquelon
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+508</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1784}"
-                                                                                data-country-code="vc"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag vc"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        St. Vincent and The Grenadines
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1784</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{249}"
-                                                                                data-country-code="sd"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sd"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Sudan</span>
-                                                                                    <span classname="dial-code">+249</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{597}"
-                                                                                data-country-code="sr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Suriname
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+597</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{47}"
-                                                                                data-country-code="sj"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sj"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Svalbard and Jan Mayen
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+47</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{46}"
-                                                                                data-country-code="se"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag se"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Sweden</span>
-                                                                                    <span classname="dial-code">+46</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{41}"
-                                                                                data-country-code="ch"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ch"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Switzerland
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+41</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{963}"
-                                                                                data-country-code="sy"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag sy"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Syrian Arab Republic
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+963</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{886}"
-                                                                                data-country-code="tw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Taiwan</span>
-                                                                                    <span classname="dial-code">+886</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{992}"
-                                                                                data-country-code="tj"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tj"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Tajikistan
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+992</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{255}"
-                                                                                data-country-code="tz"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tz"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Tanzania
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+255</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{66}"
-                                                                                data-country-code="th"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag th"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Thailand
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+66</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{228}"
-                                                                                data-country-code="tg"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tg"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Togo</span>
-                                                                                    <span classname="dial-code">+228</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{690}"
-                                                                                data-country-code="tk"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tk"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Tokelau
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+690</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{676}"
-                                                                                data-country-code="to"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag to"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Tonga</span>
-                                                                                    <span classname="dial-code">+676</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1868}"
-                                                                                data-country-code="tt"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tt"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Trinidad and Tobago
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1868</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{216}"
-                                                                                data-country-code="tn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Tunisia
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+216</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{90}"
-                                                                                data-country-code="tr"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tr"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Turkey</span>
-                                                                                    <span classname="dial-code">+90</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{993}"
-                                                                                data-country-code="tm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Turkmenistan
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+993</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1649}"
-                                                                                data-country-code="tc"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tc"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Turks and Caicos Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1649</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{688}"
-                                                                                data-country-code="tv"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag tv"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Tuvalu</span>
-                                                                                    <span classname="dial-code">+688</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{256}"
-                                                                                data-country-code="ug"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ug"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Uganda</span>
-                                                                                    <span classname="dial-code">+256</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{380}"
-                                                                                data-country-code="ua"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ua"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Ukraine
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+380</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{971}"
-                                                                                data-country-code="ae"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ae"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        United Arab Emirates
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+971</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{44}"
-                                                                                data-country-code="gb"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag gb"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        United Kingdom
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+44</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country active"
-                                                                                data-dial-code="{1}"
-                                                                                data-country-code="us"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag us"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        United States
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{246}"
-                                                                                data-country-code="um"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag um"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        United States Minor Outlying Islands (the)
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+246</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{598}"
-                                                                                data-country-code="uy"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag uy"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Uruguay
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+598</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{1340}"
-                                                                                data-country-code="vi"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag vi"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        US Virgin Islands
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+1340</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{998}"
-                                                                                data-country-code="uz"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag uz"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Uzbekistan
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+998</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{678}"
-                                                                                data-country-code="vu"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag vu"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Vanuatu
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+678</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{379}"
-                                                                                data-country-code="va"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag va"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Vatican
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+379</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{58}"
-                                                                                data-country-code="ve"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ve"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Venezuela
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+58</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{84}"
-                                                                                data-country-code="vn"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag vn"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Vietnam
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+84</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{212}"
-                                                                                data-country-code="eh"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag eh"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Western Sahara
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+212</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{967}"
-                                                                                data-country-code="ye"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag ye"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Yemen</span>
-                                                                                    <span classname="dial-code">+967</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{260}"
-                                                                                data-country-code="zm"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag zm"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">Zambia</span>
-                                                                                    <span classname="dial-code">+260</span>
-                                                                                </div>
-                                                                            </li>
-                                                                            <li
-                                                                                classname="country"
-                                                                                data-dial-code="{263}"
-                                                                                data-country-code="zw"
-                                                                            >
-                                                                                <div
-                                                                                    classname="flag zw"
-                                                                                    bis_skin_checked="{1}"
-                                                                                >
-                                                                                    <span classname="country-name">
-                                                                                        Zimbabwe
-                                                                                    </span>
-                                                                                    <span classname="dial-code">+263</span>
-                                                                                </div>
-                                                                            </li>
-                                                                        </ul>
-                                                                        <input
-                                                                            classname="nonvalidateTxt"
-                                                                            id="PhoneCode2"
-                                                                            name="flightBookingRequest.Contact.EmergencyPhoneCode"
-                                                                            placeholder="e.g"
-                                                                            readOnly="True"
-                                                                            type="tel"
-                                                                            defaultValue="{+1}"
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                                <div
-                                                                    className="col-sm-7 col-xs-12"
-                                                                    bis_skin_checked={1}
-                                                                >
-                                                                    <label>Emergency Phone Number</label>
+                                                <div className="imp-msg">
+                                                    {/* More Info Link */}
+                                                    <div className="more-info">
+                                                        <a
+                                                            href="#pasngrOD_0"
+                                                            id="pasngrMI_0"
+                                                            onClick={toggleMoreInfo}
+                                                            style={{ cursor: 'pointer' }}
+                                                        >
+                                                            {isMoreInfoVisible ? '(-) Hide Info' : '(+) More Info'}
+                                                        </a>
+                                                        <small className="ffsmall_text">
+                                                            (Optional TSA Precheck and Redress Number)
+                                                        </small>
+                                                    </div>
+
+                                                    {/* The additional info section that can be toggled */}
+                                                    {isMoreInfoVisible && (
+                                                        <div id="pasngrOD_0" className="pasngrOD_0">
+                                                            <div className="row" id="emergency_0">
+                                                                <div className="col-sm-5 col-xs-12">
+                                                                    <label>Emergency contact name</label>
                                                                     <input
-                                                                        autoComplete="off"
-                                                                        className="phone-number nonvalidateTxt numeric"
-                                                                        id="flightBookingRequest_Contact_EmergencyPhoneNumber"
-                                                                        maxLength={15}
-                                                                        minLength={10}
-                                                                        name="flightBookingRequest.Contact.EmergencyPhoneNumber"
-                                                                        onKeyUp="limit(this, 15)"
-                                                                        type="number"
+                                                                        className="alphanumeric nonvalidateTxt"
+                                                                        id="flightBookingRequest_Contact_EmergencyContactName"
+                                                                        name="flightBookingRequest.Contact.EmergencyContactName"
+                                                                        placeholder="Name"
+                                                                        type="text"
                                                                         defaultValue=""
                                                                     />
                                                                 </div>
+                                                                <div className="col-sm-7 col-xs-12">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5 col-xs-12">
+                                                                            <label>Country code</label>
+                                                                            <div className="country-code mb20">
+                                                                                <div className="intl-tel-input">
+                                                                                    <div className="flag-dropdown f16" onClick={toggleDropdowns}>
+                                                                                        <div className="selected-flag">
+                                                                                            <div className={`flag ${selectedCountry.countryCode}`} />
+                                                                                            <div className="down-arrow" style={styles1.downArrow} />
+                                                                                        </div>
+                                                                                        <ul className={`country-list ${isDropdownOpens ? '' : 'hide'}`} style={styles1.countryList}>
+                                                                                            {countryCodeArr.map((country) => (
+                                                                                                <li
+                                                                                                    key={country.countryCode}
+                                                                                                    className="country"
+                                                                                                    data-dial-code={country.dialCode}
+                                                                                                    data-country-code={country.countryCode}
+                                                                                                    onClick={() => handleCountrySelect(country)}
+                                                                                                >
+                                                                                                    <div className={`flag ${country.countryCode}`} />
+                                                                                                    <span className="country-name">{country.name}</span>
+                                                                                                    <span className="dial-code">{country.dialCode}</span>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                    <input
+                                                                                        className="nonvalidateTxt"
+                                                                                        id="PhoneCode"
+                                                                                        name="flightBookingRequest.Contact.Intcode"
+                                                                                        placeholder="e.g"
+                                                                                        readOnly
+                                                                                        type="tel"
+                                                                                        value={selectedCountry.dialCode}
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="row">
+                                                                        <div className="col-sm-6 col-xs-12">
+                                                                            <label>
+                                                                                TSA Precheck
+                                                                                <span className="tooltip-custom">
+                                                                                    <i className="fa fa-info hand" />
+                                                                                    <div className="promo-detail tsa_tooltip">
+                                                                                        <span className="arrow" />
+                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                            The Known Traveler Number is also referred to as
+                                                                                            Pass ID, TSA PreCheck and Global Entry Number.
+                                                                                            It can be found on the top-left corner on the
+                                                                                            back of your Trusted Traveler membership card.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </span>
+                                                                            </label>
+                                                                            <input
+                                                                                className="nonvalidateTxt alphanumericbothwithoutspace"
+                                                                                id="flightBookingRequest_PassengerList_0__TSAPrecheckNumber"
+                                                                                name="flightBookingRequest.PassengerList[0].TSAPrecheckNumber"
+                                                                                placeholder="Known Traveler Number (Optional)"
+                                                                                type="text"
+                                                                                defaultValue=""
+                                                                            />
+                                                                        </div>
+                                                                        <div className="col-sm-6 col-xs-12">
+                                                                            <label>
+                                                                                Redress number
+                                                                                <span className="tooltip-custom">
+                                                                                    <i className="fa fa-info hand" />
+                                                                                    <div className="promo-detail tsa_tooltip">
+                                                                                        <span className="arrow" />
+                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                            A Redress is a unique number that is assigned to
+                                                                                            a passenger by the Department of Homeland
+                                                                                            Security (DHS) for the purpose of promoting the
+                                                                                            resolution with previous watch list alerts.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </span>
+                                                                            </label>
+                                                                            <input
+                                                                                className="numeric nonvalidateTxt"
+                                                                                id="flightBookingRequest_PassengerList_0__TSARedressNumber"
+                                                                                name="flightBookingRequest.PassengerList[0].TSARedressNumber"
+                                                                                placeholder="(Optional)"
+                                                                                type="number"
+                                                                                defaultValue=""
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="row" bis_skin_checked={1}>
-                                                        <div className="col-sm-6 col-xs-12" bis_skin_checked={1}>
-                                                            <label>
-                                                                TSA precheck
-                                                                <span className="tooltip-custom">
-                                                                    <i className="fa fa-info hand" />
-                                                                    <div
-                                                                        className="promo-detail tsa_tooltip"
-                                                                        bis_skin_checked={1}
-                                                                    >
-                                                                        <span className="arrow" />
-                                                                        <p
-                                                                            className="mb5px"
-                                                                            style={{ textAlign: "left" }}
-                                                                        >
-                                                                            The Known Traveler Number is also referred to as
-                                                                            Pass ID, TSA PreCheck and Global Entry Number.
-                                                                            It can be found on the top-left corner on the
-                                                                            back of your Trusted Traveler membership card.
-                                                                        </p>
-                                                                    </div>
-                                                                </span>
-                                                            </label>
-                                                            <input
-                                                                className="nonvalidateTxt alphanumericbothwithoutspace"
-                                                                id="flightBookingRequest_PassengerList_0__TSAPrecheckNumber"
-                                                                name="flightBookingRequest.PassengerList[0].TSAPrecheckNumber"
-                                                                placeholder="Known Traveler Number (Optional)"
-                                                                type="text"
-                                                                defaultValue=""
-                                                            />
-                                                        </div>
-                                                        <div className="col-sm-6 col-xs-12" bis_skin_checked={1}>
-                                                            <label>
-                                                                Redress number
-                                                                <span className="tooltip-custom">
-                                                                    <i className="fa fa-info hand" />
-                                                                    <div
-                                                                        className="promo-detail tsa_tooltip"
-                                                                        bis_skin_checked={1}
-                                                                    >
-                                                                        <span className="arrow" />
-                                                                        <p
-                                                                            className="mb5px"
-                                                                            style={{ textAlign: "left" }}
-                                                                        >
-                                                                            A Redress is a unique number that is assigned to
-                                                                            a passenger by the Department of Homeland
-                                                                            Security (DHS) for the purpose of promoting the
-                                                                            resolution with previous watch list alerts.
-                                                                        </p>
-                                                                    </div>
-                                                                </span>
-                                                            </label>
-                                                            <input
-                                                                className="numeric nonvalidateTxt"
-                                                                id="flightBookingRequest_PassengerList_0__TSARedressNumber"
-                                                                name="flightBookingRequest.PassengerList[0].TSARedressNumber"
-                                                                placeholder="(Optional)"
-                                                                type="number"
-                                                                defaultValue=""
-                                                            />
-                                                        </div>
-                                                    </div>
+                                                    )}
                                                 </div>
+
+                                                <button type="button" onClick={() => removeAdult(index)}>
+                                                    Remove this Adult
+                                                </button>
                                             </div>
-                                        </div>
+                                        ))}
+                                        <button type="button" onClick={addMoreAdult}>
+                                            Add More Adults
+                                        </button>
+
+
                                         <div className="flight-refundable-container" bis_skin_checked={1}>
                                             <div className="main-head refund-label" bis_skin_checked={1}>
                                                 <img
@@ -6278,229 +3017,8 @@ const PurchasePage = () => {
                                             </div>
                                         </div>
                                         <div id="div_Payment" className="step4" bis_skin_checked={1}>
-                                            <div className="form-box" bis_skin_checked={1}>
-                                                <div className="mainheading" bis_skin_checked={1}>
-                                                    <img
-                                                        src="/assets/images/svg/p-billing-information.svg"
-                                                        className="icon billing-info"
-                                                    />
-                                                    Billing Information
-                                                </div>
-                                                <p>(As per Bank records or credit card company)</p>
-                                                <div className="row" bis_skin_checked={1}>
-                                                    <CountrySelect countryCodeArr={countryCodeArr} />
-                                                    <div
-                                                        className="col-sm-6 hidden-xs"
-                                                        bis_skin_checked={1}
-                                                    ></div>
-                                                </div>
-                                                <div className="row" bis_skin_checked={1}>
-                                                    <div className="col-xs-12" bis_skin_checked={1}>
-                                                        <label className="label_hide_mobile">
-                                                            Address<span className="required">*</span>
-                                                        </label>
-                                                        <textarea
-                                                            autoComplete="off"
-                                                            className="Payment pac-target-input"
-                                                            cols={20}
-                                                            data-val="true"
-                                                            data-val-required="The Address1 field is required."
-                                                            id="flightBookingRequest_Payment_Address1"
-                                                            maxLength={150}
-                                                            name="flightBookingRequest.Payment.Address1"
-                                                            placeholder="Address"
-                                                            rows={2}
-                                                            defaultValue={""}
-                                                        />
-                                                        <span
-                                                            className="field-validation-valid"
-                                                            data-valmsg-for="flightBookingRequest.Payment.Address1"
-                                                            data-valmsg-replace="true"
-                                                        />
-                                                        <span className="required_mobile">*</span>
-                                                    </div>
-                                                </div>
-                                                <div className="row" bis_skin_checked={1}>
-                                                    <div className="col-xs-12" bis_skin_checked={1}>
-                                                        <div className="row" bis_skin_checked={1}>
-                                                            <div
-                                                                className="col-sm-4 col-xs-12"
-                                                                id="ddlState"
-                                                                bis_skin_checked={1}
-                                                            >
-                                                                <label className="label_hide_mobile">
-                                                                    State/Province<span className="required">*</span>
-                                                                </label>
-                                                                <div className="form-righterrow" bis_skin_checked={1}>
-                                                                    <select
-                                                                        className="Payment"
-                                                                        id="flightBookingRequest_Payment_State"
-                                                                        name="flightBookingRequest.Payment.State"
-                                                                    >
-                                                                        <option value="">Select State</option>
-                                                                        <option value="AA">
-                                                                            Armed Forces (the) Americas
-                                                                        </option>
-                                                                        <option value="AE">Armed Forces Europe</option>
-                                                                        <option value="AE">Armed Forces Africa</option>
-                                                                        <option value="AE">
-                                                                            Armed Forces Middle East
-                                                                        </option>
-                                                                        <option value="AE">Armed Forces Canada</option>
-                                                                        <option value="AP">Armed Forces Pacific</option>
-                                                                        <option value="AL">Alabama</option>
-                                                                        <option value="AK">Alaska</option>
-                                                                        <option value="AZ">Arizona</option>
-                                                                        <option value="AR">Arkansas</option>
-                                                                        <option value="CA">California</option>
-                                                                        <option value="CO">Colorado</option>
-                                                                        <option value="CT">Connecticut</option>
-                                                                        <option value="DE">Delaware</option>
-                                                                        <option value="DC">District of Columbia</option>
-                                                                        <option value="FL">Florida</option>
-                                                                        <option value="GA">Georgia</option>
-                                                                        <option value="HI">Hawaii</option>
-                                                                        <option value="ID">Idaho</option>
-                                                                        <option value="IL">Illinois</option>
-                                                                        <option value="IN">Indiana</option>
-                                                                        <option value="IA">Iowa</option>
-                                                                        <option value="KS">Kansas</option>
-                                                                        <option value="KY">Kentucky</option>
-                                                                        <option value="LA">Louisiana</option>
-                                                                        <option value="ME">Maine</option>
-                                                                        <option value="MD">Maryland</option>
-                                                                        <option value="MA">Massachusetts</option>
-                                                                        <option value="MI">Michigan</option>
-                                                                        <option value="MN">Minnesota</option>
-                                                                        <option value="MS">Mississippi</option>
-                                                                        <option value="MO">Missouri</option>
-                                                                        <option value="MT">Montana</option>
-                                                                        <option value="NE">Nebraska</option>
-                                                                        <option value="NV">Nevada</option>
-                                                                        <option value="NH">New Hampshire</option>
-                                                                        <option value="NJ">New Jersey</option>
-                                                                        <option value="NM">New Mexico</option>
-                                                                        <option value="NY">New York</option>
-                                                                        <option value="NC">North Carolina</option>
-                                                                        <option value="ND">North Dakota</option>
-                                                                        <option value="OH">Ohio</option>
-                                                                        <option value="OK">Oklahoma</option>
-                                                                        <option value="OR">Oregon</option>
-                                                                        <option value="PW">Palau</option>
-                                                                        <option value="PA">Pennsylvania</option>
-                                                                        <option value="PR">Puerto Rico</option>
-                                                                        <option value="RI">Rhode Island</option>
-                                                                        <option value="SC">South Carolina</option>
-                                                                        <option value="SD">South Dakota</option>
-                                                                        <option value="TN">Tennessee</option>
-                                                                        <option value="TX">Texas</option>
-                                                                        <option value="UT">Utah</option>
-                                                                        <option value="VT">Vermont</option>
-                                                                        <option value="VA">Virginia</option>
-                                                                        <option value="WA">Washington</option>
-                                                                        <option value="WV">West Virginia</option>
-                                                                        <option value="WI">Wisconsin</option>
-                                                                        <option value="WY">Wyoming</option>
-                                                                    </select>
-                                                                </div>
-                                                                <span className="required_mobile">*</span>
-                                                                <div
-                                                                    className="error_text"
-                                                                    style={{
-                                                                        display: "block",
-                                                                        background: "#fff0e5",
-                                                                        border: "1px solid #ff6e03",
-                                                                        padding: "5px 5px 5px 27px",
-                                                                        fontWeight: 500,
-                                                                        fontSize: 12,
-                                                                        position: "relative",
-                                                                        margin: "-3px 0 15px 0"
-                                                                    }}
-                                                                    bis_skin_checked={1}
-                                                                >
-                                                                    <i
-                                                                        className="fa fa-info-circle"
-                                                                        aria-hidden="true"
-                                                                        style={{
-                                                                            fontSize: 19,
-                                                                            position: "absolute",
-                                                                            left: 5
-                                                                        }}
-                                                                    />
-                                                                    Travel Protection is not available to residents of
-                                                                    New York.
-                                                                </div>
-                                                            </div>
-                                                            <div
-                                                                className="col-sm-4 col-xs-12"
-                                                                style={{ display: "none" }}
-                                                                id="txtState"
-                                                                bis_skin_checked={1}
-                                                            >
-                                                                <label className="label_hide_mobile">
-                                                                    State/Province
-                                                                </label>
-                                                                <input
-                                                                    className="nonvalidateTxt"
-                                                                    id="flightBookingRequest_Payment_State1"
-                                                                    name="flightBookingRequest.Payment.State1"
-                                                                    placeholder="State/Province"
-                                                                    type="text"
-                                                                    defaultValue=""
-                                                                />
-                                                            </div>
-                                                            <div
-                                                                className="col-sm-4 col-xs-12"
-                                                                bis_skin_checked={1}
-                                                            >
-                                                                <label className="label_hide_mobile">
-                                                                    City Town<span className="required">*</span>
-                                                                </label>
-                                                                <input
-                                                                    autoComplete="off"
-                                                                    className="Payment alphanumeric"
-                                                                    data-val="true"
-                                                                    data-val-required="The City field is required."
-                                                                    id="flightBookingRequest_Payment_City"
-                                                                    name="flightBookingRequest.Payment.City"
-                                                                    placeholder="City Town"
-                                                                    type="text"
-                                                                    defaultValue=""
-                                                                />
-                                                                <span className="required_mobile">*</span>
-                                                            </div>
-                                                            <div
-                                                                className="col-sm-4 col-xs-12"
-                                                                bis_skin_checked={1}
-                                                            >
-                                                                <label className="label_hide_mobile">
-                                                                    Postal Code<span className="required">*</span>
-                                                                </label>
-                                                                <input
-                                                                    autoComplete="off"
-                                                                    className="Payment pincodeval"
-                                                                    data-val="true"
-                                                                    data-val-required="The PostalCode field is required."
-                                                                    id="flightBookingRequest_Payment_PostalCode"
-                                                                    maxLength={7}
-                                                                    minLength={5}
-                                                                    name="flightBookingRequest.Payment.PostalCode"
-                                                                    placeholder="Postal Code"
-                                                                    type="text"
-                                                                    defaultValue=""
-                                                                />
-                                                                <span
-                                                                    className="field-validation-valid"
-                                                                    data-valmsg-for="flightBookingRequest.Payment.PostalCode"
-                                                                    data-valmsg-replace="true"
-                                                                />
-                                                                <span className="required_mobile">*</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="imp-msg" bis_skin_checked={1} />
-                                            </div>
+                                            {/* Billing Information */}
+                                            <BillingInfo />
                                             <div className="form-box" bis_skin_checked={1}>
                                                 <div className="mainheading" bis_skin_checked={1}>
                                                     <img
@@ -6527,7 +3045,7 @@ const PurchasePage = () => {
                                                         >
                                                             <img
                                                                 className="debit-card-logo pull-right"
-                                                                src="/assets/images/card-icon/debitcard-blank.svg?v=1.2"
+                                                                src="https://www.lookbyfare.com/us/images/card-icon/debitcard-blank.svg?v=1.2"
                                                             />
                                                             <label
                                                                 className="pcc card_tab payment_tab"
@@ -6561,7 +3079,7 @@ const PurchasePage = () => {
 
                                                                     Available payment methods
                                                                 </span>
-                                                                <img src="/assets/images/payment/card-sprite.png?v=1.2" />
+                                                                <img src="https://www.lookbyfare.com/us/images/payment/card-sprite.png?v=1.2" />
                                                             </div>
                                                         </div>
                                                         <div
@@ -6769,7 +3287,7 @@ const PurchasePage = () => {
                                                                 href={""}
                                                             >
                                                                 <img
-                                                                    src="/assets/images/footer/security-metrices-blue.svg"
+                                                                    src="https://www.lookbyfare.com/us/images/footer/security-metrices-blue.svg"
                                                                     style={{ verticalAlign: "middle", marginTop: 30 }}
                                                                 />
                                                             </a>
@@ -6825,30 +3343,19 @@ const PurchasePage = () => {
                                                                     <label>
                                                                         Exp. Year<span className="required">*</span>
                                                                     </label>
-                                                                    <div
-                                                                        className="form-righterrow"
-                                                                        bis_skin_checked={1}
-                                                                    >
+                                                                    <div className="form-righterrow">
                                                                         <select
-                                                                            className="Payment "
-                                                                            data-val="true"
-                                                                            data-val-required="The ExpiryYear field is required."
+                                                                            className="Payment"
                                                                             id="flightBookingRequest_Payment_ExpiryYear"
                                                                             name="flightBookingRequest.Payment.ExpiryYear"
+                                                                            defaultValue=""
                                                                         >
                                                                             <option value="">Select</option>
-                                                                            <option>2024</option>
-                                                                            <option>2025</option>
-                                                                            <option>2026</option>
-                                                                            <option>2027</option>
-                                                                            <option>2028</option>
-                                                                            <option>2029</option>
-                                                                            <option>2030</option>
-                                                                            <option>2031</option>
-                                                                            <option>2032</option>
-                                                                            <option>2033</option>
-                                                                            <option>2034</option>
-                                                                            <option>2035</option>
+                                                                            {year.map((year) => (
+                                                                                <option key={year} value={year}>
+                                                                                    {year}
+                                                                                </option>
+                                                                            ))}
                                                                         </select>
                                                                         <span
                                                                             className="field-validation-valid"
@@ -6890,7 +3397,7 @@ const PurchasePage = () => {
                                                                 id="three"
                                                                 bis_skin_checked={1}
                                                             >
-                                                                <img src="/assets/images/payment/cvv.png" />
+                                                                <img src="https://www.lookbyfare.com/us/images/payment/cvv.png" />
                                                                 <span> 3 Digit number from your card</span>
                                                                 <span className="cardImg hidden-xs" />
                                                             </div>
@@ -6914,7 +3421,7 @@ const PurchasePage = () => {
                                                         href={""}
                                                     >
                                                         <img
-                                                            src="/assets/images/footer/security-metrices-blue.svg"
+                                                            src="https://www.lookbyfare.com/us/images/payment/godaddy.png"
                                                             style={{ verticalAlign: "middle" }}
                                                             className="godaddy"
                                                         />

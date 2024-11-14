@@ -10,8 +10,8 @@ const FlightSearch = ({ airline, selectedDes }) => {
 
     const router = useRouter();
 
-    console.log(selectedDes, "Selected Dest");
-    console.log(airline, "airlines");
+    // console.log(selectedDes, "Selected Dest");
+    // console.log(airline, "airlines");
 
     const [tripType, setTripType] = useState("One-Way");
     const [token, setToken] = useState("");
@@ -158,7 +158,19 @@ const FlightSearch = ({ airline, selectedDes }) => {
                 }
             });
             let result = await response.json()
-            let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            // let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            const seenIATA = new Set();
+
+            let options = result.data.filter(a => {
+                if (seenIATA.has(a.iataCode)) {
+                    return false;
+                } else {
+                    seenIATA.add(a.iataCode);
+                    return true;
+                }
+            }).map(a => {
+                return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode };
+            });
             setOriginAirportList(options);
         } catch (err) {
             console.log(err);
@@ -211,7 +223,19 @@ const FlightSearch = ({ airline, selectedDes }) => {
                 }
             });
             let result = await response.json()
-            let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            // let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            const seenIATA = new Set();
+
+            let options = result.data.filter(a => {
+                if (seenIATA.has(a.iataCode)) {
+                    return false;
+                } else {
+                    seenIATA.add(a.iataCode);
+                    return true;
+                }
+            }).map(a => {
+                return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode };
+            });
             setDesAirportList(options);
         } catch (err) {
             console.log(err);
@@ -242,6 +266,10 @@ const FlightSearch = ({ airline, selectedDes }) => {
         body.append("grant_type", "client_credentials");
         body.append("client_id", "0fTkgg7u7lrqduKUEFx7v5Gnhey4ZG50");
         body.append("client_secret", "1kbdDxkhO4kMMH9p");
+
+        // New Id
+        // body.append("client_id", "ZKUO3uFAPcKvHLMchYTnuRc5IA9OSrgC");
+        // body.append("client_secret", "P1cyeLmxjHWPhFds");
         try {
             const data = await fetch("https://api.amadeus.com/v1/security/oauth2/token",
                 {

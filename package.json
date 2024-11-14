@@ -10,6 +10,7 @@
   "dependencies": {
     "antd": "^5.21.6",
     "bootstrap": "^5.3.3",
+    "country-state-city": "^3.2.1",
     "firebase": "^10.13.1",
     "framer-motion": "^11.3.30",
     "js-cookie": "^3.0.5",

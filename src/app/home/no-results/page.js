@@ -126,16 +126,31 @@ const NoResults = () => {
                                 </div>
                             </a>
                             {isFlightSearchVisible && (
-                                <div className="flight-search-modal">
-                                    <FlightSearch />
-                                    {/* Close button styled as "X" */}
-                                    <button
-                                        onClick={closeFlightSearch}
-                                        className="close-btn"
-                                        aria-label="Close"
-                                    >
-                                        &times; {/* The "X" symbol */}
-                                    </button>
+                                <div className="modify-engine-wrapper open">
+                                    <a
+                                        href="javascript:void(0);"
+                                        className="close-sidebar fa fa-close"
+                                        onClick={() => setFlightSearchVisible(false)}
+                                    />
+
+                                    <div className="holder">
+                                        <div className="modify-engine">
+                                            <div className="container">
+                                                <div className="search_detail edit-listing-searchdetails hand">
+                                                    {!isSearchVisible ? (
+                                                        <FlightSearch />
+                                                    ) : (
+                                                        <a
+                                                            className="close-listing-search visible-lg visible-md"
+                                                            onClick={() => setIsSearchVisible(false)}
+                                                        >
+                                                            Close {/* [x] */}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             <div className="city-itenery">
