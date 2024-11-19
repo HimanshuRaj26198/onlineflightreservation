@@ -971,25 +971,22 @@ const FlightResultCompnent = () => {
                         src="https://www.lookbyfare.com/us/images/svg/filter-icon.svg"
                     />
                     <ul>
-                        {filters.map((filter) => (
-                            <li key={filter.id} id={`filter_strip_mobile_${filter.id}`}>
-
-                                <a
-                                    href="javascript:void(0);"
-                                    onClick={() => handleFilterTabActive(filter.tabId, filter.id)}
-                                >
-                                    {filter.label}
+                        {filters.map((tab) => (
+                            <li
+                                key={tab.id}
+                                id={`filterTabs_${tab.id}`}
+                                onClick={() => {
+                                    setOpenedFilter(tab.label);  // Set the opened filter label
+                                    setMobileFilterVisible(true); // Set the mobile filter visible
+                                }}
+                                className={openedFilter === tab.label ? "active" : ""}
+                            >
+                                <a data-toggle="tab" href={`#${tab.id}`}>
+                                    {tab.label}
                                 </a>
-
-
-                                <span
-                                    className="reset_filter"
-                                    onClick={() => handleResetFilter(filter.resetFunction, filter.resetParam)}
-                                >
-                                    X
-                                </span>
                             </li>
                         ))}
+
                     </ul>
                 </div>
             </div>
