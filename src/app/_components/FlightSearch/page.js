@@ -366,10 +366,10 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                 <div className="input-city">
                                     <label className="form-label">Leaving from</label>
                                     <div className="relative">
-                                        <img
+                                        {/* <img
                                             src="/assets/images/location-icon.png"
                                             className="input-icon"
-                                        />
+                                        /> */}
                                         <Select
                                             className="textoverflow input_destination"
                                             options={originAirportList}
@@ -408,10 +408,10 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                 <div className="input-city">
                                     <label className="form-label">Going to</label>
                                     <div className="relative">
-                                        <img
+                                        {/* <img
                                             src="/assets/images/location-icon.png"
                                             className="input-icon"
-                                        />
+                                        /> */}
                                         <Select
                                             className="textoverflow input_destination"
                                             options={desAirportList}
@@ -638,6 +638,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                         </div>
                                     </span>
                                 </div>}
+
                             </div>
                         </div>
                         <div className="clearfix"></div>
@@ -726,7 +727,8 @@ const FlightSearch = ({ airline, selectedDes }) => {
                     value="2024"
                 />
             </div>
-        </form></>
+        </form>
+        </>
 }
 
 

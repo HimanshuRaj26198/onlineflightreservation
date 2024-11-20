@@ -53,6 +53,7 @@ const FlightResultCompnent = () => {
     const [selectedArrivalFilter, setSelectedArrivalFilter] = useState("");
     const [departureCity, setDepartureCity] = useState('');
     const [arrivalCity, setArrivalCity] = useState('');
+    const [visibleCount, setVisibleCount] = useState(10);
 
 
     const timeFilters = [
@@ -146,7 +147,7 @@ const FlightResultCompnent = () => {
 
 
         setFilteredFlights(tmpData);
-    }, [activeFlight, flightList, stopFilter])
+    }, [activeFlight, flightList, stopFilter, selectedAirports])
 
     const handleStopFilter = (type) => {
         const selectedOption = availableStops.find(option => option.label === type);
@@ -155,22 +156,20 @@ const FlightResultCompnent = () => {
     };
 
     const handleCheckboxChanges = (airportCode) => {
-
         setSelectedAirports((prevSelected) => {
             const isSelected = prevSelected.includes(airportCode);
             const newSelected = isSelected
                 ? prevSelected.filter(code => code !== airportCode)
                 : [...prevSelected, airportCode];
 
-
             setAppliedFilters((prevFilters) => {
                 let newFilters;
 
                 if (isSelected) {
-
+                    // Remove airport filter if the checkbox is unchecked
                     newFilters = prevFilters.filter(filter => filter.value !== airportCode);
                 } else {
-
+                    // Add airport filter if the checkbox is checked
                     newFilters = [...prevFilters, { type: 'Airport', value: airportCode }];
                 }
 
@@ -730,11 +729,7 @@ const FlightResultCompnent = () => {
 
     const total = parseInt(searchParam.get("adult")) + parseInt(searchParam.get("child"))
 
-
-
-
     // For Mobile View 
-
     const filters = [
         { id: "stops", label: "Stops", tabId: "tab-1", resetFunction: "restFilter", resetParam: "stops" },
         { id: "price", label: "Price", tabId: "tab-3", resetFunction: "restpricefilter", resetParam: "" },
@@ -743,29 +738,29 @@ const FlightResultCompnent = () => {
         { id: "airports", label: "DepartureAirports", tabId: "tab-6", resetFunction: "restFilter", resetParam: "airports" }
     ];
 
-    const handleFilterTabActive = (tabId, filterId) => {
-        setOpenedFilter(tabId);
-    };
+    // const handleFilterTabActive = (tabId, filterId) => {
+    //     setOpenedFilter(tabId);
+    // };
 
 
-    const handleResetFilter = (resetFunction, resetParam) => {
-        if (resetFunction === "restFilter") {
+    // const handleResetFilter = (resetFunction, resetParam) => {
+    //     if (resetFunction === "restFilter") {
 
-            if (resetParam === "stops") {
-                setSelectedStop(null);
-            } else if (resetParam === "airline") {
-                setSelectedAirlines([]);
-            } else if (resetParam === "airports") {
-                setSelectedAirports([]);
-            }
-        } else if (resetFunction === "restpricefilter") {
+    //         if (resetParam === "stops") {
+    //             setSelectedStop(null);
+    //         } else if (resetParam === "airline") {
+    //             setSelectedAirlines([]);
+    //         } else if (resetParam === "airports") {
+    //             setSelectedAirports([]);
+    //         }
+    //     } else if (resetFunction === "restpricefilter") {
 
-            setPriceRange({ min: 0, max: 1000 });
-        } else if (resetFunction === "restmobdepretfilter") {
+    //         setPriceRange({ min: 0, max: 1000 });
+    //     } else if (resetFunction === "restmobdepretfilter") {
 
-            setSelectedDepartureFilter(null);
-        }
-    };
+    //         setSelectedDepartureFilter(null);
+    //     }
+    // };
 
     const [isFlightSearchVisible, setFlightSearchVisible] = useState(false);
 
@@ -775,6 +770,26 @@ const FlightResultCompnent = () => {
     }
     const closeFlightSearch = () => {
         setFlightSearchVisible(false);
+    };
+
+    // Load more results
+    const loadMoreResults = () => {
+        setVisibleCount(visibleCount + 10); // Load 10 more results
+    };
+
+    // Reset all filters
+    const resetAllFilters = () => {
+        setStopFilter(null);
+        setActiveFlight(null);
+        setAppliedFilters([]);
+        setSelectedStop(null)
+        setPriceRange({ min: minPrice, max: maxPrice });
+        setFilteredFlights(flightList);
+        setSelectedAirlines([]);
+        setSelectedDepartureFilter("");
+        setSelectedArrivalFilter("");
+        setSelectedAirports([]);
+        setVisibleCount(10);
     };
 
     return <>
@@ -874,7 +889,10 @@ const FlightResultCompnent = () => {
                                     overflow: "hidden",
                                     transition: "max-height 0.5s ease-in-out",
                                 }}>
-                                <FlightSearch />
+                                <section id="flightEngineId">
+
+                                    <FlightSearch />
+                                </section>
                             </div>
                         </div>
                     </div>
@@ -1076,18 +1094,7 @@ const FlightResultCompnent = () => {
                                                     href="javascript:void(0);"
                                                     className="clear-all-filters pull-right hidden-xs"
                                                     style={{ display: "block" }}
-                                                    onClick={() => {
-                                                        setStopFilter(null);
-                                                        setActiveFlight(null);
-                                                        setAppliedFilters([]);
-                                                        setSelectedStop(null)
-                                                        setPriceRange({ min: minPrice, max: maxPrice });
-                                                        setFilteredFlights(flightList);
-                                                        setSelectedAirlines([]);
-                                                        setSelectedDepartureFilter("");
-                                                        setSelectedArrivalFilter("");
-                                                        setSelectedAirports([]);
-                                                    }}
+                                                    onClick={resetAllFilters}
                                                 >
                                                     Reset all
                                                 </a>
@@ -1372,23 +1379,12 @@ const FlightResultCompnent = () => {
                                 <div className="mobile-button">
                                     <a
                                         href="javascript:void(0);"
-                                        onClick={() => {
-                                            setStopFilter(null);
-                                            setActiveFlight(null);
-                                            setAppliedFilters([]);
-                                            setSelectedStop(null)
-                                            setPriceRange({ min: minPrice, max: maxPrice });
-                                            setFilteredFlights(flightList);
-                                            setSelectedAirlines([]);
-                                            setSelectedDepartureFilter("");
-                                            setSelectedArrivalFilter("");
-                                            setSelectedAirports([]);
-                                        }}
+                                        onClick={resetAllFilters}
                                         className="reset-all-filters"
                                     >
                                         Reset all Filter
                                     </a>
-                                    <a href="javascript:void(0);" className="apply-filters">
+                                    <a href="javascript:void(0);" className="apply-filters" onClick={() => setMobileFilterVisible(false)}>
                                         Close
                                     </a>
                                 </div>
@@ -1508,7 +1504,6 @@ const FlightResultCompnent = () => {
                                 </ul>
                             </div>
 
-
                             {/* Content Area */}
                             <div className="result-block sss901">
                                 <div className="row">
@@ -1529,7 +1524,7 @@ const FlightResultCompnent = () => {
                                 </div>
 
 
-                                {activeTab === 'all' && filteredFlights.map((flight, index) => (
+                                {activeTab === 'all' && filteredFlights.slice(0, visibleCount).map((flight, index) => (
                                     <FlightCard
                                         key={index}
                                         setSelectedFlight={setSelectedFlight}
@@ -1540,7 +1535,7 @@ const FlightResultCompnent = () => {
                                 ))}
 
 
-                                {activeTab === 'nearby' && Array.isArray(nearbyAirports) && nearbyAirports.map((flight, index) => (
+                                {activeTab === 'nearby' && Array.isArray(nearbyAirports) && nearbyAirports.slice(0, visibleCount).map((flight, index) => (
                                     <FlightCard
                                         key={index}
                                         setSelectedFlight={setSelectedFlight}
@@ -1551,7 +1546,7 @@ const FlightResultCompnent = () => {
                                 ))}
 
 
-                                {activeTab === 'shortest' && getShortestFlights().map((flight, index) => (
+                                {activeTab === 'shortest' && getShortestFlights().slice(0, visibleCount).map((flight, index) => (
                                     <FlightCard
                                         key={index}
                                         setSelectedFlight={setSelectedFlight}
@@ -1608,12 +1603,13 @@ const FlightResultCompnent = () => {
                                 name="totalpage"
                                 defaultValue={57}
                             />
-                            <div
-                                className="load-more"
-                                style={{ cursor: "pointer" }}
-                            >
-                                More Result
-                            </div>
+                            {filteredFlights.length > visibleCount && (
+                                <div id="containerListing">
+                                    <div className="load-more" style={{ cursor: 'pointer' }} onClick={loadMoreResults}>
+                                        More Results
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

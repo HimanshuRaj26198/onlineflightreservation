@@ -18,9 +18,6 @@ const PurchasePage = () => {
     const emailRef = useRef("");
     const phoneRef = useRef("");
     const alternateNumRef = useRef("");
-    const firstNameRef = useRef();
-    const middleNameRef = useRef();
-    const [gender, setGender] = useState('1');
     const [selectedCountry, setSelectedCountry] = useState(countryCodeArr[0]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isDropdownOpens, setIsDropdownOpens] = useState(false);
@@ -29,11 +26,7 @@ const PurchasePage = () => {
     const currentYear = new Date().getFullYear();
 
     const router = useRouter();
-
-    // const handleCountrySelect = (country) => {
-    //     setSelectedCountry(country);
-    //     setIsDropdownOpen(false);
-    // };
+    const tripDetails = [];
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -79,6 +72,7 @@ const PurchasePage = () => {
             background: '#f0f0f0',
         },
     };
+
     const styles1 = {
         flagDropdown: {
             position: 'relative',
@@ -148,6 +142,7 @@ const PurchasePage = () => {
                 AlternateMobile: alternateNumRef.current.value,
                 CountryCode: selectedCountry.dialCode
             };
+            tripDetails.push(contactData);
 
             // Log the data to verify
             console.log("CONTACT DATA: ", contactData);
@@ -159,38 +154,6 @@ const PurchasePage = () => {
             ).then(res => console.log(res), setFormFilled(true)).catch(err => console.log(err));
         }
 
-    }
-
-    const handleTravlerDetails = (e) => {
-        e.preventDefault();
-
-        let contactFormData = new FormData();
-
-        contactFormData.append("FirstName", firstNameRef.current.value);
-        contactFormData.append("MiddleName", middleNameRef.current.value || "");
-        contactFormData.append("Gender", gender);
-
-        // Log form data to the console
-        console.log("First Name:", firstNameRef.current.value);
-        console.log("Middle Name:", middleNameRef.current.value);
-        console.log("Gender:", gender);
-
-        // fetch("https://script.google.com/macros/s/AKfycbwVmb-Fq-ph0V-Buszfxf-iww-DuyO7M7s7APz-3-yNsDeXO3XWQCG3-djqs9kJ1X1CdA/exec", {
-        //     method: "POST",
-        //     body: contactFormData
-        // })
-        //     .then(res => {
-        //         if (res.ok) {
-        //             toast.success("Form submitted successfully!");
-        //             setFormFilled(true); // Update form status
-        //         } else {
-        //             toast.error("There was an error submitting the form.");
-        //         }
-        //     })
-        //     .catch(err => {
-        //         console.log("Error:", err);
-        //         toast.error("Something went wrong. Please try again.");
-        //     });
     }
 
     // Function to handle the scroll event
@@ -378,7 +341,6 @@ const PurchasePage = () => {
     }
 
     // For Country Code
-
     useEffect(() => {
         const getLocation = async () => {
             try {
@@ -387,20 +349,15 @@ const PurchasePage = () => {
                 console.log("DataGeo", data);
 
                 if (data.status === 'fail') {
-                    // console.error('Failed to fetch location');
                 } else {
                     const userCountryCode = data.countryCode;
-                    // console.log("userCountry",userCountryCode);
-
                     const country = countryCodeArr.find(c => c.countryCode.toUpperCase() === userCountryCode);
                     console.log(country, "CountryCode-1");
-
                     setSelectedCountry(country || countryCodeArr[0]);
                 }
             } catch (err) {
                 console.error('Error fetching location:', err);
             } finally {
-                // setLoading(false); // Stop loading once the data is fetched
             }
         };
 
@@ -435,7 +392,7 @@ const PurchasePage = () => {
             phoneCode: '',
             tsaPrecheckNumber: '',
             redressNumber: '',
-            emergencyContactNumber:'',
+            emergencyContactNumber: '',
         },
     ]);
 
@@ -482,7 +439,7 @@ const PurchasePage = () => {
                 phoneCode: '',
                 tsaPrecheckNumber: '',
                 redressNumber: '',
-                emergencyContactNumber:'',
+                emergencyContactNumber: '',
             },
         ]);
     };
@@ -504,10 +461,16 @@ const PurchasePage = () => {
         setTravelers(updatedTravelers);
     };
 
-    useEffect(() => {
-        console.log('Traveler Data:', travelers);
-    }, [travelers]);
+    const buttonStyle = {
+        backgroundColor: 'rgb(0, 102, 178)',
+        color: 'white',
+        fontWeight: 500,
+        textAlign: 'center',
+        border: '0px',
+        padding: '10px',
+    };
 
+    tripDetails.push(travelers);
 
     return <>
         {selectedFlight && <div className="body-content" bis_skin_checked="1">
@@ -1413,7 +1376,7 @@ const PurchasePage = () => {
                                     </div>
                                 </div>
                                 <div id="div_Traveler" className="step2" bis_skin_checked={1}>
-                                    {formedFilled && <div className="form-box" bis_skin_checked={1} onSubmit={handleTravlerDetails} >
+                                    {formedFilled && <div className="form-box" bis_skin_checked={1} >
                                         <div className="mainheading" bis_skin_checked={1}>
                                             <img
                                                 src="/assets/images/svg/p-traveller-information.svg"
@@ -1732,20 +1695,21 @@ const PurchasePage = () => {
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
                                                             </div>
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 {travelers.length > 1 && (
-                                                    <button type="button" onClick={() => removeAdult(travelers.length - 1)}>
+                                                    <button type="button" onClick={() => removeAdult(travelers.length - 1)} style={buttonStyle}>
                                                         Remove Last Adult
                                                     </button>
+
                                                 )}
                                             </div>
                                         ))}
-                                        <button type="button" onClick={addMoreAdult}>
+                                        <br></br>
+                                        <button type="button" onClick={addMoreAdult} style={buttonStyle}>
                                             Add More Adults
                                         </button>
 

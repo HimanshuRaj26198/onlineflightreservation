@@ -9775,11 +9775,11 @@ select:focus,
 }
 
 .inputSet label input[type=radio]:checked~span {
-    color: #1b75bc
+    color: #000
 }
 
 .inputSet label input[type=radio]:checked~span::after {
-    border: 2px solid #1b75bc
+    border: 2px solid #000
 }
 
 .inputSet label input[type=radio]:checked~span::before {
@@ -17022,7 +17022,7 @@ select {
 }
 
 .modify-engine-wrapper {
-    background: #1b75bc;
+    background: #6aacff;
     padding: 10px 0;
     position: relative
 }
@@ -17030,7 +17030,7 @@ select {
 @media (max-width: 767px) {
     .results-page .modify-engine-wrapper.open {
         display: block;
-        background: #1b75bc;
+        background: #5291df;
         padding: 20px 0;
         position: fixed;
         left: 0px;
@@ -17059,7 +17059,7 @@ select {
     font-size: 14px;
     display: block;
     font-weight: 300;
-    color: #fff
+    color: #000;
 }
 
 @media(max-width:1169px) {
@@ -17408,7 +17408,7 @@ select {
 @media(max-width:767px) {
     .results-page .modify-engine-wrapper.open {
         display: block;
-        background: #1b75bc;
+        background: #6aacff;
         padding: 20px 0;
         position: fixed;
         left: 0;
@@ -17584,7 +17584,7 @@ select {
 }
 
 .search_detail {
-    color: #fff
+    color: #000
 }
 
 .search_detail .fa-exchange {
@@ -36017,7 +36017,7 @@ body {
 @media (max-width: 767px) {
     .results-page .modify-engine-wrapper.open {
         display: block;
-        background: #1b75bc;
+        background: #6aacff;
         padding: 20px 0;
         position: fixed;
         left: 0px;
@@ -36028,11 +36028,13 @@ body {
         overflow-y: auto;
     }
 }
+
 @media (max-width: 767px) {
     .results-page .modify-engine-wrapper {
         display: none;
     }
 }
+
 .modify-engine-wrapper {
     background: #1b75bc;
     padding: 10px 0 10px 0;
@@ -36044,6 +36046,7 @@ body {
         display: block !important;
     }
 }
+
 .visible-xs {
     display: none !important;
 }
