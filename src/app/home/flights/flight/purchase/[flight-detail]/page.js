@@ -12,18 +12,33 @@ import BillingInfo from "@/app/_components/billingInfo/page";
 const PurchasePage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
+    const [isAffirmPayment, setIsAffirmPayment] = useState(false);
+    const [isBookingValid, setIsBookingValid] = useState(false);
+
     const [flightDetailVisible, setFlightDetailVisible] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [formedFilled, setFormFilled] = useState(false);
     const emailRef = useRef("");
     const phoneRef = useRef("");
+
     const alternateNumRef = useRef("");
     const [selectedCountry, setSelectedCountry] = useState(countryCodeArr[0]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isDropdownOpens, setIsDropdownOpens] = useState(false);
+
     const [isMoreInfoVisible, setIsMoreInfoVisible] = useState(false);
     const [year, setYears] = useState([]);
     const currentYear = new Date().getFullYear();
+    const [mobileVisible, setMobileVisible] = useState(false);
+
+
+    const cardRef = useRef("");
+    const cvcRef = useRef("");
+    const cvvRef = useRef("");
+    const cardnoRef = useRef("");
+    const expmonthRef = useRef("");
+    const expyearRef = useRef("");
+    const cardholdernameRef = useRef("");
 
     const router = useRouter();
     const tripDetails = [];
@@ -129,12 +144,17 @@ const PurchasePage = () => {
 
     const handleCustomerDetailCollection = (e) => {
         e.preventDefault();
+
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        // Regular expression to validate phone number (only digits and a minimum length of 10)
+        const phoneRegex = /^\d{10,15}$/;
+
         if (emailRef.current.value === "" && phoneRef.current.value === "") {
             toast.error("Please fill the billing details first!")
-        } else if (emailRef.current.value === "") {
-            toast.error("Please add email first!")
-        } else if (phoneRef === "") {
-            toast.error("Please add the phone first!")
+        } else if (!emailRegex.test(emailRef.current.value)) {
+            toast.error("Please enter a valid email address!")
+        } else if (!phoneRegex.test(phoneRef.current.value)) {
+            toast.error("Please enter a valid phone number!")
         } else {
             const contactData = {
                 Email: emailRef.current.value,
@@ -377,7 +397,7 @@ const PurchasePage = () => {
         setYears(yearList);
     }, [currentYear]);
 
-    // For add more adult
+    // For Traveler Details
     const [travelers, setTravelers] = useState([
         {
             id: Date.now(),
@@ -393,8 +413,121 @@ const PurchasePage = () => {
             tsaPrecheckNumber: '',
             redressNumber: '',
             emergencyContactNumber: '',
+            travelerType: 'ADT',
         },
     ]);
+
+    // Billing Info
+    const [billingInfo, setBillingInfo] = useState({
+        country: "",
+        address: "",
+        state: "",
+        city: "",
+        postalCode: "",
+    });
+
+    // Card Details
+    const [cardDetails, setCardDetails] = useState({
+        cardType: "Debit card",
+        cardHolderName: "",
+        cardNo: "",
+        expiry: {
+            month: "",
+            year: "",
+            cvv: "",
+        },
+    });
+
+    useEffect(() => {
+        console.log("Saving card details:", cardDetails);
+    }, [cardDetails]);
+
+
+
+    const handleInputChange = (e) => {
+        const { value } = e.target; // Get the value from the target element
+        if (e.target === cardnoRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                cardNo: value, // Update the cardNo property
+            }));
+        } else if (e.target === cardRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                cardType: value, // Update the cardType property
+            }));
+        } else if (e.target === cardholdernameRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                cardHolderName: value, // Update the cardHolderName property
+            }));
+        } else if (e.target === expmonthRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                expiry: {
+                    ...prevDetails.expiry,
+                    month: value, // Update the month property
+                },
+            }));
+        } else if (e.target === expyearRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                expiry: {
+                    ...prevDetails.expiry,
+                    year: value, // Update the year property
+                },
+            }));
+        } else if (e.target === cvvRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                expiry: {
+                    ...prevDetails.expiry,
+                    cvv: value, // Update the cvv property
+                },
+            }));
+        }
+    };
+
+    const handleSubmitTravellersDetails = () => {
+        // Validate the form before submitting
+        //if (validateForm()) {
+        // Combine all the data into a single traveler object
+        // const newTraveler = {
+        //     cardDetails,
+        //     billingInfo,
+        // };
+
+        // Add the new traveler to the array of travelers
+        // setTravellersDetails((prevState) => [...prevState, newTraveler]);
+
+        // Clear individual fields after adding to the array
+        // setTravelerInfo({
+        //   title: "",
+        //   firstName: "",
+        //   middleName: "",
+        //   lastName: "",
+        //   gender: "",
+        //   dob: { day: "", month: "", year: "" },
+        // });
+        // setCardDetails({
+        //     cardHolderName: "",
+        //     cardNo: "",
+        //     expiry: { month: "", year: "", cvv: "" },
+        // });
+        // setBillingInfo({
+        //     country: "",
+        //     address: "",
+        //     state: "",
+        //     city: "",
+        //     postalCode: "",
+        // });
+        // Optionally, show a success message or redirect the user
+        alert("Traveler details have been successfully added!");
+    };
+
+    // useEffect(() => {
+    //     console.log("Updated travellers details:", travellersDetails);
+    // }, [travellersDetails]);
 
     // Helper function to get years for DOB
     const getYears = () => {
@@ -405,7 +538,7 @@ const PurchasePage = () => {
     const years = getYears();
 
     // Handle input changes for each traveler
-    const handleInputChange = (index, e) => {
+    const handleInputChanges = (index, e) => {
         const { name, value } = e.target;
         const updatedTravelers = [...travelers];
         updatedTravelers[index] = {
@@ -440,6 +573,7 @@ const PurchasePage = () => {
                 tsaPrecheckNumber: '',
                 redressNumber: '',
                 emergencyContactNumber: '',
+                travelerType: 'ADT',
             },
         ]);
     };
@@ -461,6 +595,47 @@ const PurchasePage = () => {
         setTravelers(updatedTravelers);
     };
 
+    const calculateAge = (dobDate, dobMonth, dobYear) => {
+        const currentDate = new Date();
+        const birthDate = new Date(dobYear, dobMonth - 1, dobDate); // Month is 0-based in JavaScript Date
+        let age = currentDate.getFullYear() - birthDate.getFullYear();
+
+        const currentMonth = currentDate.getMonth();
+        const currentDay = currentDate.getDate();
+
+        // If birthday hasn't occurred yet this year, subtract 1 from age
+        if (currentMonth < birthDate.getMonth() || (currentMonth === birthDate.getMonth() && currentDay < birthDate.getDate())) {
+            age--;
+        }
+
+        return age;
+    };
+
+    const getTravelerType = (dobDate, dobMonth, dobYear) => {
+        const age = calculateAge(dobDate, dobMonth, dobYear);
+        if (age >= 12) return 'ADT'; // Adult
+        if (age >= 2) return 'CHD'; // Child
+        return 'INF'; // Infant
+    };
+
+    // Update travelerType when any of the birth date fields change
+    useEffect(() => {
+        setTravelers((prevTravelers) =>
+            prevTravelers.map((traveler) => {
+                // Only update travelerType if all DOB fields are available
+                if (traveler.dobDate && traveler.dobMonth && traveler.dobYear) {
+                    const travelerType = getTravelerType(
+                        traveler.dobDate,
+                        traveler.dobMonth,
+                        traveler.dobYear
+                    );
+                    return { ...traveler, travelerType };
+                }
+                return traveler;
+            })
+        );
+    }, [travelers.map(traveler => traveler.dobDate).join('-'), travelers.map(traveler => traveler.dobMonth).join('-'), travelers.map(traveler => traveler.dobYear).join('-')]);
+
     const buttonStyle = {
         backgroundColor: 'rgb(0, 102, 178)',
         color: 'white',
@@ -471,6 +646,23 @@ const PurchasePage = () => {
     };
 
     tripDetails.push(travelers);
+    console.log(tripDetails, "TRAVELERS-DETAILS");
+
+    // For Final Submit Button 
+    const handleBookingValidation = () => {
+        tripDetails.push(travelers);
+        console.log(tripDetails, "TRAVELERS-DETAILS");
+        setIsBookingValid(true);
+    };
+
+    const handleAffirmPayment = () => {
+        console.log('Processing payment with Affirm...');
+
+    };
+
+    useEffect(() => {
+        setIsAffirmPayment(true);
+    }, []);
 
     return <>
         {selectedFlight && <div className="body-content" bis_skin_checked="1">
@@ -516,8 +708,10 @@ const PurchasePage = () => {
                         </div>
                     </div>
                     <input type="hidden" defaultValue={1} id="totalPax" />
+
+                    {/* MAIN-FORM */}
                     <form
-                        action="/assets/flights/prebooked"
+                        action={handleSubmitTravellersDetails}
                         autoComplete="off"
                         id="fltpaymentform"
                         method="post"
@@ -1493,7 +1687,7 @@ const PurchasePage = () => {
                                                             maxLength={54}
                                                             name="firstName"
                                                             value={adult.firstName}
-                                                            onChange={(e) => handleInputChange(index, e)}
+                                                            onChange={(e) => handleInputChanges(index, e)}
                                                             placeholder="First Name"
                                                             type="text"
                                                             defaultValue=""
@@ -1515,7 +1709,7 @@ const PurchasePage = () => {
                                                             maxLength={54}
                                                             name="middleName"
                                                             value={adult.middleName}
-                                                            onChange={(e) => handleInputChange(index, e)}
+                                                            onChange={(e) => handleInputChanges(index, e)}
                                                             onBlur={(e) => printEvent(e)}
                                                             placeholder="Middle Name (Optional)"
                                                             type="text"
@@ -1530,7 +1724,7 @@ const PurchasePage = () => {
                                                     dobMonth={adult.dobMonth}
                                                     dobDate={adult.dobDate}
                                                     dobYear={adult.dobYear}
-                                                    handleInputChange={handleInputChange} />
+                                                    handleInputChanges={handleInputChanges} />
 
                                                 <div
                                                     id="dobMsg_0"
@@ -1582,7 +1776,7 @@ const PurchasePage = () => {
                                                                         placeholder="Name"
                                                                         type="text"
                                                                         value={adult.emergencyContactName}
-                                                                        onChange={(e) => handleInputChange(index, e)}
+                                                                        onChange={(e) => handleInputChanges(index, e)}
                                                                     />
                                                                 </div>
                                                                 <div className="col-sm-7 col-xs-12">
@@ -1620,7 +1814,7 @@ const PurchasePage = () => {
                                                                                         readOnly
                                                                                         type="tel"
                                                                                         value={adult.phoneNumber}
-                                                                                        onChange={(e) => handleInputChange(index, e)}
+                                                                                        onChange={(e) => handleInputChanges(index, e)}
 
                                                                                     />
                                                                                 </div>
@@ -1635,7 +1829,7 @@ const PurchasePage = () => {
                                                                                 placeholder="Name"
                                                                                 type="text"
                                                                                 value={adult.emergencyContactNumber}
-                                                                                onChange={(e) => handleInputChange(index, e)}
+                                                                                onChange={(e) => handleInputChanges(index, e)}
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1664,7 +1858,7 @@ const PurchasePage = () => {
                                                                                 placeholder="Known Traveler Number (Optional)"
                                                                                 type="text"
                                                                                 value={adult.tsaPrecheckNumber}
-                                                                                onChange={(e) => handleInputChange(index, e)}
+                                                                                onChange={(e) => handleInputChanges(index, e)}
                                                                             />
                                                                         </div>
                                                                         <div className="col-sm-6 col-xs-12">
@@ -1690,7 +1884,7 @@ const PurchasePage = () => {
                                                                                 placeholder="(Optional)"
                                                                                 type="number"
                                                                                 value={adult.redressNumber}
-                                                                                onChange={(e) => handleInputChange(index, e)}
+                                                                                onChange={(e) => handleInputChanges(index, e)}
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1702,7 +1896,7 @@ const PurchasePage = () => {
 
                                                 {travelers.length > 1 && (
                                                     <button type="button" onClick={() => removeAdult(travelers.length - 1)} style={buttonStyle}>
-                                                        Remove Last Adult
+                                                        Remove Last Traveller
                                                     </button>
 
                                                 )}
@@ -1710,7 +1904,7 @@ const PurchasePage = () => {
                                         ))}
                                         <br></br>
                                         <button type="button" onClick={addMoreAdult} style={buttonStyle}>
-                                            Add More Adults
+                                            Add traveller
                                         </button>
 
 
@@ -3019,7 +3213,13 @@ const PurchasePage = () => {
                                         </div>
                                         <div id="div_Payment" className="step4" bis_skin_checked={1}>
                                             {/* Billing Information */}
-                                            <BillingInfo />
+                                            <BillingInfo
+                                                setBillingInfo={setBillingInfo}
+                                                billingInfo={billingInfo}
+                                            />
+
+                                            {/* PAYMENT DETAILS */}
+
                                             <div className="form-box" bis_skin_checked={1}>
                                                 <div className="mainheading" bis_skin_checked={1}>
                                                     <img
@@ -3057,6 +3257,7 @@ const PurchasePage = () => {
                                                                     name="payment"
                                                                     defaultValue="true"
                                                                     defaultChecked=""
+                                                                    ref={cardRef}
                                                                 />
                                                                 <span>
                                                                     <b>Debit/Credit Card</b>
@@ -3117,6 +3318,9 @@ const PurchasePage = () => {
                                                                         autoCorrect="off"
                                                                         spellCheck="off"
                                                                         autoCapitalize="off"
+                                                                        ref={cardnoRef}
+                                                                        onChange={handleInputChange}
+                                                                    value={cardDetails.cardNo}
                                                                     />
                                                                     <div
                                                                         className="card-type-icon"
@@ -3178,6 +3382,7 @@ const PurchasePage = () => {
                                                                                 autoCorrect="off"
                                                                                 spellCheck="off"
                                                                                 autoCapitalize="off"
+
                                                                             />
                                                                             <input className="expiry-month" type="hidden" />
                                                                             <input className="expiry-year" type="hidden" />
@@ -3216,6 +3421,7 @@ const PurchasePage = () => {
                                                                             autoCorrect="off"
                                                                             spellCheck="off"
                                                                             autoCapitalize="off"
+                                                                            ref={cvcRef}
                                                                         />
                                                                         <div className="icon" bis_skin_checked={1}>
                                                                             <svg
@@ -3274,6 +3480,8 @@ const PurchasePage = () => {
                                                                     placeholder="Card holder's name"
                                                                     type="text"
                                                                     defaultValue=""
+                                                                    ref={cardholdernameRef}
+                                                                    onChange={handleInputChange}
                                                                 />
                                                                 <span
                                                                     className="field-validation-valid"
@@ -3315,6 +3523,8 @@ const PurchasePage = () => {
                                                                             data-val-required="The ExpiryMonth field is required."
                                                                             id="flightBookingRequest_Payment_ExpiryMonth"
                                                                             name="flightBookingRequest.Payment.ExpiryMonth"
+                                                                            ref={expmonthRef}
+                                                                        value={cardDetails.expiry.month}
                                                                         >
                                                                             <option value="">Select</option>
                                                                             <option value={1}>01-Jan</option>
@@ -3350,6 +3560,8 @@ const PurchasePage = () => {
                                                                             id="flightBookingRequest_Payment_ExpiryYear"
                                                                             name="flightBookingRequest.Payment.ExpiryYear"
                                                                             defaultValue=""
+                                                                            value={cardDetails.expiry.year}
+                                                                            onChange={handleInputChange}
                                                                         >
                                                                             <option value="">Select</option>
                                                                             {year.map((year) => (
@@ -3383,6 +3595,9 @@ const PurchasePage = () => {
                                                                         name="flightBookingRequest.Payment.CvvNo"
                                                                         type="password"
                                                                         defaultValue=""
+                                                                        ref={cvvRef}
+                                                                        value={cardDetails.expiry.cvv}
+                                                                        onChange={handleInputChange}
                                                                     />
                                                                     <span
                                                                         className="field-validation-valid"
@@ -3492,6 +3707,7 @@ const PurchasePage = () => {
                                                 </div>
                                                 {/*  */}
                                             </div>
+
                                             <div className="form-box" bis_skin_checked={1}>
                                                 <div style={{ marginBottom: 5 }} bis_skin_checked={1}>
                                                     Please be careful - Passenger details must match your
@@ -3514,61 +3730,72 @@ const PurchasePage = () => {
                                                 </div>
                                                 <div className="imp-msg" bis_skin_checked={1}>
                                                     <div className="tnc-txt" bis_skin_checked={1}>
-                                                        <p className="hidden-xs hidden-sm">
-                                                            By clicking, <span className="bkdyntxt">Book Now</span>
-                                                            I agree that I have read and accepted TourTravelHub
-                                                            <a href="/assets/terms-conditions" target="_blank">
-                                                                Terms &amp; Conditions
-                                                            </a>
-                                                            and
-                                                            <a href="/assets/privacy-policy" target="_blank">
-                                                                Privacy Policy
-                                                            </a>
-                                                        </p>
-                                                        <p className="visible-xs visible-sm">
-                                                            By clicking, <span className="bkdyntxt">Book Now</span>
-                                                            I agree that I have read and accepted TourTravelHub
-                                                            <a
-                                                                onclick="Filter.getmobile_popup('tnc')"
-                                                                className="text_link"
-                                                                data-toggle="modal"
-                                                                data-target="#mobile-popup"
-                                                                href={""}
-                                                            >
-                                                                Terms &amp; Conditions
-                                                            </a>
-                                                            and
-                                                            <a
-                                                                onclick="Filter.getmobile_popup('privacypolicy')"
-                                                                className="text_link"
-                                                                data-toggle="modal"
-                                                                data-target="#mobile-popup"
-                                                                href={""}
-                                                            >
-                                                                Privacy Policy
-                                                            </a>
-                                                        </p>
+                                                        {/* Desktop View */}
+                                                        {!mobileVisible && (
+                                                            <p className="hidden-xs hidden-sm">
+                                                                By clicking, <span className="bkdyntxt">Book Now</span>
+                                                                I agree that I have read and accepted TourTravelHub
+                                                                <a href="/assets/terms-conditions" target="_blank">
+                                                                    Terms &amp; Conditions
+                                                                </a>
+                                                                and
+                                                                <a href="/assets/privacy-policy" target="_blank">
+                                                                    Privacy Policy
+                                                                </a>
+                                                            </p>
+                                                        )}
+
+
+                                                        {mobileVisible && (
+                                                            <p className="visible-xs visible-sm">
+                                                                By clicking, <span className="bkdyntxt">Book Now</span>
+                                                                I agree that I have read and accepted TourTravelHub
+                                                                <a
+                                                                    onclick="Filter.getmobile_popup('tnc')"
+                                                                    className="text_link"
+                                                                    data-toggle="modal"
+                                                                    data-target="#mobile-popup"
+                                                                    href={""}
+                                                                >
+                                                                    Terms &amp; Conditions
+                                                                </a>
+                                                                and
+                                                                <a
+                                                                    onclick="Filter.getmobile_popup('privacypolicy')"
+                                                                    className="text_link"
+                                                                    data-toggle="modal"
+                                                                    data-target="#mobile-popup"
+                                                                    href={""}
+                                                                >
+                                                                    Privacy Policy
+                                                                </a>
+                                                            </p>
+                                                        )}
                                                         <div className="clearfix" bis_skin_checked={1} />
                                                     </div>
                                                 </div>
                                                 <div className="step-continue" bis_skin_checked={1}>
                                                     <button
                                                         className="main-btn pay-cc"
-                                                        onclick="return ValidationForBooking('false');"
+                                                        onClick={() => {
+                                                            handleBookingValidation();
+                                                            return isBookingValid ? true : false;
+                                                        }}
                                                         id="btnBookNow"
                                                         name="btnBookNow"
                                                     >
                                                         <i className="fa fa-lock" aria-hidden="true" /> Book Now
                                                     </button>
-                                                    <button
-                                                        className="main-btn  pay-affirm"
-                                                        type="button"
-                                                        onclick="return PayaffirmPayment();"
-                                                        style={{ display: "none" }}
-                                                    >
 
-                                                        Book with <span className="affirm-btn" />
-                                                    </button>
+                                                    {isAffirmPayment && (
+                                                        <button
+                                                            className="main-btn pay-affirm"
+                                                            type="button"
+                                                            onClick={handleAffirmPayment}
+                                                        >
+                                                            Book with <span className="affirm-btn" />
+                                                        </button>
+                                                    )}
                                                     <p>
                                                         <br />
                                                         <small>
@@ -3638,6 +3865,7 @@ const PurchasePage = () => {
                             </div>
                         </div>
                     </form>
+
                     <style
                         dangerouslySetInnerHTML={{
                             __html:

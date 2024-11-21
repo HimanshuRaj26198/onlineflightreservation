@@ -1,6 +1,5 @@
 "use client"
 import FlightCard from "@/app/_components/FlightCard/page";
-import FilterCarousel from "@/app/_components/SlickCrousel/page";
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import airportsDB from "../../../../../lib/airports.json";
@@ -20,7 +19,6 @@ const FlightResultCompnent = () => {
     const searchParams = useSearchParams();
     const origin = searchParams.get("origin");
     const destination = searchParams.get("destination");
-
     const searchParam = useSearchParams();
     const searchRef = useRef(null);
 
@@ -28,32 +26,45 @@ const FlightResultCompnent = () => {
     const [flightList, setFlightList] = useState([]);
     const [flightDetail, setFlightDetailVisible] = useState(false);
     const [selectedFlight, setSelectedFlight] = useState(null);
+
     const [maxHeight, setMaxHeight] = useState("0px");
     const [mobileFilterVisible, setMobileFilterVisible] = useState(false);
     const [openedFilter, setOpenedFilter] = useState("Stops");
-    const [filtersObj, setFiltersObj] = useState({ stops: 0 });
     const [offerPopupVisible, setOfferPopupVisible] = useState(false);
+
     const [loading, setLoading] = useState(true);
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [activeTab, setActiveTab] = useState('all');
     const [depName, setDepName] = useState(null)
 
+    const [nearbyAirports, setNearbyAirports] = useState([]);
     const [activeFlight, setActiveFlight] = useState(null);
     const [filteredFlights, setFilteredFlights] = useState([]);
     const [stopFilter, setStopFilter] = useState("")
+
     const [airlinesDetails, setAirlineDetails] = useState([])
     const [showMoreAirlines, setShowMoreAirlines] = useState(false);
     const [appliedFilters, setAppliedFilters] = useState([]);
     const [selectedAirports, setSelectedAirports] = useState([]);
+
     const [selectedStop, setSelectedStop] = useState(null);
     const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
     const [selectedAirlines, setSelectedAirlines] = useState([]);
     const [isRoundTrip, setIsRoundTrip] = useState(false);
+
     const [selectedDepartureFilter, setSelectedDepartureFilter] = useState("");
     const [selectedArrivalFilter, setSelectedArrivalFilter] = useState("");
     const [departureCity, setDepartureCity] = useState('');
     const [arrivalCity, setArrivalCity] = useState('');
+
     const [visibleCount, setVisibleCount] = useState(10);
+    const [isFlightSearchVisible, setFlightSearchVisible] = useState(false);
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(1000);
+
+    const [grandTotal, setGrandTotal] = useState("");
+    const [nearTotal, setNearTotal] = useState("");
+    const [shortestTotal, setShortestTotal] = useState("");
 
 
     const timeFilters = [
@@ -82,8 +93,7 @@ const FlightResultCompnent = () => {
     // Group by stop type and find minimum price
     const minPriceStops = stopOptions.reduce((acc, option) => {
 
-        console.log(option, "OPTIONS");
-
+        // console.log(option, "OPTIONS");
 
         if (option.value >= 0 && option.value <= 2) {
             if (!acc[option.value] || option.price < acc[option.value].price) {
@@ -102,8 +112,8 @@ const FlightResultCompnent = () => {
 
     // Filter the Flight 
     useEffect(() => {
-        console.log("coming here");
-        console.log({ activeFlight });
+        // console.log("coming here");
+        // console.log({ activeFlight });
         let tmpData = flightList;
         if (activeFlight !== null) {
             tmpData = flightList.filter((obj) => {
@@ -309,10 +319,9 @@ const FlightResultCompnent = () => {
             }
         });
 
-        console.log(flightDetails, "Flights");
+        // console.log(flightDetails, "Flights");
 
         setAirlineDetails(flightDetails)
-
         return flightDetails;
     };
 
@@ -320,21 +329,12 @@ const FlightResultCompnent = () => {
         setOfferPopupVisible(false);
     }
 
-    useEffect(() => {
-        console.log(filtersObj);
-    }, filtersObj);
-
     const handleTabClick = (tabId) => {
         setActiveTab(tabId);
     };
 
     const oneway = searchParam.get("tripType") === 'One-Way';
     // console.log(oneway, "ONEWAY");
-
-    const origin1 = searchParam.get("origin");
-    const destination1 = searchParam.get("destination");
-    const depDate1 = searchParam.get("depdate");
-    const returnD1 = searchParam.get("returnD");
 
     useEffect(() => {
         const fetchFlightOffers = async () => {
@@ -369,8 +369,6 @@ const FlightResultCompnent = () => {
             }
 
             // console.log(cabinRestrictionObj, "ARRRRRRRRRRR");
-
-
 
             let query = {
                 "currencyCode": "USD",
@@ -475,9 +473,6 @@ const FlightResultCompnent = () => {
                     return a;
                 });
 
-
-
-
                 let newFlightList;
 
                 if (!oneway) {
@@ -493,7 +488,7 @@ const FlightResultCompnent = () => {
                                 if (cabin) segment.cabin = cabin;
                             });
                         });
-                        console.log(newFlightList, "NEWFLIGHTLIST");
+                        // console.log(newFlightList, "NEWFLIGHTLIST");
 
                         return a;
                     });
@@ -504,7 +499,7 @@ const FlightResultCompnent = () => {
                     setFlightList(FlightList);
                 } else {
                     const twoway = [...(FlightList || []), ...(newFlightList || [])]
-                    console.log(twoway, "TWOWAY");
+                    // console.log(twoway, "TWOWAY");
 
                     setFlightList(twoway);
                 }
@@ -526,7 +521,7 @@ const FlightResultCompnent = () => {
                         if (!offerPopupVisible) {
                             setOfferPopupVisible(true);
                         }
-                    }, 25000);
+                    }, 500000);
                 }
             } catch (err) {
                 router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
@@ -549,13 +544,11 @@ const FlightResultCompnent = () => {
 
     // Filtering the flight based on Near By airports
 
-    const [nearbyAirports, setNearbyAirports] = useState([]);
-
     useEffect(() => {
         const fetchNearbyAirports = async () => {
 
             if (flightList.length === 0) {
-                console.log("No flights available.");
+                // console.log("No flights available.");
                 return;
             }
 
@@ -563,8 +556,8 @@ const FlightResultCompnent = () => {
             const latitude = arrivalSegment.latitude;
             const longitude = arrivalSegment.longitude;
 
-            console.log(latitude, "HEY Latitude");
-            console.log(longitude, "HEY Longitude");
+            // console.log(latitude, "HEY Latitude");
+            // console.log(longitude, "HEY Longitude");
 
             try {
                 let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=200&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=relevance`, {
@@ -575,7 +568,7 @@ const FlightResultCompnent = () => {
                 });
 
                 let result = await response.json();
-                console.log(result, "FINAL");
+                // console.log(result, "FINAL");
 
 
 
@@ -633,7 +626,6 @@ const FlightResultCompnent = () => {
     }, [flightList]);
 
     // Filtering the data based on Shortest Flight 
-
     const getShortestFlights = () => {
         return [...flightList]
             .sort((a, b) => {
@@ -641,11 +633,6 @@ const FlightResultCompnent = () => {
             })
             .slice(0, 10);
     }
-
-    // For active tab 
-    const [grandTotal, setGrandTotal] = useState("");
-    const [nearTotal, setNearTotal] = useState("");
-    const [shortestTotal, setShortestTotal] = useState("");
 
     useEffect(() => {
 
@@ -655,10 +642,9 @@ const FlightResultCompnent = () => {
         const nearbyPrices = Array.isArray(nearbyAirports) ? nearbyAirports.map(flight => flight.price) : [];
         const shortestPrices = Array.isArray(shortestFlights) ? shortestFlights.map(flight => flight.price) : [];
 
-        console.log(allPrices, "ALL PRICES");
-        console.log(nearbyPrices, "NEARBY");
-        console.log(shortestPrices, "SHORTEST");
-
+        // console.log(allPrices, "ALL PRICES");
+        // console.log(nearbyPrices, "NEARBY");
+        // console.log(shortestPrices, "SHORTEST");
 
         if (allPrices.length > 0 || nearbyPrices.length > 0 || shortestPrices.length > 0) {
             setGrandTotal(allPrices[0]?.grandTotal);
@@ -672,8 +658,6 @@ const FlightResultCompnent = () => {
 
     }, [flightList, nearbyAirports]);
 
-    const [minPrice, setMinPrice] = useState(0);
-    const [maxPrice, setMaxPrice] = useState(1000);
     useEffect(() => {
         if (flightList.length > 0) {
             const prices = flightList.map(flight => parseFloat(flight.price.grandTotal));
@@ -738,39 +722,10 @@ const FlightResultCompnent = () => {
         { id: "airports", label: "DepartureAirports", tabId: "tab-6", resetFunction: "restFilter", resetParam: "airports" }
     ];
 
-    // const handleFilterTabActive = (tabId, filterId) => {
-    //     setOpenedFilter(tabId);
-    // };
-
-
-    // const handleResetFilter = (resetFunction, resetParam) => {
-    //     if (resetFunction === "restFilter") {
-
-    //         if (resetParam === "stops") {
-    //             setSelectedStop(null);
-    //         } else if (resetParam === "airline") {
-    //             setSelectedAirlines([]);
-    //         } else if (resetParam === "airports") {
-    //             setSelectedAirports([]);
-    //         }
-    //     } else if (resetFunction === "restpricefilter") {
-
-    //         setPriceRange({ min: 0, max: 1000 });
-    //     } else if (resetFunction === "restmobdepretfilter") {
-
-    //         setSelectedDepartureFilter(null);
-    //     }
-    // };
-
-    const [isFlightSearchVisible, setFlightSearchVisible] = useState(false);
-
     // Handler to open FlightSearch component
     const openFlightSearch = () => {
         setFlightSearchVisible(true);
     }
-    const closeFlightSearch = () => {
-        setFlightSearchVisible(false);
-    };
 
     // Load more results
     const loadMoreResults = () => {
@@ -1349,7 +1304,9 @@ const FlightResultCompnent = () => {
 
                                                     <>
                                                         <i className="fa fa-plane" style={{ transform: "rotate(45deg)" }} />
-                                                        <span ><b>Arrival Airports</b></span>
+                                                        <div className="head">
+                                                            <span ><b>Arrival Airports</b></span>
+                                                        </div>
                                                         {Array.from(new Set(airlinesDetails.map(flight => flight.arrivalAirportIata)))
                                                             .map(airportCode => {
                                                                 const flight = airlinesDetails.find(flight => flight.arrivalAirportIata === airportCode);

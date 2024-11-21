@@ -6,7 +6,7 @@ const PassengerForm = ({
     dobMonth,
     dobDate,
     dobYear,
-    handleInputChange,
+    handleInputChanges,
 }) => {
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: currentYear - 1913 }, (_, i) => currentYear - i);
@@ -21,7 +21,7 @@ const PassengerForm = ({
                     className="Traveler esname alphanumeric"
                     name="lastName" // Use a simpler name that matches your state
                     value={lastName}
-                    onChange={(e) => handleInputChange(index, e)}
+                    onChange={(e) => handleInputChanges(index, e)}
                     placeholder="Last Name"
                     type="text"
                 />
@@ -49,7 +49,7 @@ const PassengerForm = ({
                                 className="Traveler"
                                 name="dobMonth" // Use a consistent name for DOB fields
                                 value={dobMonth}
-                                onChange={(e) => handleInputChange(index, e)}
+                                onChange={(e) => handleInputChanges(index, e)}
                             >
                                 <option value="">Month</option>
                                 {Array.from({ length: 12 }, (_, i) => (
@@ -68,7 +68,7 @@ const PassengerForm = ({
                                 className="Traveler"
                                 name="dobDate" // Use a consistent name for DOB fields
                                 value={dobDate}
-                                onChange={(e) => handleInputChange(index, e)}
+                                onChange={(e) => handleInputChanges(index, e)}
                             >
                                 <option value="">Day</option>
                                 {Array.from({ length: 31 }, (_, i) => (
@@ -87,7 +87,7 @@ const PassengerForm = ({
                                 className="Traveler"
                                 name="dobYear" // Use a consistent name for DOB fields
                                 value={dobYear}
-                                onChange={(e) => handleInputChange(index, e)}
+                                onChange={(e) => handleInputChanges(index, e)}
                             >
                                 <option value="">Year</option>
                                 {years.map((year) => (

@@ -1,18 +1,47 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState ,useRef,useEffect} from 'react';
 import { Country, State, City } from "country-state-city"
 
 
-const BillingInfo = () => {
+
+const BillingInfo = ({ setBillingInfo, billingInfo }) => {
 
     const [selectedCountry, setSelectedCountry] = useState('');
     const [states, setStates] = useState([]);
     const [selectedState, setSelectedState] = useState('');
     const [cities, setCities] = useState([]);
 
+    const addressRef = useRef("");;
+    const cityRef = useRef("");
+    const postalCodeRef = useRef("");
+
+    const handleInputChange = (e) => {
+        const { value } = e.target; // Get the value from the target element
+        if (e.target === addressRef.current) {
+            setBillingInfo((prevDetails) => ({
+                ...prevDetails,
+                address: value, // Update the cardType property
+            }));
+        } else if (e.target === cityRef.current) {
+            setBillingInfo((prevDetails) => ({
+                ...prevDetails,
+                city: value, // Update the cardHolderName property
+            }));
+        } else if (e.target === postalCodeRef.current) {
+            setBillingInfo((prevDetails) => ({
+                ...prevDetails,
+                postalCode: value, // Update the month property
+            }));
+        }
+    };
+
     const handleCountryChange = (e) => {
         const countryCode = e.target.value;
+        setBillingInfo((prevDetails) => ({
+            ...prevDetails,
+            country: countryCode, // Update the cardNo property
+        }))
         setSelectedCountry(countryCode);
         setStates(State.getStatesOfCountry(countryCode));
 
@@ -20,9 +49,17 @@ const BillingInfo = () => {
 
     const handleStateChange = (e) => {
         const stateCode = e.target.value;
+        setBillingInfo((prevDetails) => ({
+            ...prevDetails,
+            state: stateCode, // Update the year property
+        }));
         setSelectedState(stateCode);
         setCities(City.getCitiesOfState(selectedCountry, stateCode));
     };
+
+    useEffect(() => {
+        console.log("Saving billing details:", billingInfo);
+    }, [billingInfo]);
 
     return (
         <div className="form-box" bis_skin_checked={1}>
@@ -78,6 +115,8 @@ const BillingInfo = () => {
                         placeholder="Address"
                         rows={2}
                         defaultValue={""}
+                        ref={addressRef}
+                        onChange={handleInputChange}
                     />
                     <span
                         className="field-validation-valid"
@@ -174,6 +213,8 @@ const BillingInfo = () => {
                                     id="flightBookingRequest_Payment_City"
                                     name="flightBookingRequest.Payment.City"
                                     disabled={!selectedState}
+                                    ref={cityRef}
+                                    onChange={handleInputChange}
                                 >
                                     <option value="">Select City</option>
                                     {cities.map((city) => (
@@ -204,6 +245,8 @@ const BillingInfo = () => {
                                 placeholder="Postal Code"
                                 type="text"
                                 defaultValue=""
+                                ref={postalCodeRef}
+                                onChange={handleInputChange}
                             />
                             <span
                                 className="field-validation-valid"
