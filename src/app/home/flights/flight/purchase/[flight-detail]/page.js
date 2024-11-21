@@ -12,6 +12,8 @@ import BillingInfo from "@/app/_components/billingInfo/page";
 const PurchasePage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
+    const [travellersDetails, setTravellersDetails] = useState([]);
+
     const [isAffirmPayment, setIsAffirmPayment] = useState(false);
     const [isBookingValid, setIsBookingValid] = useState(false);
 
@@ -442,8 +444,6 @@ const PurchasePage = () => {
         console.log("Saving card details:", cardDetails);
     }, [cardDetails]);
 
-
-
     const handleInputChange = (e) => {
         const { value } = e.target; // Get the value from the target element
         if (e.target === cardnoRef.current) {
@@ -488,46 +488,108 @@ const PurchasePage = () => {
         }
     };
 
+
+    // For Validation of the form
+    // const validateForm = () => {
+    //     const missingFields = [];
+
+    //     // Traveler Info validation
+    //     if (!travelerInfo.title) missingFields.push("Title");
+    //     if (!travelerInfo.firstName) missingFields.push("First Name");
+    //     if (!travelerInfo.lastName) missingFields.push("Last Name");
+    //     if (!travelerInfo.gender) missingFields.push("Gender");
+    //     if (
+    //         !travelerInfo.dob.day ||
+    //         !travelerInfo.dob.month ||
+    //         !travelerInfo.dob.year
+    //     ) {
+    //         missingFields.push("Date of Birth");
+    //     }
+
+    //     // Card Info validation
+    //     if (!cardDetails.cardHolderName) missingFields.push("Card Holder Name");
+    //     if (!cardDetails.cardNo) missingFields.push("Card Number");
+    //     if (
+    //         !cardDetails.expiry.month ||
+    //         !cardDetails.expiry.year ||
+    //         !cardDetails.expiry.cvv
+    //     ) {
+    //         missingFields.push("Card Expiry and CVV");
+    //     }
+
+    //     // Billing Info validation
+    //     if (!billingInfo.country) missingFields.push("Country");
+    //     if (!billingInfo.address) missingFields.push("Address");
+    //     if (!billingInfo.state) missingFields.push("State");
+    //     if (!billingInfo.city) missingFields.push("City");
+    //     if (!billingInfo.postalCode) missingFields.push("Postal Code");
+
+    //     // Contact Info validation
+    //     if (!contactInfo.email) missingFields.push("Email");
+    //     if (contactInfo.email !== contactInfo.retypeEmail)
+    //         missingFields.push("Emails do not match");
+
+    //     if (missingFields.length > 0) {
+    //         toast.error(
+    //             `Please fill the following fields: ${missingFields.join(", ")}`
+    //         );
+    //         return false;
+    //     }
+
+    //     return true;
+    // };
+
     const handleSubmitTravellersDetails = () => {
         // Validate the form before submitting
         //if (validateForm()) {
         // Combine all the data into a single traveler object
-        // const newTraveler = {
-        //     cardDetails,
-        //     billingInfo,
-        // };
+        const newTraveler = {
+            travelers,
+            cardDetails,
+            billingInfo,
+        };
 
         // Add the new traveler to the array of travelers
-        // setTravellersDetails((prevState) => [...prevState, newTraveler]);
+        setTravellersDetails((prevState) => [...prevState, newTraveler]);
 
         // Clear individual fields after adding to the array
-        // setTravelerInfo({
-        //   title: "",
-        //   firstName: "",
-        //   middleName: "",
-        //   lastName: "",
-        //   gender: "",
-        //   dob: { day: "", month: "", year: "" },
-        // });
-        // setCardDetails({
-        //     cardHolderName: "",
-        //     cardNo: "",
-        //     expiry: { month: "", year: "", cvv: "" },
-        // });
-        // setBillingInfo({
-        //     country: "",
-        //     address: "",
-        //     state: "",
-        //     city: "",
-        //     postalCode: "",
-        // });
+        setTravelers([{
+            id: Date.now(),
+            gender: '1', // Default gender
+            firstName: '',
+            middleName: '',
+            lastName: '',
+            dobMonth: '',
+            dobDate: '',
+            dobYear: '',
+            emergencyContactName: '',
+            phoneCode: '',
+            tsaPrecheckNumber: '',
+            redressNumber: '',
+            emergencyContactNumber: '',
+            travelerType: 'ADT', // Default traveler type
+        }]);
+
+        setCardDetails({
+            cardHolderName: "",
+            cardNo: "",
+            expiry: { month: "", year: "", cvv: "" },
+        });
+
+        setBillingInfo({
+            country: "",
+            address: "",
+            state: "",
+            city: "",
+            postalCode: "",
+        });
         // Optionally, show a success message or redirect the user
         alert("Traveler details have been successfully added!");
     };
 
-    // useEffect(() => {
-    //     console.log("Updated travellers details:", travellersDetails);
-    // }, [travellersDetails]);
+    useEffect(() => {
+        console.log("Updated travellers details:", travellersDetails);
+    }, [travellersDetails]);
 
     // Helper function to get years for DOB
     const getYears = () => {
@@ -3320,7 +3382,7 @@ const PurchasePage = () => {
                                                                         autoCapitalize="off"
                                                                         ref={cardnoRef}
                                                                         onChange={handleInputChange}
-                                                                    value={cardDetails.cardNo}
+                                                                        value={cardDetails.cardNo}
                                                                     />
                                                                     <div
                                                                         className="card-type-icon"
@@ -3524,7 +3586,8 @@ const PurchasePage = () => {
                                                                             id="flightBookingRequest_Payment_ExpiryMonth"
                                                                             name="flightBookingRequest.Payment.ExpiryMonth"
                                                                             ref={expmonthRef}
-                                                                        value={cardDetails.expiry.month}
+                                                                            value={cardDetails.expiry.month}
+                                                                            onChange={handleInputChange}
                                                                         >
                                                                             <option value="">Select</option>
                                                                             <option value={1}>01-Jan</option>
@@ -3560,6 +3623,7 @@ const PurchasePage = () => {
                                                                             id="flightBookingRequest_Payment_ExpiryYear"
                                                                             name="flightBookingRequest.Payment.ExpiryYear"
                                                                             defaultValue=""
+                                                                            ref={expyearRef}
                                                                             value={cardDetails.expiry.year}
                                                                             onChange={handleInputChange}
                                                                         >
@@ -3777,17 +3841,13 @@ const PurchasePage = () => {
                                                 <div className="step-continue" bis_skin_checked={1}>
                                                     <button
                                                         className="main-btn pay-cc"
-                                                        onClick={() => {
-                                                            handleBookingValidation();
-                                                            return isBookingValid ? true : false;
-                                                        }}
                                                         id="btnBookNow"
                                                         name="btnBookNow"
                                                     >
                                                         <i className="fa fa-lock" aria-hidden="true" /> Book Now
                                                     </button>
 
-                                                    {isAffirmPayment && (
+                                                    {!isAffirmPayment && (
                                                         <button
                                                             className="main-btn pay-affirm"
                                                             type="button"
