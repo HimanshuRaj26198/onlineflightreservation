@@ -13,9 +13,7 @@ const PurchasePage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
     const [travellersDetails, setTravellersDetails] = useState([]);
-
     const [isAffirmPayment, setIsAffirmPayment] = useState(false);
-    const [isBookingValid, setIsBookingValid] = useState(false);
 
     const [flightDetailVisible, setFlightDetailVisible] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -32,22 +30,23 @@ const PurchasePage = () => {
     const [year, setYears] = useState([]);
     const currentYear = new Date().getFullYear();
     const [mobileVisible, setMobileVisible] = useState(false);
-
+    const [travelers, setTravelers] = useState([]);
 
     const cardRef = useRef("");
     const cvcRef = useRef("");
     const cvvRef = useRef("");
     const cardnoRef = useRef("");
     const expmonthRef = useRef("");
+
     const expyearRef = useRef("");
     const cardholdernameRef = useRef("");
-
     const router = useRouter();
     const tripDetails = [];
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
+
     const toggleDropdowns = () => {
         setIsDropdownOpens(!isDropdownOpens);
     };
@@ -148,7 +147,6 @@ const PurchasePage = () => {
         e.preventDefault();
 
         const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        // Regular expression to validate phone number (only digits and a minimum length of 10)
         const phoneRegex = /^\d{10,15}$/;
 
         if (emailRef.current.value === "" && phoneRef.current.value === "") {
@@ -167,7 +165,7 @@ const PurchasePage = () => {
             tripDetails.push(contactData);
 
             // Log the data to verify
-            console.log("CONTACT DATA: ", contactData);
+            // console.log("CONTACT DATA: ", contactData);
             fetch("https://script.google.com/macros/s/AKfycbwVmb-Fq-ph0V-Buszfxf-iww-DuyO7M7s7APz-3-yNsDeXO3XWQCG3-djqs9kJ1X1CdA/exec",
                 {
                     method: "POST",
@@ -362,13 +360,13 @@ const PurchasePage = () => {
         router.back();
     }
 
-    // For Country Code
+    // Fetch the Country Code based on current location
     useEffect(() => {
         const getLocation = async () => {
             try {
                 const response = await fetch('http://ip-api.com/json');
                 const data = await response.json();
-                console.log("DataGeo", data);
+                // console.log("DataGeo", data);
 
                 if (data.status === 'fail') {
                 } else {
@@ -399,25 +397,75 @@ const PurchasePage = () => {
         setYears(yearList);
     }, [currentYear]);
 
-    // For Traveler Details
-    const [travelers, setTravelers] = useState([
-        {
-            id: Date.now(),
-            gender: '1', // Default gender
-            firstName: '',
-            middleName: '',
-            lastName: '',
-            dobMonth: '',
-            dobDate: '',
-            dobYear: '',
-            emergencyContactName: '',
-            phoneCode: '',
-            tsaPrecheckNumber: '',
-            redressNumber: '',
-            emergencyContactNumber: '',
-            travelerType: 'ADT',
-        },
-    ]);
+    // Effect to set travelers based on the details (adults, children, infants)
+    useEffect(() => {
+        const updatedTravelers = [];
+
+        if (travellerDetails.adults > 0) {
+            updatedTravelers.push(
+                ...Array.from({ length: travellerDetails.adults }, (_, index) => ({
+                    id: `adult-${index + 1}`,
+                    gender: '1', // Default gender (Male)
+                    firstName: '',
+                    middleName: '',
+                    lastName: '',
+                    dobMonth: '',
+                    dobDate: '',
+                    dobYear: '',
+                    emergencyContactName: '',
+                    phoneCode: '',
+                    tsaPrecheckNumber: '',
+                    redressNumber: '',
+                    emergencyContactNumber: '',
+                    travelerType: 'Adult', // Default traveler type (Adult)
+                }))
+            );
+        }
+
+        if (travellerDetails.child > 0) {
+            updatedTravelers.push(
+                ...Array.from({ length: travellerDetails.child }, (_, index) => ({
+                    id: `child-${index + 1}`,
+                    gender: '1', // Default gender (Male)
+                    firstName: '',
+                    middleName: '',
+                    lastName: '',
+                    dobMonth: '',
+                    dobDate: '',
+                    dobYear: '',
+                    emergencyContactName: '',
+                    phoneCode: '',
+                    tsaPrecheckNumber: '',
+                    redressNumber: '',
+                    emergencyContactNumber: '',
+                    travelerType: 'Child', // Default traveler type (Child)
+                }))
+            );
+        }
+
+        if (travellerDetails.infant > 0) {
+            updatedTravelers.push(
+                ...Array.from({ length: travellerDetails.infant }, (_, index) => ({
+                    id: `infant-${index + 1}`,
+                    gender: '1', // Default gender (Male)
+                    firstName: '',
+                    middleName: '',
+                    lastName: '',
+                    dobMonth: '',
+                    dobDate: '',
+                    dobYear: '',
+                    emergencyContactName: '',
+                    phoneCode: '',
+                    tsaPrecheckNumber: '',
+                    redressNumber: '',
+                    emergencyContactNumber: '',
+                    travelerType: 'Infant', // Default traveler type (Infant)
+                }))
+            );
+        }
+
+        setTravelers(updatedTravelers);
+    }, [travellerDetails]);
 
     // Billing Info
     const [billingInfo, setBillingInfo] = useState({
@@ -488,7 +536,6 @@ const PurchasePage = () => {
         }
     };
 
-
     // For Validation of the form
     // const validateForm = () => {
     //     const missingFields = [];
@@ -543,6 +590,7 @@ const PurchasePage = () => {
         // Validate the form before submitting
         //if (validateForm()) {
         // Combine all the data into a single traveler object
+
         const newTraveler = {
             travelers,
             cardDetails,
@@ -551,24 +599,9 @@ const PurchasePage = () => {
 
         // Add the new traveler to the array of travelers
         setTravellersDetails((prevState) => [...prevState, newTraveler]);
+        setTravelers([]);
 
         // Clear individual fields after adding to the array
-        setTravelers([{
-            id: Date.now(),
-            gender: '1', // Default gender
-            firstName: '',
-            middleName: '',
-            lastName: '',
-            dobMonth: '',
-            dobDate: '',
-            dobYear: '',
-            emergencyContactName: '',
-            phoneCode: '',
-            tsaPrecheckNumber: '',
-            redressNumber: '',
-            emergencyContactNumber: '',
-            travelerType: 'ADT', // Default traveler type
-        }]);
 
         setCardDetails({
             cardHolderName: "",
@@ -583,7 +616,6 @@ const PurchasePage = () => {
             city: "",
             postalCode: "",
         });
-        // Optionally, show a success message or redirect the user
         alert("Traveler details have been successfully added!");
     };
 
@@ -600,44 +632,28 @@ const PurchasePage = () => {
     const years = getYears();
 
     // Handle input changes for each traveler
-    const handleInputChanges = (index, e) => {
+
+    const handleInputChanges = (travelerId, e) => {
         const { name, value } = e.target;
-        const updatedTravelers = [...travelers];
-        updatedTravelers[index] = {
-            ...updatedTravelers[index],
-            [name]: value,
-        };
-        setTravelers(updatedTravelers);
+
+        // Use the travelerId to find the specific traveler and update their data
+        setTravelers((prevTravelers) => {
+            // Find the traveler in the array by matching the id
+            const updatedTravelers = prevTravelers.map((traveler) =>
+                traveler.id === travelerId
+                    ? { ...traveler, [name]: value } // Update the traveler by ID
+                    : traveler // Keep the rest unchanged
+            );
+
+            return updatedTravelers;
+        });
     };
 
     // Handle gender change for each traveler
-    const handleGenderChange = (index, genderValue) => {
+    const handleGenderChange = (index, gender) => {
         const updatedTravelers = [...travelers];
-        updatedTravelers[index].gender = genderValue;
+        updatedTravelers[index] = { ...updatedTravelers[index], gender };
         setTravelers(updatedTravelers);
-    };
-
-    // Add another adult traveler
-    const addMoreAdult = () => {
-        setTravelers([
-            ...travelers,
-            {
-                id: Date.now(),
-                gender: '1',
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                dobMonth: '',
-                dobDate: '',
-                dobYear: '',
-                emergencyContactName: '',
-                phoneCode: '',
-                tsaPrecheckNumber: '',
-                redressNumber: '',
-                emergencyContactNumber: '',
-                travelerType: 'ADT',
-            },
-        ]);
     };
 
     // Handle country selection from dropdown
@@ -651,12 +667,7 @@ const PurchasePage = () => {
         setIsDropdownOpens(false);
     };
 
-    // Remove a traveler from the list
-    const removeAdult = (index) => {
-        const updatedTravelers = travelers.filter((_, i) => i !== index);
-        setTravelers(updatedTravelers);
-    };
-
+    // Calculate the age and set the travelerType
     const calculateAge = (dobDate, dobMonth, dobYear) => {
         const currentDate = new Date();
         const birthDate = new Date(dobYear, dobMonth - 1, dobDate); // Month is 0-based in JavaScript Date
@@ -675,47 +686,42 @@ const PurchasePage = () => {
 
     const getTravelerType = (dobDate, dobMonth, dobYear) => {
         const age = calculateAge(dobDate, dobMonth, dobYear);
-        if (age >= 12) return 'ADT'; // Adult
-        if (age >= 2) return 'CHD'; // Child
-        return 'INF'; // Infant
+        if (age >= 12) return 'Adult'; // Adult
+        if (age >= 2) return 'Child'; // Child
+        return 'Infant'; // Infant
     };
 
-    // Update travelerType when any of the birth date fields change
     useEffect(() => {
-        setTravelers((prevTravelers) =>
-            prevTravelers.map((traveler) => {
-                // Only update travelerType if all DOB fields are available
+        // Avoid updating the state unnecessarily to prevent infinite re-renders
+        setTravelers((prevTravelers) => {
+            const updatedTravelers = prevTravelers.map((traveler) => {
                 if (traveler.dobDate && traveler.dobMonth && traveler.dobYear) {
                     const travelerType = getTravelerType(
                         traveler.dobDate,
                         traveler.dobMonth,
                         traveler.dobYear
                     );
-                    return { ...traveler, travelerType };
+
+                    // Only update if the travelerType has actually changed
+                    if (traveler.travelerType !== travelerType) {
+                        return { ...traveler, travelerType };
+                    }
                 }
                 return traveler;
-            })
-        );
-    }, [travelers.map(traveler => traveler.dobDate).join('-'), travelers.map(traveler => traveler.dobMonth).join('-'), travelers.map(traveler => traveler.dobYear).join('-')]);
+            });
 
-    const buttonStyle = {
-        backgroundColor: 'rgb(0, 102, 178)',
-        color: 'white',
-        fontWeight: 500,
-        textAlign: 'center',
-        border: '0px',
-        padding: '10px',
-    };
+            // Only update if there's a change
+            const isDifferent = !prevTravelers.every((traveler, index) => {
+                return JSON.stringify(traveler) === JSON.stringify(updatedTravelers[index]);
+            });
+
+            // If no changes, return the previous state, otherwise return updated state
+            return isDifferent ? updatedTravelers : prevTravelers;
+        });
+    }, [travelers]); // Include travelers as dependency to trigger when travelers change
 
     tripDetails.push(travelers);
     console.log(tripDetails, "TRAVELERS-DETAILS");
-
-    // For Final Submit Button 
-    const handleBookingValidation = () => {
-        tripDetails.push(travelers);
-        console.log(tripDetails, "TRAVELERS-DETAILS");
-        setIsBookingValid(true);
-    };
 
     const handleAffirmPayment = () => {
         console.log('Processing payment with Affirm...');
@@ -725,6 +731,20 @@ const PurchasePage = () => {
     useEffect(() => {
         setIsAffirmPayment(true);
     }, []);
+
+    const scrollToMissingField = (travelerId) => {
+        const travelerForm = document.getElementById(`${travelerId}_wrapper`);
+        if (travelerForm) {
+            const inputs = travelerForm.querySelectorAll('input');
+            for (let input of inputs) {
+                // Check if the field is empty
+                if (!input.value.trim()) {
+                    input.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    break;
+                }
+            }
+        }
+    };
 
     return <>
         {selectedFlight && <div className="body-content" bis_skin_checked="1">
@@ -1685,289 +1705,850 @@ const PurchasePage = () => {
                                             type="hidden"
                                             defaultValue={1}
                                         />
-                                        {/* New Section */}
-                                        {travelers.map((adult, index) => (
-                                            <div key={adult.id}>
 
-                                                <div className="head" id="p0_wrapper" bis_skin_checked={1}>
-                                                    Adult {index + 1}
-                                                    <p>Passenger details must match your passport or photo ID</p>
-                                                </div>
-                                                <div className="gender-type" bis_skin_checked={1}>
-                                                    <ul>
-                                                        <li>
-                                                            <div className="inputSet" bis_skin_checked={1}>
-                                                                <label>
-                                                                    <input
-                                                                        defaultChecked="checked"
-                                                                        data-val="true"
-                                                                        data-val-number="The field Gender must be a number."
-                                                                        data-val-required="The Gender field is required."
-                                                                        id="flightBookingRequest_PassengerList_0__Gender"
-                                                                        name="flightBookingRequest.PassengerList[0].Gender"
-                                                                        onclick="selectTitle(0, 1 )"
-                                                                        type="radio"
-                                                                        defaultValue={1}
-                                                                        value="1"
-                                                                        checked={adult.gender === '1'}
-                                                                        onChange={() => handleGenderChange(index, '1')}
-                                                                    />
-                                                                    <span>Male</span>
-                                                                </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <div className="inputSet" bis_skin_checked={1}>
-                                                                <label>
-                                                                    <input
-                                                                        id="flightBookingRequest_PassengerList_0__Gender"
-                                                                        name="flightBookingRequest.PassengerList[0].Gender"
-                                                                        onclick="selectTitle(0, 2 )"
-                                                                        type="radio"
-                                                                        defaultValue={2}
-                                                                        value="2"
-                                                                        checked={adult.gender === '2'}
-                                                                        onChange={() => handleGenderChange(index, '2')}
-                                                                    />
-                                                                    <span>Female</span>
-                                                                </label>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                    <div className="clearfix" bis_skin_checked={1} />
-                                                </div>
-                                                <div className="row" bis_skin_checked={1}>
-                                                    <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
-                                                        <label className="label_hide_mobile">
-                                                            First Name<span className="required">*</span>
-                                                        </label>
-                                                        <input
-                                                            className="Traveler esname alphanumeric"
-                                                            data-val="true"
-                                                            data-val-required="The FirstName field is required."
-                                                            id="flightBookingRequest_PassengerList_0__FirstName"
-                                                            maxLength={54}
-                                                            name="firstName"
-                                                            value={adult.firstName}
-                                                            onChange={(e) => handleInputChanges(index, e)}
-                                                            placeholder="First Name"
-                                                            type="text"
-                                                            defaultValue=""
-                                                        />
-                                                        <span
-                                                            className="field-validation-valid"
-                                                            data-valmsg-for="flightBookingRequest.PassengerList[0].FirstName"
-                                                            data-valmsg-replace="true"
-                                                        />
-                                                        <span className="required_mobile">*</span>
-                                                    </div>
-                                                    <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
-                                                        <label className="label_hide_mobile">
-                                                            Middle Name<small> (Optional)</small>
-                                                        </label>
-                                                        <input
-                                                            className="nonvalidateTxt esname alphanumeric"
-                                                            id="flightBookingRequest_PassengerList_0__MiddleName"
-                                                            maxLength={54}
-                                                            name="middleName"
-                                                            value={adult.middleName}
-                                                            onChange={(e) => handleInputChanges(index, e)}
-                                                            onBlur={(e) => printEvent(e)}
-                                                            placeholder="Middle Name (Optional)"
-                                                            type="text"
-                                                            defaultValue=""
-                                                        />
-                                                    </div>
-                                                </div>
-                                                {/* Passenger Form */}
-                                                <PassengerForm
-                                                    index={index}
-                                                    lastName={adult.lastName}
-                                                    dobMonth={adult.dobMonth}
-                                                    dobDate={adult.dobDate}
-                                                    dobYear={adult.dobYear}
-                                                    handleInputChanges={handleInputChanges} />
+                                        {travelers.length > 0 && (
+                                            <>
+                                                {/* New Section for Adult */}
+                                                {travelers.filter(traveler => traveler.travelerType === 'Adult').map((adult, index) => (
+                                                    <div key={adult.id}>
 
-                                                <div
-                                                    id="dobMsg_0"
-                                                    style={{
-                                                        display: "none",
-                                                        color: "#f00",
-                                                        paddingBottom: 10,
-                                                        fontSize: 13
-                                                    }}
-                                                    bis_skin_checked={1}
-                                                >
-                                                    <i
-                                                        className="fa fa-angle-double-right"
-                                                        style={{ display: "none" }}
-                                                        id="dobMsgI_0"
-                                                    />
-                                                    <i
-                                                        className="fa fa-angle-double-right"
-                                                        style={{ display: "none" }}
-                                                        id="paxMsgI_0"
-                                                    />
-                                                </div>
-                                                <div className="imp-msg">
-                                                    {/* More Info Link */}
-                                                    <div className="more-info">
-                                                        <a
-                                                            href="#pasngrOD_0"
-                                                            id="pasngrMI_0"
-                                                            onClick={toggleMoreInfo}
-                                                            style={{ cursor: 'pointer' }}
+                                                        <div className="head" id="p0_wrapper" bis_skin_checked={1}>
+                                                            {adult.travelerType} {index + 1}
+                                                            <p>Passenger details must match your passport or photo ID</p>
+                                                        </div>
+                                                        <div className="gender-type" bis_skin_checked={1}>
+                                                            <ul>
+                                                                <li>
+                                                                    <div className="inputSet" bis_skin_checked={1}>
+                                                                        <label>
+                                                                            <input
+                                                                                defaultChecked="checked"
+                                                                                data-val="true"
+                                                                                data-val-number="The field Gender must be a number."
+                                                                                data-val-required="The Gender field is required."
+                                                                                id="flightBookingRequest_PassengerList_0__Gender"
+                                                                                name="flightBookingRequest.PassengerList[0].Gender"
+                                                                                onclick="selectTitle(0, 1 )"
+                                                                                type="radio"
+                                                                                defaultValue={1}
+                                                                                value="1"
+                                                                                checked={adult.gender === '1'}
+                                                                                onChange={() => handleGenderChange(index, '1')}
+                                                                            />
+                                                                            <span>Male</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                                <li>
+                                                                    <div className="inputSet" bis_skin_checked={1}>
+                                                                        <label>
+                                                                            <input
+                                                                                id="flightBookingRequest_PassengerList_0__Gender"
+                                                                                name="flightBookingRequest.PassengerList[0].Gender"
+                                                                                onclick="selectTitle(0, 2 )"
+                                                                                type="radio"
+                                                                                defaultValue={2}
+                                                                                value="2"
+                                                                                checked={adult.gender === '2'}
+                                                                                onChange={() => handleGenderChange(index, '2')}
+                                                                            />
+                                                                            <span>Female</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                            <div className="clearfix" bis_skin_checked={1} />
+                                                        </div>
+                                                        <div className="row" bis_skin_checked={1}>
+                                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                                <label className="label_hide_mobile">
+                                                                    First Name<span className="required">*</span>
+                                                                </label>
+                                                                <input
+                                                                    className="Traveler esname alphanumeric"
+                                                                    data-val="true"
+                                                                    data-val-required="The FirstName field is required."
+                                                                    id="flightBookingRequest_PassengerList_0__FirstName"
+                                                                    maxLength={54}
+                                                                    name="firstName"
+                                                                    value={adult.firstName}
+                                                                    onChange={(e) => handleInputChanges(adult.id, e)}
+                                                                    placeholder="First Name"
+                                                                    type="text"
+                                                                    defaultValue=""
+                                                                />
+                                                                <span
+                                                                    className="field-validation-valid"
+                                                                    data-valmsg-for="flightBookingRequest.PassengerList[0].FirstName"
+                                                                    data-valmsg-replace="true"
+                                                                />
+                                                                <span className="required_mobile">*</span>
+                                                            </div>
+                                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                                <label className="label_hide_mobile">
+                                                                    Middle Name<small> (Optional)</small>
+                                                                </label>
+                                                                <input
+                                                                    className="nonvalidateTxt esname alphanumeric"
+                                                                    id="flightBookingRequest_PassengerList_0__MiddleName"
+                                                                    maxLength={54}
+                                                                    name="middleName"
+                                                                    value={adult.middleName}
+                                                                    onChange={(e) => handleInputChanges(adult.id, e)}
+                                                                    onBlur={(e) => printEvent(e)}
+                                                                    placeholder="Middle Name (Optional)"
+                                                                    type="text"
+                                                                    defaultValue=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        {/* Passenger Form */}
+                                                        <PassengerForm
+                                                            index={adult.id}
+                                                            lastName={adult.lastName}
+                                                            dobMonth={adult.dobMonth}
+                                                            dobDate={adult.dobDate}
+                                                            dobYear={adult.dobYear}
+                                                            handleInputChanges={handleInputChanges} />
+
+                                                        <div
+                                                            id="dobMsg_0"
+                                                            style={{
+                                                                display: "none",
+                                                                color: "#f00",
+                                                                paddingBottom: 10,
+                                                                fontSize: 13
+                                                            }}
+                                                            bis_skin_checked={1}
                                                         >
-                                                            {isMoreInfoVisible ? '(-) Hide Info' : '(+) More Info'}
-                                                        </a>
-                                                        <small className="ffsmall_text">
-                                                            (Optional TSA Precheck and Redress Number)
-                                                        </small>
-                                                    </div>
+                                                            <i
+                                                                className="fa fa-angle-double-right"
+                                                                style={{ display: "none" }}
+                                                                id="dobMsgI_0"
+                                                            />
+                                                            <i
+                                                                className="fa fa-angle-double-right"
+                                                                style={{ display: "none" }}
+                                                                id="paxMsgI_0"
+                                                            />
+                                                        </div>
+                                                        <div className="imp-msg">
+                                                            {/* More Info Link */}
+                                                            <div className="more-info">
+                                                                <a
+                                                                    href="#pasngrOD_0"
+                                                                    id="pasngrMI_0"
+                                                                    onClick={toggleMoreInfo}
+                                                                    style={{ cursor: 'pointer' }}
+                                                                >
+                                                                    {isMoreInfoVisible ? '(-) Hide Info' : '(+) More Info'}
+                                                                </a>
+                                                                <small className="ffsmall_text">
+                                                                    (Optional TSA Precheck and Redress Number)
+                                                                </small>
+                                                            </div>
 
-                                                    {/* The additional info section that can be toggled */}
-                                                    {isMoreInfoVisible && (
-                                                        <div id="pasngrOD_0" className="pasngrOD_0">
-                                                            <div className="row" id="emergency_0">
-                                                                <div className="col-sm-5 col-xs-12">
-                                                                    <label>Emergency contact name</label>
-                                                                    <input
-                                                                        className="alphanumeric nonvalidateTxt"
-                                                                        id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
-                                                                        name="emergencyContactName"
-                                                                        placeholder="Name"
-                                                                        type="text"
-                                                                        value={adult.emergencyContactName}
-                                                                        onChange={(e) => handleInputChanges(index, e)}
-                                                                    />
-                                                                </div>
-                                                                <div className="col-sm-7 col-xs-12">
-                                                                    <div className="row">
+                                                            {/* The additional info section that can be toggled */}
+                                                            {isMoreInfoVisible && (
+                                                                <div id="pasngrOD_0" className="pasngrOD_0">
+                                                                    <div className="row" id="emergency_0">
                                                                         <div className="col-sm-5 col-xs-12">
-                                                                            <label>Country code</label>
-                                                                            <div className="country-code mb20">
-                                                                                <div className="intl-tel-input">
-                                                                                    <div className="flag-dropdown f16" onClick={toggleDropdowns}>
-                                                                                        <div className="selected-flag">
-                                                                                            <div className={`flag ${selectedCountry.countryCode}`} />
-                                                                                            <div className="down-arrow" style={styles1.downArrow} />
-                                                                                        </div>
-                                                                                        <ul className={`country-list ${isDropdownOpens ? '' : 'hide'}`} style={styles1.countryList}>
-                                                                                            {countryCodeArr.map((country) => (
-                                                                                                <li
-                                                                                                    key={country.countryCode}
-                                                                                                    className="country"
-                                                                                                    data-dial-code={country.dialCode}
-                                                                                                    data-country-code={country.countryCode}
-                                                                                                    onClick={() => handleCountrySelect(country)}
-                                                                                                >
-                                                                                                    <div className={`flag ${country.countryCode}`} />
-                                                                                                    <span className="country-name">{country.name}</span>
-                                                                                                    <span className="dial-code">{country.dialCode}</span>
-                                                                                                </li>
-                                                                                            ))}
-                                                                                        </ul>
-                                                                                    </div>
-                                                                                    <input
-                                                                                        className="nonvalidateTxt"
-                                                                                        id={`PhoneCode_${index}`}
-                                                                                        name="phoneCode"
-                                                                                        placeholder="e.g"
-                                                                                        readOnly
-                                                                                        type="tel"
-                                                                                        value={adult.phoneNumber}
-                                                                                        onChange={(e) => handleInputChanges(index, e)}
+                                                                            <label>Emergency contact name</label>
+                                                                            <input
+                                                                                className="alphanumeric nonvalidateTxt"
+                                                                                id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                                name="emergencyContactName"
+                                                                                placeholder="Name"
+                                                                                type="text"
+                                                                                value={adult.emergencyContactName}
+                                                                                onChange={(e) => handleInputChanges(adult.id, e)}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="col-sm-7 col-xs-12">
+                                                                            <div className="row">
+                                                                                <div className="col-sm-5 col-xs-12">
+                                                                                    <label>Country code</label>
+                                                                                    <div className="country-code mb20">
+                                                                                        <div className="intl-tel-input">
+                                                                                            <div className="flag-dropdown f16" onClick={toggleDropdowns}>
+                                                                                                <div className="selected-flag">
+                                                                                                    <div className={`flag ${selectedCountry.countryCode}`} />
+                                                                                                    <div className="down-arrow" style={styles1.downArrow} />
+                                                                                                </div>
+                                                                                                <ul className={`country-list ${isDropdownOpens ? '' : 'hide'}`} style={styles1.countryList}>
+                                                                                                    {countryCodeArr.map((country) => (
+                                                                                                        <li
+                                                                                                            key={country.countryCode}
+                                                                                                            className="country"
+                                                                                                            data-dial-code={country.dialCode}
+                                                                                                            data-country-code={country.countryCode}
+                                                                                                            onClick={() => handleCountrySelect(country)}
+                                                                                                        >
+                                                                                                            <div className={`flag ${country.countryCode}`} />
+                                                                                                            <span className="country-name">{country.name}</span>
+                                                                                                            <span className="dial-code">{country.dialCode}</span>
+                                                                                                        </li>
+                                                                                                    ))}
+                                                                                                </ul>
+                                                                                            </div>
+                                                                                            <input
+                                                                                                className="nonvalidateTxt"
+                                                                                                id={`PhoneCode_${index}`}
+                                                                                                name="phoneCode"
+                                                                                                placeholder="e.g"
+                                                                                                readOnly
+                                                                                                type="tel"
+                                                                                                value={adult.phoneNumber}
+                                                                                                onChange={(e) => handleInputChanges(adult.id, e)}
 
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="col-sm-7 col-xs-12">
+                                                                                    <label>Emergency contact number</label>
+                                                                                    <input
+                                                                                        className="alphanumeric nonvalidateTxt"
+                                                                                        id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                                        name="emergencyContactNumber"
+                                                                                        placeholder="Name"
+                                                                                        type="text"
+                                                                                        value={adult.emergencyContactNumber}
+                                                                                        onChange={(e) => handleInputChanges(adult.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="row">
+                                                                                <div className="col-sm-6 col-xs-12">
+                                                                                    <label>
+                                                                                        TSA Precheck
+                                                                                        <span className="tooltip-custom">
+                                                                                            <i className="fa fa-info hand" />
+                                                                                            <div className="promo-detail tsa_tooltip">
+                                                                                                <span className="arrow" />
+                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                    The Known Traveler Number is also referred to as
+                                                                                                    Pass ID, TSA PreCheck and Global Entry Number.
+                                                                                                    It can be found on the top-left corner on the
+                                                                                                    back of your Trusted Traveler membership card.
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        </span>
+                                                                                    </label>
+                                                                                    <input
+                                                                                        className="nonvalidateTxt alphanumericbothwithoutspace"
+                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
+                                                                                        name="tsaPrecheckNumber"
+                                                                                        placeholder="Known Traveler Number (Optional)"
+                                                                                        type="text"
+                                                                                        value={adult.tsaPrecheckNumber}
+                                                                                        onChange={(e) => handleInputChanges(adult.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="col-sm-6 col-xs-12">
+                                                                                    <label>
+                                                                                        Redress number
+                                                                                        <span className="tooltip-custom">
+                                                                                            <i className="fa fa-info hand" />
+                                                                                            <div className="promo-detail tsa_tooltip">
+                                                                                                <span className="arrow" />
+                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                    A Redress is a unique number that is assigned to
+                                                                                                    a passenger by the Department of Homeland
+                                                                                                    Security (DHS) for the purpose of promoting the
+                                                                                                    resolution with previous watch list alerts.
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        </span>
+                                                                                    </label>
+                                                                                    <input
+                                                                                        className="numeric nonvalidateTxt"
+                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
+                                                                                        name="redressNumber"
+                                                                                        placeholder="(Optional)"
+                                                                                        type="number"
+                                                                                        value={adult.redressNumber}
+                                                                                        onChange={(e) => handleInputChanges(adult.id, e)}
                                                                                     />
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="col-sm-7 col-xs-12">
-                                                                            <label>Emergency contact number</label>
-                                                                            <input
-                                                                                className="alphanumeric nonvalidateTxt"
-                                                                                id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
-                                                                                name="emergencyContactNumber"
-                                                                                placeholder="Name"
-                                                                                type="text"
-                                                                                value={adult.emergencyContactNumber}
-                                                                                onChange={(e) => handleInputChanges(index, e)}
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="row">
-                                                                        <div className="col-sm-6 col-xs-12">
-                                                                            <label>
-                                                                                TSA Precheck
-                                                                                <span className="tooltip-custom">
-                                                                                    <i className="fa fa-info hand" />
-                                                                                    <div className="promo-detail tsa_tooltip">
-                                                                                        <span className="arrow" />
-                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                            The Known Traveler Number is also referred to as
-                                                                                            Pass ID, TSA PreCheck and Global Entry Number.
-                                                                                            It can be found on the top-left corner on the
-                                                                                            back of your Trusted Traveler membership card.
-                                                                                        </p>
-                                                                                    </div>
-                                                                                </span>
-                                                                            </label>
-                                                                            <input
-                                                                                className="nonvalidateTxt alphanumericbothwithoutspace"
-                                                                                id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
-                                                                                name="tsaPrecheckNumber"
-                                                                                placeholder="Known Traveler Number (Optional)"
-                                                                                type="text"
-                                                                                value={adult.tsaPrecheckNumber}
-                                                                                onChange={(e) => handleInputChanges(index, e)}
-                                                                            />
-                                                                        </div>
-                                                                        <div className="col-sm-6 col-xs-12">
-                                                                            <label>
-                                                                                Redress number
-                                                                                <span className="tooltip-custom">
-                                                                                    <i className="fa fa-info hand" />
-                                                                                    <div className="promo-detail tsa_tooltip">
-                                                                                        <span className="arrow" />
-                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                            A Redress is a unique number that is assigned to
-                                                                                            a passenger by the Department of Homeland
-                                                                                            Security (DHS) for the purpose of promoting the
-                                                                                            resolution with previous watch list alerts.
-                                                                                        </p>
-                                                                                    </div>
-                                                                                </span>
-                                                                            </label>
-                                                                            <input
-                                                                                className="numeric nonvalidateTxt"
-                                                                                id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
-                                                                                name="redressNumber"
-                                                                                placeholder="(Optional)"
-                                                                                type="number"
-                                                                                value={adult.redressNumber}
-                                                                                onChange={(e) => handleInputChanges(index, e)}
-                                                                            />
-                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
 
-                                                {travelers.length > 1 && (
+                                                        {/* {travelers.length > 1 && (
                                                     <button type="button" onClick={() => removeAdult(travelers.length - 1)} style={buttonStyle}>
                                                         Remove Last Traveller
                                                     </button>
 
-                                                )}
-                                            </div>
-                                        ))}
-                                        <br></br>
-                                        <button type="button" onClick={addMoreAdult} style={buttonStyle}>
-                                            Add traveller
-                                        </button>
+                                                )} */}
+                                                    </div>
+                                                ))}
+
+                                                {/* New Section for Child */}
+                                                {travelers.filter(traveler => traveler.travelerType === 'Child').map((child, index) => (
+                                                    <div key={child.id}>
+
+                                                        <div className="head" id="p0_wrapper" bis_skin_checked={1}>
+                                                            {child.travelerType} {index + 1}
+                                                            <p>Passenger details must match your passport or photo ID</p>
+                                                        </div>
+                                                        <div className="gender-type" bis_skin_checked={1}>
+                                                            <ul>
+                                                                <li>
+                                                                    <div className="inputSet" bis_skin_checked={1}>
+                                                                        <label>
+                                                                            <input
+                                                                                defaultChecked="checked"
+                                                                                data-val="true"
+                                                                                data-val-number="The field Gender must be a number."
+                                                                                data-val-required="The Gender field is required."
+                                                                                id="flightBookingRequest_PassengerList_0__Gender"
+                                                                                name="flightBookingRequest.PassengerList[0].Gender"
+                                                                                onclick="selectTitle(0, 1 )"
+                                                                                type="radio"
+                                                                                defaultValue={1}
+                                                                                value="1"
+                                                                                checked={child.gender === '1'}
+                                                                                onChange={() => handleGenderChange(index, '1')}
+                                                                            />
+                                                                            <span>Male</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                                <li>
+                                                                    <div className="inputSet" bis_skin_checked={1}>
+                                                                        <label>
+                                                                            <input
+                                                                                id="flightBookingRequest_PassengerList_0__Gender"
+                                                                                name="flightBookingRequest.PassengerList[0].Gender"
+                                                                                onclick="selectTitle(0, 2 )"
+                                                                                type="radio"
+                                                                                defaultValue={2}
+                                                                                value="2"
+                                                                                checked={child.gender === '2'}
+                                                                                onChange={() => handleGenderChange(index, '2')}
+                                                                            />
+                                                                            <span>Female</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                            <div className="clearfix" bis_skin_checked={1} />
+                                                        </div>
+                                                        <div className="row" bis_skin_checked={1}>
+                                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                                <label className="label_hide_mobile">
+                                                                    First Name<span className="required">*</span>
+                                                                </label>
+                                                                <input
+                                                                    className="Traveler esname alphanumeric"
+                                                                    data-val="true"
+                                                                    data-val-required="The FirstName field is required."
+                                                                    id="flightBookingRequest_PassengerList_0__FirstName"
+                                                                    maxLength={54}
+                                                                    name="firstName"
+                                                                    value={child.firstName}
+                                                                    onChange={(e) => handleInputChanges(child.id, e)}
+                                                                    placeholder="First Name"
+                                                                    type="text"
+                                                                    defaultValue=""
+                                                                />
+                                                                <span
+                                                                    className="field-validation-valid"
+                                                                    data-valmsg-for="flightBookingRequest.PassengerList[0].FirstName"
+                                                                    data-valmsg-replace="true"
+                                                                />
+                                                                <span className="required_mobile">*</span>
+                                                            </div>
+                                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                                <label className="label_hide_mobile">
+                                                                    Middle Name<small> (Optional)</small>
+                                                                </label>
+                                                                <input
+                                                                    className="nonvalidateTxt esname alphanumeric"
+                                                                    id="flightBookingRequest_PassengerList_0__MiddleName"
+                                                                    maxLength={54}
+                                                                    name="middleName"
+                                                                    value={child.middleName}
+                                                                    onChange={(e) => handleInputChanges(child.id, e)}
+                                                                    onBlur={(e) => printEvent(e)}
+                                                                    placeholder="Middle Name (Optional)"
+                                                                    type="text"
+                                                                    defaultValue=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        {/* Passenger Form */}
+                                                        <PassengerForm
+                                                            index={child.id}
+                                                            lastName={child.lastName}
+                                                            dobMonth={child.dobMonth}
+                                                            dobDate={child.dobDate}
+                                                            dobYear={child.dobYear}
+                                                            handleInputChanges={handleInputChanges} />
+
+                                                        <div
+                                                            id="dobMsg_0"
+                                                            style={{
+                                                                display: "none",
+                                                                color: "#f00",
+                                                                paddingBottom: 10,
+                                                                fontSize: 13
+                                                            }}
+                                                            bis_skin_checked={1}
+                                                        >
+                                                            <i
+                                                                className="fa fa-angle-double-right"
+                                                                style={{ display: "none" }}
+                                                                id="dobMsgI_0"
+                                                            />
+                                                            <i
+                                                                className="fa fa-angle-double-right"
+                                                                style={{ display: "none" }}
+                                                                id="paxMsgI_0"
+                                                            />
+                                                        </div>
+                                                        <div className="imp-msg">
+                                                            {/* More Info Link */}
+                                                            <div className="more-info">
+                                                                <a
+                                                                    href="#pasngrOD_0"
+                                                                    id="pasngrMI_0"
+                                                                    onClick={toggleMoreInfo}
+                                                                    style={{ cursor: 'pointer' }}
+                                                                >
+                                                                    {isMoreInfoVisible ? '(-) Hide Info' : '(+) More Info'}
+                                                                </a>
+                                                                <small className="ffsmall_text">
+                                                                    (Optional TSA Precheck and Redress Number)
+                                                                </small>
+                                                            </div>
+
+                                                            {/* The additional info section that can be toggled */}
+                                                            {isMoreInfoVisible && (
+                                                                <div id="pasngrOD_0" className="pasngrOD_0">
+                                                                    <div className="row" id="emergency_0">
+                                                                        <div className="col-sm-5 col-xs-12">
+                                                                            <label>Emergency contact name</label>
+                                                                            <input
+                                                                                className="alphanumeric nonvalidateTxt"
+                                                                                id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                                name="emergencyContactName"
+                                                                                placeholder="Name"
+                                                                                type="text"
+                                                                                value={child.emergencyContactName}
+                                                                                onChange={(e) => handleInputChanges(child.id, e)}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="col-sm-7 col-xs-12">
+                                                                            <div className="row">
+                                                                                <div className="col-sm-5 col-xs-12">
+                                                                                    <label>Country code</label>
+                                                                                    <div className="country-code mb20">
+                                                                                        <div className="intl-tel-input">
+                                                                                            <div className="flag-dropdown f16" onClick={toggleDropdowns}>
+                                                                                                <div className="selected-flag">
+                                                                                                    <div className={`flag ${selectedCountry.countryCode}`} />
+                                                                                                    <div className="down-arrow" style={styles1.downArrow} />
+                                                                                                </div>
+                                                                                                <ul className={`country-list ${isDropdownOpens ? '' : 'hide'}`} style={styles1.countryList}>
+                                                                                                    {countryCodeArr.map((country) => (
+                                                                                                        <li
+                                                                                                            key={country.countryCode}
+                                                                                                            className="country"
+                                                                                                            data-dial-code={country.dialCode}
+                                                                                                            data-country-code={country.countryCode}
+                                                                                                            onClick={() => handleCountrySelect(country)}
+                                                                                                        >
+                                                                                                            <div className={`flag ${country.countryCode}`} />
+                                                                                                            <span className="country-name">{country.name}</span>
+                                                                                                            <span className="dial-code">{country.dialCode}</span>
+                                                                                                        </li>
+                                                                                                    ))}
+                                                                                                </ul>
+                                                                                            </div>
+                                                                                            <input
+                                                                                                className="nonvalidateTxt"
+                                                                                                id={`PhoneCode_${index}`}
+                                                                                                name="phoneCode"
+                                                                                                placeholder="e.g"
+                                                                                                readOnly
+                                                                                                type="tel"
+                                                                                                value={child.phoneNumber}
+                                                                                                onChange={(e) => handleInputChanges(child.id, e)}
+
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="col-sm-7 col-xs-12">
+                                                                                    <label>Emergency contact number</label>
+                                                                                    <input
+                                                                                        className="alphanumeric nonvalidateTxt"
+                                                                                        id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                                        name="emergencyContactNumber"
+                                                                                        placeholder="Name"
+                                                                                        type="text"
+                                                                                        value={child.emergencyContactNumber}
+                                                                                        onChange={(e) => handleInputChanges(child.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="row">
+                                                                                <div className="col-sm-6 col-xs-12">
+                                                                                    <label>
+                                                                                        TSA Precheck
+                                                                                        <span className="tooltip-custom">
+                                                                                            <i className="fa fa-info hand" />
+                                                                                            <div className="promo-detail tsa_tooltip">
+                                                                                                <span className="arrow" />
+                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                    The Known Traveler Number is also referred to as
+                                                                                                    Pass ID, TSA PreCheck and Global Entry Number.
+                                                                                                    It can be found on the top-left corner on the
+                                                                                                    back of your Trusted Traveler membership card.
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        </span>
+                                                                                    </label>
+                                                                                    <input
+                                                                                        className="nonvalidateTxt alphanumericbothwithoutspace"
+                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
+                                                                                        name="tsaPrecheckNumber"
+                                                                                        placeholder="Known Traveler Number (Optional)"
+                                                                                        type="text"
+                                                                                        value={child.tsaPrecheckNumber}
+                                                                                        onChange={(e) => handleInputChanges(child.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="col-sm-6 col-xs-12">
+                                                                                    <label>
+                                                                                        Redress number
+                                                                                        <span className="tooltip-custom">
+                                                                                            <i className="fa fa-info hand" />
+                                                                                            <div className="promo-detail tsa_tooltip">
+                                                                                                <span className="arrow" />
+                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                    A Redress is a unique number that is assigned to
+                                                                                                    a passenger by the Department of Homeland
+                                                                                                    Security (DHS) for the purpose of promoting the
+                                                                                                    resolution with previous watch list alerts.
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        </span>
+                                                                                    </label>
+                                                                                    <input
+                                                                                        className="numeric nonvalidateTxt"
+                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
+                                                                                        name="redressNumber"
+                                                                                        placeholder="(Optional)"
+                                                                                        type="number"
+                                                                                        value={child.redressNumber}
+                                                                                        onChange={(e) => handleInputChanges(child.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {/* {travelers.length > 1 && (
+                                                    <button type="button" onClick={() => removeAdult(travelers.length - 1)} style={buttonStyle}>
+                                                        Remove Last Traveller
+                                                    </button>
+
+                                                )} */}
+                                                    </div>
+                                                ))}
+
+                                                {/* New Section for Infant */}
+                                                {travelers.filter(traveler => traveler.travelerType === 'Infant').map((Infant, index) => (
+                                                    <div key={Infant.id}>
+
+                                                        <div className="head" id="p0_wrapper" bis_skin_checked={1}>
+                                                            {Infant.travelerType} {index + 1}
+                                                            <p>Passenger details must match your passport or photo ID</p>
+                                                        </div>
+                                                        <div className="gender-type" bis_skin_checked={1}>
+                                                            <ul>
+                                                                <li>
+                                                                    <div className="inputSet" bis_skin_checked={1}>
+                                                                        <label>
+                                                                            <input
+                                                                                defaultChecked="checked"
+                                                                                data-val="true"
+                                                                                data-val-number="The field Gender must be a number."
+                                                                                data-val-required="The Gender field is required."
+                                                                                id="flightBookingRequest_PassengerList_0__Gender"
+                                                                                name="flightBookingRequest.PassengerList[0].Gender"
+                                                                                onclick="selectTitle(0, 1 )"
+                                                                                type="radio"
+                                                                                defaultValue={1}
+                                                                                value="1"
+                                                                                checked={Infant.gender === '1'}
+                                                                                onChange={() => handleGenderChange(index, '1')}
+                                                                            />
+                                                                            <span>Male</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                                <li>
+                                                                    <div className="inputSet" bis_skin_checked={1}>
+                                                                        <label>
+                                                                            <input
+                                                                                id="flightBookingRequest_PassengerList_0__Gender"
+                                                                                name="flightBookingRequest.PassengerList[0].Gender"
+                                                                                onclick="selectTitle(0, 2 )"
+                                                                                type="radio"
+                                                                                defaultValue={2}
+                                                                                value="2"
+                                                                                checked={Infant.gender === '2'}
+                                                                                onChange={() => handleGenderChange(index, '2')}
+                                                                            />
+                                                                            <span>Female</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                            <div className="clearfix" bis_skin_checked={1} />
+                                                        </div>
+                                                        <div className="row" bis_skin_checked={1}>
+                                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                                <label className="label_hide_mobile">
+                                                                    First Name<span className="required">*</span>
+                                                                </label>
+                                                                <input
+                                                                    className="Traveler esname alphanumeric"
+                                                                    data-val="true"
+                                                                    data-val-required="The FirstName field is required."
+                                                                    id="flightBookingRequest_PassengerList_0__FirstName"
+                                                                    maxLength={54}
+                                                                    name="firstName"
+                                                                    value={Infant.firstName}
+                                                                    onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                    placeholder="First Name"
+                                                                    type="text"
+                                                                    defaultValue=""
+                                                                />
+                                                                <span
+                                                                    className="field-validation-valid"
+                                                                    data-valmsg-for="flightBookingRequest.PassengerList[0].FirstName"
+                                                                    data-valmsg-replace="true"
+                                                                />
+                                                                <span className="required_mobile">*</span>
+                                                            </div>
+                                                            <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+                                                                <label className="label_hide_mobile">
+                                                                    Middle Name<small> (Optional)</small>
+                                                                </label>
+                                                                <input
+                                                                    className="nonvalidateTxt esname alphanumeric"
+                                                                    id="flightBookingRequest_PassengerList_0__MiddleName"
+                                                                    maxLength={54}
+                                                                    name="middleName"
+                                                                    value={Infant.middleName}
+                                                                    onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                    onBlur={(e) => printEvent(e)}
+                                                                    placeholder="Middle Name (Optional)"
+                                                                    type="text"
+                                                                    defaultValue=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        {/* Passenger Form */}
+                                                        <PassengerForm
+                                                            index={Infant.id}
+                                                            lastName={Infant.lastName}
+                                                            dobMonth={Infant.dobMonth}
+                                                            dobDate={Infant.dobDate}
+                                                            dobYear={Infant.dobYear}
+                                                            handleInputChanges={handleInputChanges} />
+
+                                                        <div
+                                                            id="dobMsg_0"
+                                                            style={{
+                                                                display: "none",
+                                                                color: "#f00",
+                                                                paddingBottom: 10,
+                                                                fontSize: 13
+                                                            }}
+                                                            bis_skin_checked={1}
+                                                        >
+                                                            <i
+                                                                className="fa fa-angle-double-right"
+                                                                style={{ display: "none" }}
+                                                                id="dobMsgI_0"
+                                                            />
+                                                            <i
+                                                                className="fa fa-angle-double-right"
+                                                                style={{ display: "none" }}
+                                                                id="paxMsgI_0"
+                                                            />
+                                                        </div>
+                                                        <div className="imp-msg">
+                                                            {/* More Info Link */}
+                                                            <div className="more-info">
+                                                                <a
+                                                                    href="#pasngrOD_0"
+                                                                    id="pasngrMI_0"
+                                                                    onClick={toggleMoreInfo}
+                                                                    style={{ cursor: 'pointer' }}
+                                                                >
+                                                                    {isMoreInfoVisible ? '(-) Hide Info' : '(+) More Info'}
+                                                                </a>
+                                                                <small className="ffsmall_text">
+                                                                    (Optional TSA Precheck and Redress Number)
+                                                                </small>
+                                                            </div>
+
+                                                            {/* The additional info section that can be toggled */}
+                                                            {isMoreInfoVisible && (
+                                                                <div id="pasngrOD_0" className="pasngrOD_0">
+                                                                    <div className="row" id="emergency_0">
+                                                                        <div className="col-sm-5 col-xs-12">
+                                                                            <label>Emergency contact name</label>
+                                                                            <input
+                                                                                className="alphanumeric nonvalidateTxt"
+                                                                                id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                                name="emergencyContactName"
+                                                                                placeholder="Name"
+                                                                                type="text"
+                                                                                value={Infant.emergencyContactName}
+                                                                                onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="col-sm-7 col-xs-12">
+                                                                            <div className="row">
+                                                                                <div className="col-sm-5 col-xs-12">
+                                                                                    <label>Country code</label>
+                                                                                    <div className="country-code mb20">
+                                                                                        <div className="intl-tel-input">
+                                                                                            <div className="flag-dropdown f16" onClick={toggleDropdowns}>
+                                                                                                <div className="selected-flag">
+                                                                                                    <div className={`flag ${selectedCountry.countryCode}`} />
+                                                                                                    <div className="down-arrow" style={styles1.downArrow} />
+                                                                                                </div>
+                                                                                                <ul className={`country-list ${isDropdownOpens ? '' : 'hide'}`} style={styles1.countryList}>
+                                                                                                    {countryCodeArr.map((country) => (
+                                                                                                        <li
+                                                                                                            key={country.countryCode}
+                                                                                                            className="country"
+                                                                                                            data-dial-code={country.dialCode}
+                                                                                                            data-country-code={country.countryCode}
+                                                                                                            onClick={() => handleCountrySelect(country)}
+                                                                                                        >
+                                                                                                            <div className={`flag ${country.countryCode}`} />
+                                                                                                            <span className="country-name">{country.name}</span>
+                                                                                                            <span className="dial-code">{country.dialCode}</span>
+                                                                                                        </li>
+                                                                                                    ))}
+                                                                                                </ul>
+                                                                                            </div>
+                                                                                            <input
+                                                                                                className="nonvalidateTxt"
+                                                                                                id={`PhoneCode_${index}`}
+                                                                                                name="phoneCode"
+                                                                                                placeholder="e.g"
+                                                                                                readOnly
+                                                                                                type="tel"
+                                                                                                value={Infant.phoneNumber}
+                                                                                                onChange={(e) => handleInputChanges(Infant.id, e)}
+
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="col-sm-7 col-xs-12">
+                                                                                    <label>Emergency contact number</label>
+                                                                                    <input
+                                                                                        className="alphanumeric nonvalidateTxt"
+                                                                                        id={`flightBookingRequest_Contact_EmergencyContactName_${index}`}
+                                                                                        name="emergencyContactNumber"
+                                                                                        placeholder="Name"
+                                                                                        type="text"
+                                                                                        value={Infant.emergencyContactNumber}
+                                                                                        onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="row">
+                                                                                <div className="col-sm-6 col-xs-12">
+                                                                                    <label>
+                                                                                        TSA Precheck
+                                                                                        <span className="tooltip-custom">
+                                                                                            <i className="fa fa-info hand" />
+                                                                                            <div className="promo-detail tsa_tooltip">
+                                                                                                <span className="arrow" />
+                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                    The Known Traveler Number is also referred to as
+                                                                                                    Pass ID, TSA PreCheck and Global Entry Number.
+                                                                                                    It can be found on the top-left corner on the
+                                                                                                    back of your Trusted Traveler membership card.
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        </span>
+                                                                                    </label>
+                                                                                    <input
+                                                                                        className="nonvalidateTxt alphanumericbothwithoutspace"
+                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
+                                                                                        name="tsaPrecheckNumber"
+                                                                                        placeholder="Known Traveler Number (Optional)"
+                                                                                        type="text"
+                                                                                        value={Infant.tsaPrecheckNumber}
+                                                                                        onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="col-sm-6 col-xs-12">
+                                                                                    <label>
+                                                                                        Redress number
+                                                                                        <span className="tooltip-custom">
+                                                                                            <i className="fa fa-info hand" />
+                                                                                            <div className="promo-detail tsa_tooltip">
+                                                                                                <span className="arrow" />
+                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                    A Redress is a unique number that is assigned to
+                                                                                                    a passenger by the Department of Homeland
+                                                                                                    Security (DHS) for the purpose of promoting the
+                                                                                                    resolution with previous watch list alerts.
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        </span>
+                                                                                    </label>
+                                                                                    <input
+                                                                                        className="numeric nonvalidateTxt"
+                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
+                                                                                        name="redressNumber"
+                                                                                        placeholder="(Optional)"
+                                                                                        type="number"
+                                                                                        value={Infant.redressNumber}
+                                                                                        onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {/* {travelers.length > 1 && (
+                                                    <button type="button" onClick={() => removeAdult(travelers.length - 1)} style={buttonStyle}>
+                                                        Remove Last Traveller
+                                                    </button>
+
+                                                )} */}
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
 
 
                                         <div className="flight-refundable-container" bis_skin_checked={1}>
@@ -3538,7 +4119,6 @@ const PurchasePage = () => {
                                                                     maxLength={50}
                                                                     minLength={2}
                                                                     name="flightBookingRequest.Payment.CardHolderName"
-                                                                    onKeyPress="return isCharOnly(event);"
                                                                     placeholder="Card holder's name"
                                                                     type="text"
                                                                     defaultValue=""
@@ -3777,21 +4357,30 @@ const PurchasePage = () => {
                                                     Please be careful - Passenger details must match your
                                                     passport or photo ID
                                                 </div>
-                                                <div className="head" bis_skin_checked={1}>
-                                                    <p id="pxdtails">
-                                                        <span>
+                                                {travelers.map((traveler, index) => (
+                                                    <div className="head" key={traveler.id}>
+                                                        <p id="pxdtails">
+                                                            <span>
+                                                                {traveler.travelerType} {index + 1} -{' '}
+                                                                <span id={`p0_confirm_name_${traveler.id}`}>
+                                                                    {traveler.firstName && traveler.lastName
+                                                                        ? `${traveler.firstName} ${traveler.lastName}`
+                                                                        : 'Missing name'}
+                                                                </span>
 
-                                                            Adult 1 - <span id="p0_confirm_name">Missing name</span>
-                                                            <a
-                                                                href="javacript:void(0);"
-                                                                onclick="scrollToElement('#p0_wrapper')"
-                                                            >
-                                                                (make changes)
-                                                            </a>
-                                                        </span>
-                                                        <br />
-                                                    </p>
-                                                </div>
+                                                                <a
+                                                                    href="javascript:void(0);"
+                                                                    onClick={() => scrollToMissingField(traveler.id)}
+
+                                                                >
+                                                                    (make changes)
+                                                                </a>
+                                                            </span>
+                                                            <br />
+                                                        </p>
+
+                                                    </div>
+                                                ))}
                                                 <div className="imp-msg" bis_skin_checked={1}>
                                                     <div className="tnc-txt" bis_skin_checked={1}>
                                                         {/* Desktop View */}

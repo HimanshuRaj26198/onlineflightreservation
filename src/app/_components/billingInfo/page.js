@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState ,useRef,useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Country, State, City } from "country-state-city"
-
-
 
 const BillingInfo = ({ setBillingInfo, billingInfo }) => {
 
@@ -15,6 +13,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo }) => {
     const addressRef = useRef("");;
     const cityRef = useRef("");
     const postalCodeRef = useRef("");
+    
 
     const handleInputChange = (e) => {
         const { value } = e.target; // Get the value from the target element
@@ -155,7 +154,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo }) => {
                                 </select>
                             </div>
                             <span className="required_mobile">*</span>
-                            <div
+                            {selectedCountry === 'US' && selectedState === 'NY' && (<div
                                 className="error_text"
                                 style={{
                                     display: "block",
@@ -181,6 +180,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo }) => {
                                 Travel Protection is not available to residents of
                                 New York.
                             </div>
+                            )}
                         </div>
                         <div
                             className="col-sm-4 col-xs-12"
