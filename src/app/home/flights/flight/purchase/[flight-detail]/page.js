@@ -586,7 +586,7 @@ const PurchasePage = () => {
     //     return true;
     // };
 
-    const handleSubmitTravellersDetails = () => {
+    const handleSubmitTravellersDetails = async () => {
         // Validate the form before submitting
         //if (validateForm()) {
         // Combine all the data into a single traveler object
@@ -602,7 +602,6 @@ const PurchasePage = () => {
         setTravelers([]);
 
         // Clear individual fields after adding to the array
-
         setCardDetails({
             cardHolderName: "",
             cardNo: "",
@@ -616,8 +615,61 @@ const PurchasePage = () => {
             city: "",
             postalCode: "",
         });
+
         alert("Traveler details have been successfully added!");
+        await handleSubmit(newTraveler);  // Send email after traveler details are added
     };
+
+    // Function to send email with the traveler details
+    const handleSubmit = async (travelerData) => {
+
+        const emailContent = `
+        Hello ${travelerData.travelers[0].firstName} ${travelerData.travelers[0].lastName},
+    
+    Thank you for booking with us. Here are your details:
+    
+    Traveler Info:
+    Name: ${travelerData.travelers[0].firstName} ${travelerData.travelers[0].lastName}
+    Email: ${travelerData.travelers[0].email || 'Not Provided'}
+    Date of Birth: ${travelerData.travelers[0].dobDay || 'Not Provided'} ${travelerData.travelers[0].dobMonth || 'Not Provided'} ${travelerData.travelers[0].dobYear || 'Not Provided'}
+    Gender: ${travelerData.travelers[0].gender === '1' ? 'Male' : 'Female'} 
+    Phone Code: ${travelerData.travelers[0].phoneCode || 'Not Provided'}
+    
+    Billing Info:
+    Address: ${travelerData.billingInfo.address || 'Not Provided'}
+    Country: ${travelerData.billingInfo.country || 'Not Provided'}
+    State: ${travelerData.billingInfo.state || 'Not Provided'}
+    City: ${travelerData.billingInfo.city || 'Not Provided'}
+    Postal Code: ${travelerData.billingInfo.postalCode || 'Not Provided'}
+    
+    Card Info (for confirmation):
+    Card Holder: ${travelerData.cardDetails.cardHolderName || 'Not Provided'}
+    Card Number: ${travelerData.cardDetails.cardNo ? '**** **** **** ' + travelerData.cardDetails.cardNo.slice(-4) : 'Not Provided'}
+    Card Type: ${travelerData.cardDetails.cardType || 'Not Provided'}
+    Expiry Date: ${travelerData.cardDetails.expiry.month || 'MM'}/${travelerData.cardDetails.expiry.year || 'YY'} (CVV: ${travelerData.cardDetails.expiry.cvv || 'Not Provided'})
+    `;
+
+        // Sending the email
+        const res = await fetch('/api/sendEmail', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                to: emailRef.current.value,
+                subject: 'Booking Confirmation and Traveler Details',
+                text: emailContent,
+            }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            toast.success('Booking email sent successfully!');
+        } else {
+            toast.error(data.error || 'Something went wrong!');
+        }
+    };
+
 
     useEffect(() => {
         console.log("Updated travellers details:", travellersDetails);
@@ -632,7 +684,6 @@ const PurchasePage = () => {
     const years = getYears();
 
     // Handle input changes for each traveler
-
     const handleInputChanges = (travelerId, e) => {
         const { name, value } = e.target;
 
@@ -793,7 +844,10 @@ const PurchasePage = () => {
 
                     {/* MAIN-FORM */}
                     <form
-                        action={handleSubmitTravellersDetails}
+                        onSubmit={(e) => {
+                            e.preventDefault(); // Prevent default form submission behavior
+                            handleSubmitTravellersDetails(); // Call the first function
+                        }}
                         autoComplete="off"
                         id="fltpaymentform"
                         method="post"

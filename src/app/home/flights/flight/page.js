@@ -10,6 +10,7 @@ import Loading from "@/app/loading";
 import OfferPopup from "@/app/_components/OfferPopup/page";
 import FlightSearch from "@/app/_components/FlightSearch/page";
 import FlightOfferCard from "@/app/_components/FlightOffers/page";
+import FlightCardMobile from "@/app/_components/FlightCardMobile/page";
 import Slider, { Range } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
@@ -1349,7 +1350,10 @@ const FlightResultCompnent = () => {
                         </div>
                         <div className="col-sm-12 col-md-9 col-xs-12">
                             <div className="listing-matrix-section">
-                                <FlightOfferCard airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter} />
+                                <div className="tab-content">
+                                    <FlightOfferCard airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter} />
+                                    {/* <FlightCardMobile airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter}/> */}
+                                </div >
                             </div>
                             <div className="covid-list hidden-xs">
                                 <b>Note:</b> All the fares displayed are for One Way Trip and are in
