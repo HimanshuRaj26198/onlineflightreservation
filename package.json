@@ -14,6 +14,7 @@
     "firebase": "^10.13.1",
     "framer-motion": "^11.3.30",
     "js-cookie": "^3.0.5",
+    "mongodb": "^6.11.0",
     "next": "^14.2.16",
     "next-range-slider": "^1.0.5",
     "nodemailer": "^6.9.16",

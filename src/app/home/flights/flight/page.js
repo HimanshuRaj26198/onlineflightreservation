@@ -10,7 +10,6 @@ import Loading from "@/app/loading";
 import OfferPopup from "@/app/_components/OfferPopup/page";
 import FlightSearch from "@/app/_components/FlightSearch/page";
 import FlightOfferCard from "@/app/_components/FlightOffers/page";
-import FlightCardMobile from "@/app/_components/FlightCardMobile/page";
 import Slider, { Range } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
@@ -772,7 +771,7 @@ const FlightResultCompnent = () => {
                 {/* <!-- Nav tabs --> */}
                 <div class="leg-top-fix" bis_skin_checked="1">
                     <div class="detail-head" bis_skin_checked="1">
-                        <a class="close-btn" onClick={() => setFlightDetailVisible(false)} ><img src="/assets/images/uc/cancel.svg" alt=" /" /></a>
+                        <a class="close-btn" style={{}} onClick={() => setFlightDetailVisible(false)} ><img src="/assets/images/uc/cancel.svg" alt=" /" /></a>
                     </div>
                     <ul class="flight-leg-tab" role="tablist">
                         <li role="presentation" class="active deptab"><a href="#" onclick="flightdetailAction(0)" aria-controls="Departure" role="tab" data-toggle="tab"><i class="fa fa-plane" style={{ transform: "rotate(45deg)" }}></i> Departure</a></li>
@@ -799,7 +798,7 @@ const FlightResultCompnent = () => {
                                     <div className="row" onClick={handleEditSearchClick} style={{ cursor: 'pointer' }}>
                                         <div className="">
                                             <div className="search_detail edit-listing-searchdetails hand">
-                                                <div className="col-sm-8">
+                                                <div className="col-sm-8 ">
                                                     {searchParam.get("tripType") === 'Round-Trip' ? (
                                                         <>
                                                             {origin} &nbsp;
@@ -833,7 +832,7 @@ const FlightResultCompnent = () => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
+                                    <a className="close-listing-search visible-lg visible-md visible-sm" onClick={handleEditSearchClick}>
                                         Close {/* */} [x]
                                     </a>
                                 )}
@@ -846,7 +845,6 @@ const FlightResultCompnent = () => {
                                     transition: "max-height 0.5s ease-in-out",
                                 }}>
                                 <section id="flightEngineId">
-
                                     <FlightSearch />
                                 </section>
                             </div>
@@ -993,7 +991,7 @@ const FlightResultCompnent = () => {
             <div className="listing-wrapper">
                 <div className="container">
                     <input type="hidden" id="tabvalue" name="tabvalue" defaultValue="all" />
-                    <a
+                    {/* <a
                         className="matrix_btn visible-sm hidden-xs"
                         role="button"
                         id="marixOption"
@@ -1006,7 +1004,7 @@ const FlightResultCompnent = () => {
                     >
                         <i className="fa fa-th-large" aria-hidden="true" /> Matrix{" "}
                         <i className="fa fa-angle-up" aria-hidden="true" />
-                    </a>
+                    </a> */}
                     <div className="row">
                         <div className="col-sm-12 col-md-3 col-xs-12">
                             <div className={`show-component-mobile ${mobileFilterVisible && "open"}`}>
@@ -1352,7 +1350,6 @@ const FlightResultCompnent = () => {
                             <div className="listing-matrix-section">
                                 <div className="tab-content">
                                     <FlightOfferCard airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter} />
-                                    {/* <FlightCardMobile airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter}/> */}
                                 </div >
                             </div>
                             <div className="covid-list hidden-xs">

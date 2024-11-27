@@ -9775,11 +9775,11 @@ select:focus,
 }
 
 .inputSet label input[type=radio]:checked~span {
-    color: #000
+    color: #1b75bc
 }
 
 .inputSet label input[type=radio]:checked~span::after {
-    border: 2px solid #000
+    border: 2px solid #1b75bc
 }
 
 .inputSet label input[type=radio]:checked~span::before {
@@ -17022,32 +17022,10 @@ select {
 }
 
 .modify-engine-wrapper {
-    background: #6aacff;
+    background: #1b75bc;
     padding: 10px 0;
     position: relative
 }
-
-@media (max-width: 767px) {
-    .results-page .modify-engine-wrapper.open {
-        display: block;
-        background: #5291df;
-        padding: 20px 0;
-        position: fixed;
-        left: 0px;
-        top: 0;
-        z-index: 5;
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-}
-
-@media (max-width: 767px) {
-    .results-page .modify-engine-wrapper {
-        display: none;
-    }
-}
-
 
 @media(max-width:767px) {
     .modify-engine.hotel-modify-engine-wrapper {
@@ -17059,7 +17037,7 @@ select {
     font-size: 14px;
     display: block;
     font-weight: 300;
-    color: #000;
+    color: #fff
 }
 
 @media(max-width:1169px) {
@@ -17408,7 +17386,7 @@ select {
 @media(max-width:767px) {
     .results-page .modify-engine-wrapper.open {
         display: block;
-        background: #6aacff;
+        background: #3ea0ed;
         padding: 20px 0;
         position: fixed;
         left: 0;
@@ -17584,7 +17562,7 @@ select {
 }
 
 .search_detail {
-    color: #000
+    color:#1f1f1f
 }
 
 .search_detail .fa-exchange {
@@ -20362,17 +20340,15 @@ select {
 }
 
 .flight-details .popup-price-strip {
-
     background: #ededed;
-    padding: 0 20px 10px 20px;
+    padding: 0 20px 10px;
     border-top: 1px solid #eee;
     margin: 0 -20px;
     width: 600px;
-    position: sticky;
+    /* position: fixed; */
     bottom: 0;
     border-radius: 0;
-    z-index: 2;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 2
 }
 
 @media(max-width:767px) {
@@ -20551,10 +20527,11 @@ select {
 .leg-top-fix .detail-head .close-btn {
     position: absolute;
     top: 0;
-    left: -30px;
+    left: -10px;
     padding: 14px 15px;
     font-size: 13px;
-    background: #fff
+    background: #fff;
+    cursor: pointer;
 }
 
 @media(max-width:1169px) {
@@ -36006,55 +35983,4 @@ body {
 
 .moreairline {
     display: none
-}
-
-.modify-engine-wrapper {
-    background: #1b75bc;
-    padding: 10px 0 10px 0;
-    position: relative;
-}
-
-@media (max-width: 767px) {
-    .results-page .modify-engine-wrapper.open {
-        display: block;
-        background: #6aacff;
-        padding: 20px 0;
-        position: fixed;
-        left: 0px;
-        top: 0;
-        z-index: 5;
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-}
-
-@media (max-width: 767px) {
-    .results-page .modify-engine-wrapper {
-        display: none;
-    }
-}
-
-.modify-engine-wrapper {
-    background: #1b75bc;
-    padding: 10px 0 10px 0;
-    position: relative;
-}
-
-@media (max-width: 767px) {
-    .visible-xs {
-        display: block !important;
-    }
-}
-
-.visible-xs {
-    display: none !important;
-}
-
-.airline-matrix-mobile ul {
-    margin: 0;
-    padding: 0;
-    white-space: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
 }

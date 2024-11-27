@@ -352,6 +352,9 @@ const PurchasePage = () => {
         }
     }, [])
 
+    console.log(selectedFlight, "SELECTED FLIGHT");
+    // console.log(selectedFlight,"SELECTED FLIGHT");
+
     const printEvent = (e) => {
         console.log(e.target)
     };
@@ -406,6 +409,7 @@ const PurchasePage = () => {
                 ...Array.from({ length: travellerDetails.adults }, (_, index) => ({
                     id: `adult-${index + 1}`,
                     gender: '1', // Default gender (Male)
+                    title: '',
                     firstName: '',
                     middleName: '',
                     lastName: '',
@@ -427,6 +431,7 @@ const PurchasePage = () => {
                 ...Array.from({ length: travellerDetails.child }, (_, index) => ({
                     id: `child-${index + 1}`,
                     gender: '1', // Default gender (Male)
+                    title: '',
                     firstName: '',
                     middleName: '',
                     lastName: '',
@@ -448,6 +453,7 @@ const PurchasePage = () => {
                 ...Array.from({ length: travellerDetails.infant }, (_, index) => ({
                     id: `infant-${index + 1}`,
                     gender: '1', // Default gender (Male)
+                    title: '',
                     firstName: '',
                     middleName: '',
                     lastName: '',
@@ -623,6 +629,7 @@ const PurchasePage = () => {
     // Function to send email with the traveler details
     const handleSubmit = async (travelerData) => {
 
+
         const emailContent = `
         Hello ${travelerData.travelers[0].firstName} ${travelerData.travelers[0].lastName},
     
@@ -700,11 +707,47 @@ const PurchasePage = () => {
         });
     };
 
+    const [gender, setGender] = useState([
+        { id: 1, gender: '1', title: 'Mr' },
+        { id: 2, gender: '2', title: 'Mrs' },
+    ]);
+
     // Handle gender change for each traveler
-    const handleGenderChange = (index, gender) => {
+    const handleGenderChange = (id, gender) => {
         const updatedTravelers = [...travelers];
-        updatedTravelers[index] = { ...updatedTravelers[index], gender };
-        setTravelers(updatedTravelers);
+
+        // Find the traveler with the matching id
+        const travelerIndex = updatedTravelers.findIndex(traveler => traveler.id === id);
+
+        // If the traveler is found, update their gender and title
+        if (travelerIndex !== -1) {
+            updatedTravelers[travelerIndex] = {
+                ...updatedTravelers[travelerIndex],
+                gender,
+                title: gender === '1' ? 'Mr' : gender === '2' ? 'Mrs' : '',
+            };
+
+            // Update the state with the new travelers array
+            setTravelers(updatedTravelers);
+        }
+    };
+
+    const handleTitleChange = (id, event) => {
+        const updatedTravelers = [...travelers];
+
+        // Find the traveler with the matching id
+        const travelerIndex = updatedTravelers.findIndex(traveler => traveler.id === id);
+
+        // If the traveler is found, update their title
+        if (travelerIndex !== -1) {
+            updatedTravelers[travelerIndex] = {
+                ...updatedTravelers[travelerIndex],
+                title: event.target.value, // Update the title based on the selected value
+            };
+
+            // Update the state with the new travelers array
+            setTravelers(updatedTravelers);
+        }
     };
 
     // Handle country selection from dropdown
@@ -1552,10 +1595,7 @@ const PurchasePage = () => {
                                             </div>
                                             <div className="col-sm-8 col-xs-12" bis_skin_checked={1}>
                                                 <div className="row" bis_skin_checked={1}>
-                                                    {/* <div style={{ fontSize: '24px' }}>
-                                                      
-                                                        {countryCode && <p>Your country code is: <strong>{countryCode}</strong></p>}
-                                                    </div> */}
+                                                   
                                                     {/* Country Code */}
                                                     <div className="col-sm-3 col-xs-12">
                                                         <label>
@@ -1705,6 +1745,7 @@ const PurchasePage = () => {
                                         </div>
                                     </div>
                                 </div>
+
                                 <div id="div_Traveler" className="step2" bis_skin_checked={1}>
                                     {formedFilled && <div className="form-box" bis_skin_checked={1} >
                                         <div className="mainheading" bis_skin_checked={1}>
@@ -1787,7 +1828,7 @@ const PurchasePage = () => {
                                                                                 defaultValue={1}
                                                                                 value="1"
                                                                                 checked={adult.gender === '1'}
-                                                                                onChange={() => handleGenderChange(index, '1')}
+                                                                                onChange={() => handleGenderChange(adult.id, '1')}
                                                                             />
                                                                             <span>Male</span>
                                                                         </label>
@@ -1804,7 +1845,7 @@ const PurchasePage = () => {
                                                                                 defaultValue={2}
                                                                                 value="2"
                                                                                 checked={adult.gender === '2'}
-                                                                                onChange={() => handleGenderChange(index, '2')}
+                                                                                onChange={() => handleGenderChange(adult.id, '2')}
                                                                             />
                                                                             <span>Female</span>
                                                                         </label>
@@ -1813,7 +1854,32 @@ const PurchasePage = () => {
                                                             </ul>
                                                             <div className="clearfix" bis_skin_checked={1} />
                                                         </div>
+
                                                         <div className="row" bis_skin_checked={1}>
+
+                                                            <div className="col-sm-2 col-xs-12">
+                                                                <label>
+                                                                    Title
+                                                                    <span className="required">*</span>
+                                                                </label>
+                                                                <div className="form-righterrow">
+                                                                    <select
+                                                                        className=""
+                                                                        id="flightBookingRequest_PassengerList_0__Title"
+                                                                        name="flightBookingRequest.PassengerList[0].Title"
+                                                                        onChange={(e) => handleTitleChange(adult.id, e)}
+                                                                        value={adult.title}
+                                                                    >
+                                                                        <option value="">Title</option>
+                                                                        {adult.gender === '1' && (
+                                                                            <option value="Mr">Mr</option>
+                                                                        )}
+                                                                        {adult.gender === '2' && (
+                                                                            <option value="Mrs">Mrs</option>
+                                                                        )}
+                                                                    </select>
+                                                                </div>
+                                                            </div>
                                                             <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
                                                                 <label className="label_hide_mobile">
                                                                     First Name<span className="required">*</span>
@@ -1838,6 +1904,7 @@ const PurchasePage = () => {
                                                                 />
                                                                 <span className="required_mobile">*</span>
                                                             </div>
+
                                                             <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
                                                                 <label className="label_hide_mobile">
                                                                     Middle Name<small> (Optional)</small>
@@ -1855,6 +1922,7 @@ const PurchasePage = () => {
                                                                     defaultValue=""
                                                                 />
                                                             </div>
+
                                                         </div>
                                                         {/* Passenger Form */}
                                                         <PassengerForm
@@ -1864,7 +1932,6 @@ const PurchasePage = () => {
                                                             dobDate={adult.dobDate}
                                                             dobYear={adult.dobYear}
                                                             handleInputChanges={handleInputChanges} />
-
                                                         <div
                                                             id="dobMsg_0"
                                                             style={{
@@ -1886,6 +1953,7 @@ const PurchasePage = () => {
                                                                 id="paxMsgI_0"
                                                             />
                                                         </div>
+
                                                         <div className="imp-msg">
                                                             {/* More Info Link */}
                                                             <div className="more-info">
@@ -2067,7 +2135,7 @@ const PurchasePage = () => {
                                                                                 defaultValue={1}
                                                                                 value="1"
                                                                                 checked={child.gender === '1'}
-                                                                                onChange={() => handleGenderChange(index, '1')}
+                                                                                onChange={() => handleGenderChange(child.id, '1')}
                                                                             />
                                                                             <span>Male</span>
                                                                         </label>
@@ -2084,7 +2152,7 @@ const PurchasePage = () => {
                                                                                 defaultValue={2}
                                                                                 value="2"
                                                                                 checked={child.gender === '2'}
-                                                                                onChange={() => handleGenderChange(index, '2')}
+                                                                                onChange={() => handleGenderChange(child.id, '2')}
                                                                             />
                                                                             <span>Female</span>
                                                                         </label>
@@ -2094,7 +2162,31 @@ const PurchasePage = () => {
                                                             <div className="clearfix" bis_skin_checked={1} />
                                                         </div>
                                                         <div className="row" bis_skin_checked={1}>
+                                                            <div className="col-sm-2 col-xs-12">
+                                                                <label>
+                                                                    Title
+                                                                    <span className="required">*</span>
+                                                                </label>
+                                                                <div className="form-righterrow">
+                                                                    <select
+                                                                        className=""
+                                                                        id="flightBookingRequest_PassengerList_0__Title"
+                                                                        name="flightBookingRequest.PassengerList[0].Title"
+                                                                        onChange={(e) => handleTitleChange(child.id, e)}
+                                                                        value={child.title}
+                                                                    >
+                                                                        <option value="">Title</option>
+                                                                        {child.gender === '1' && (
+                                                                            <option value="Mr">Mr</option>
+                                                                        )}
+                                                                        {child.gender === '2' && (
+                                                                            <option value="Mrs">Mrs</option>
+                                                                        )}
+                                                                    </select>
+                                                                </div>
+                                                            </div>
                                                             <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
+
                                                                 <label className="label_hide_mobile">
                                                                     First Name<span className="required">*</span>
                                                                 </label>
@@ -2347,7 +2439,7 @@ const PurchasePage = () => {
                                                                                 defaultValue={1}
                                                                                 value="1"
                                                                                 checked={Infant.gender === '1'}
-                                                                                onChange={() => handleGenderChange(index, '1')}
+                                                                                onChange={() => handleGenderChange(Infant.id, '1')}
                                                                             />
                                                                             <span>Male</span>
                                                                         </label>
@@ -2364,7 +2456,7 @@ const PurchasePage = () => {
                                                                                 defaultValue={2}
                                                                                 value="2"
                                                                                 checked={Infant.gender === '2'}
-                                                                                onChange={() => handleGenderChange(index, '2')}
+                                                                                onChange={() => handleGenderChange(Infant.id, '2')}
                                                                             />
                                                                             <span>Female</span>
                                                                         </label>
@@ -2374,6 +2466,29 @@ const PurchasePage = () => {
                                                             <div className="clearfix" bis_skin_checked={1} />
                                                         </div>
                                                         <div className="row" bis_skin_checked={1}>
+                                                            <div className="col-sm-2 col-xs-12">
+                                                                <label>
+                                                                    Title
+                                                                    <span className="required">*</span>
+                                                                </label>
+                                                                <div className="form-righterrow">
+                                                                    <select
+                                                                        className=""
+                                                                        id="flightBookingRequest_PassengerList_0__Title"
+                                                                        name="flightBookingRequest.PassengerList[0].Title"
+                                                                        onChange={(e) => handleTitleChange(Infant.id, e)}
+                                                                        value={Infant.title}
+                                                                    >
+                                                                        <option value="">Title</option>
+                                                                        {Infant.gender === '1' && (
+                                                                            <option value="Mr">Mr</option>
+                                                                        )}
+                                                                        {Infant.gender === '2' && (
+                                                                            <option value="Mrs">Mrs</option>
+                                                                        )}
+                                                                    </select>
+                                                                </div>
+                                                            </div>
                                                             <div className="col-sm-5 col-xs-12" bis_skin_checked={1}>
                                                                 <label className="label_hide_mobile">
                                                                     First Name<span className="required">*</span>

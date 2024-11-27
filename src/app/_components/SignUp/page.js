@@ -41,6 +41,30 @@ const SignUpComponent = ({ hideSignUp, showSignIn }) => {
             });
             hideSignUp();
             sessionStorage.setItem('user', true);
+
+
+            //  MONGODB CONNECTION
+            // Connect to MongoDB and insert user data
+            // const client = await clientPromise;
+            // const db = client.db();
+            // const usersCollection = db.collection('users');
+
+            // // Insert the user data into the 'users' collection in MongoDB
+            // await usersCollection.insertOne({
+            //     uid: user.uid,
+            //     firstName: firstNameRef.current.value,
+            //     lastName: lastNameRef.current.value,
+            //     email: user.email,
+            //     phone: phoneNumber.current.value,
+            //     createdAt: new Date(),
+            // });
+
+            // // Hide sign-up modal/form and store session info
+            // hideSignUp();
+            // sessionStorage.setItem('user', JSON.stringify({ uid: user.uid, email: user.email }));
+
+            // Optionally, you can add a success message or redirect
+            setSuccess(true);
         } catch (e) {
             console.log(e);
         }

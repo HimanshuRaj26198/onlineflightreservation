@@ -20006,7 +20006,7 @@ select {
     color: #000
 }
 
-.flight-details {
+/* .flight-details {
     position: fixed;
     top: 0;
     right: 0;
@@ -20017,7 +20017,7 @@ select {
     box-shadow: -3px 1px 5px rgba(0, 0, 0, .5);
     padding: 0 20px;
     z-index: 5
-}
+} */
 
 @media(max-width:767px) {
     .flight-details {
@@ -20437,14 +20437,14 @@ select {
     margin-top: 5px
 }
 
-.leg-top-fix {
+/* .leg-top-fix {
     padding: 10px 0 0;
     position: fixed;
     width: 600px;
     z-index: 2;
     background: #fff;
     margin: 0 -20px
-}
+} */
 
 @media(max-width:767px) {
     .leg-top-fix {
@@ -20529,14 +20529,14 @@ select {
     color: #1b75bc
 }
 
-.leg-top-fix .detail-head .close-btn {
+/* .leg-top-fix .detail-head .close-btn {
     position: absolute;
     top: 0;
     left: -30px;
     padding: 14px 15px;
     font-size: 13px;
     background: #fff
-}
+} */
 
 @media(max-width:1169px) {
     .leg-top-fix .detail-head .close-btn {
