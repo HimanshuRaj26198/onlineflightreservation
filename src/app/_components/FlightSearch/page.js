@@ -10,8 +10,8 @@ const FlightSearch = ({ airline, selectedDes }) => {
 
     const router = useRouter();
 
-    console.log(selectedDes, "Selected Dest");
-    console.log(airline, "airlines");
+    // console.log(selectedDes, "Selected Dest");
+    // console.log(airline, "airlines");
 
     const [tripType, setTripType] = useState("One-Way");
     const [token, setToken] = useState("");
@@ -71,7 +71,6 @@ const FlightSearch = ({ airline, selectedDes }) => {
         setDesInputValue(''); // Optionally clear the input field as well
     };
 
-
     const handleApplyFilter = (e) => {
         e.preventDefault();
         let filter = travellerDetail;
@@ -84,16 +83,26 @@ const FlightSearch = ({ airline, selectedDes }) => {
     }
 
     const handleCabinTypeChange = (event) => {
-        setCabinType(event.target.value); 
+        setCabinType(event.target.value);
     };
 
-    const handleDepartureChange = (selectedDates) => {
-        setDepDate(selectedDates[0]);
+    const handleDepartureChange = (date) => {
+        const utcDate = new Date(Date.UTC(date[0].getFullYear(), date[0].getMonth(), date[0].getDate()));
+        setDepDate(utcDate);
     };
 
-    const handleReturnDateChange = (selectedDates) => {
-        setReturnD(selectedDates[0]);
-    }
+    const handleReturnDateChange = (date) => {
+        const utcDate = new Date(Date.UTC(date[0].getFullYear(), date[0].getMonth(), date[0].getDate()));
+        setReturnD(utcDate);
+    };
+
+    // const handleDepartureChange = (selectedDates) => {
+    //     setDepDate(selectedDates[0]);
+    // };
+
+    // const handleReturnDateChange = (selectedDates) => {
+    //     setReturnD(selectedDates[0]);
+    // }
 
     // for nearest location
     const fetchNearestAirports = async () => {
@@ -149,7 +158,19 @@ const FlightSearch = ({ airline, selectedDes }) => {
                 }
             });
             let result = await response.json()
-            let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            // let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            const seenIATA = new Set();
+
+            let options = result.data.filter(a => {
+                if (seenIATA.has(a.iataCode)) {
+                    return false;
+                } else {
+                    seenIATA.add(a.iataCode);
+                    return true;
+                }
+            }).map(a => {
+                return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode };
+            });
             setOriginAirportList(options);
         } catch (err) {
             console.log(err);
@@ -202,7 +223,19 @@ const FlightSearch = ({ airline, selectedDes }) => {
                 }
             });
             let result = await response.json()
-            let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            // let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
+            const seenIATA = new Set();
+
+            let options = result.data.filter(a => {
+                if (seenIATA.has(a.iataCode)) {
+                    return false;
+                } else {
+                    seenIATA.add(a.iataCode);
+                    return true;
+                }
+            }).map(a => {
+                return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode };
+            });
             setDesAirportList(options);
         } catch (err) {
             console.log(err);
@@ -233,6 +266,10 @@ const FlightSearch = ({ airline, selectedDes }) => {
         body.append("grant_type", "client_credentials");
         body.append("client_id", "0fTkgg7u7lrqduKUEFx7v5Gnhey4ZG50");
         body.append("client_secret", "1kbdDxkhO4kMMH9p");
+
+        // New Id
+        // body.append("client_id", "ZKUO3uFAPcKvHLMchYTnuRc5IA9OSrgC");
+        // body.append("client_secret", "P1cyeLmxjHWPhFds");
         try {
             const data = await fetch("https://api.amadeus.com/v1/security/oauth2/token",
                 {
@@ -325,14 +362,14 @@ const FlightSearch = ({ airline, selectedDes }) => {
                     <div className="col-xs-12">
                         <div className="error-txt" id="sameSearchdup"></div>
                         <div className="row">
-                            <div className="col-sm-6 col-lg-3 ">
+                            <div className=" col-xs-12 col-sm-6 col-lg-3 ">
                                 <div className="input-city">
                                     <label className="form-label">Leaving from</label>
                                     <div className="relative">
-                                        <img
+                                        {/* <img
                                             src="/assets/images/location-icon.png"
                                             className="input-icon"
-                                        />
+                                        /> */}
                                         <Select
                                             className="textoverflow input_destination"
                                             options={originAirportList}
@@ -367,14 +404,14 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                     ></i>
                                 </span>
                             </div>
-                            <div className="col-sm-6 col-lg-3 ">
+                            <div className=" col-xs-12 col-sm-6 col-lg-3 ">
                                 <div className="input-city">
                                     <label className="form-label">Going to</label>
                                     <div className="relative">
-                                        <img
+                                        {/* <img
                                             src="/assets/images/location-icon.png"
                                             className="input-icon"
-                                        />
+                                        /> */}
                                         <Select
                                             className="textoverflow input_destination"
                                             options={desAirportList}
@@ -601,6 +638,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                         </div>
                                     </span>
                                 </div>}
+
                             </div>
                         </div>
                         <div className="clearfix"></div>
@@ -689,7 +727,8 @@ const FlightSearch = ({ airline, selectedDes }) => {
                     value="2024"
                 />
             </div>
-        </form></>
+        </form>
+        </>
 }
 
 

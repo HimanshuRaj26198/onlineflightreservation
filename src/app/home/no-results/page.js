@@ -13,12 +13,6 @@ const NoResults = () => {
     const searchParam = useSearchParams();
 
 
-    const origin = searchParam.get("origin");
-    const destination = searchParam.get("destination");
-    const depDate = searchParam.get("depdate");
-    const returnD = searchParam.get("returnD");
-
-
     const handleEditSearchClick = () => {
         setIsSearchVisible(!isSearchVisible);
     };
@@ -31,6 +25,16 @@ const NoResults = () => {
             setMaxHeight("0px");
         }
     }, [isSearchVisible]);
+
+    const [isFlightSearchVisible, setFlightSearchVisible] = useState(false);
+
+    // Handler to open FlightSearch component
+    const openFlightSearch = () => {
+        setFlightSearchVisible(true);
+    }
+    const closeFlightSearch = () => {
+        setFlightSearchVisible(false);
+    };
 
 
     return <div className="body-content" bis_skin_checked={1}>
@@ -50,62 +54,51 @@ const NoResults = () => {
             <a href="javascript:void(0);" className="close-sidebar fa fa-close" />
             <div className="holder" bis_skin_checked={1}>
                 <div className="modify-engine" bis_skin_checked={1}>
-                    <div className="container" bis_skin_checked={1}>
-                        <div
-                            className="search_detail edit-listing-searchdetails hand"
-                            bis_skin_checked={1}
-                        >
-                            <div className="row" bis_skin_checked={1}>
-                                <div className="" bis_skin_checked={1}>
+                    <div className="container">
+                        <div className="search_detail edit-listing-searchdetails hand">
+                            {!isSearchVisible ? (
+                                <div className="row" onClick={handleEditSearchClick} style={{ cursor: 'pointer' }}>
                                     <div className="">
-
-                                        {/* Conditionally render search details or close button */}
-
-                                        {!isSearchVisible ? (
-                                            <div className="search_detail edit-listing-searchdetails hand">
-
-
-                                                <div className="col-sm-8">
-                                                    {origin} &nbsp;
-                                                    <b>
-                                                        {" "}
-                                                        <i className="fa fa-exchange" />{" "}
-                                                    </b>
-                                                    &nbsp; {destination}
-                                                    <br />
-                                                    {depDate} , 1 Traveler, Economy
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    className="modify_search pull-right edit-listing-search"
-                                                    onClick={handleEditSearchClick}
-                                                >
-                                                    Edit Search
-                                                </button>
+                                        <div className="search_detail edit-listing-searchdetails hand">
+                                            <div className="col-sm-8">
+                                                {searchParam.get("tripType") === 'Round-Trip' ? (
+                                                    <>
+                                                        {searchParam.get("origin")} &nbsp;
+                                                        <b>
+                                                            <i className="fa fa-exchange" />
+                                                        </b>
+                                                        &nbsp; {searchParam.get("destination")}
+                                                        <br />
+                                                        {searchParam.get("depDate")}, {searchParam.get("returnD")}, 1 Travelers, {searchParam.get("cabin")}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {searchParam.get("origin")} &nbsp;
+                                                        <b>
+                                                            <i className="fa fa-arrow-right" />
+                                                        </b>
+                                                        &nbsp; {searchParam.get("destination")}
+                                                        <br />
+                                                        {searchParam.get("depDate")}, 1 Travelers, {searchParam.get("cabin")}
+                                                    </>
+                                                )}
                                             </div>
-                                        ) : (
-                                            <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick} >
-                                                Close{/* */} [x]
-                                            </a>
-                                        )}
-
-                                    </div>
-
-                                    <div className="col-sm-8" bis_skin_checked={1}>
-                                        Patna &nbsp;
-                                        <b>
-                                            {" "}
-                                            <i
-                                                className="fa fa-long-arrow-right"
-                                                aria-hidden="true"
-                                            />{" "}
-                                        </b>
-                                        &nbsp; Los Angeles
-                                        <br />
-                                        Fri 30Aug , 1 Traveler, Economy
+                                            <button
+                                                type="button"
+                                                className="modify_search pull-right edit-listing-search"
+                                                onClick={handleEditSearchClick}
+                                            >
+                                                Edit Search
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
+                                    Close {/* */} [x]
+                                </a>
+                            )}
+
                         </div>
                         <div ref={searchRef}
                             style={{
@@ -115,567 +108,6 @@ const NoResults = () => {
                             }}>
                             <FlightSearch />
                         </div>
-                        <div
-                            className="expend_search"
-                            style={{ display: "none" }}
-                            bis_skin_checked={1}
-                        >
-                            <form
-                                action="/us/flights/searching"
-                                autoComplete="off"
-                                id="FlightForm"
-                                method="post"
-                                target="_blank"
-                                noValidate="novalidate"
-                            >
-                                {" "}
-                                <div className="modify-engine" bis_skin_checked={1}>
-                                    <div className="trip-type" bis_skin_checked={1}>
-                                        <a className="close-listing-search visible-lg visible-md">
-                                            Close{/* */} [x]
-                                        </a>
-                                        <ul>
-                                            <li>
-                                                <div
-                                                    className="inputSet radio-white radio mt0"
-                                                    bis_skin_checked={1}
-                                                >
-                                                    <input
-                                                        data-val="true"
-                                                        data-val-required="The SearchReturnFlight field is required."
-                                                        id="SearchReturnFlight"
-                                                        name="SearchReturnFlight"
-                                                        type="hidden"
-                                                        defaultValue="false"
-                                                    />
-                                                    <input
-                                                        id="TripType"
-                                                        name="TripType"
-                                                        type="hidden"
-                                                        defaultValue={1}
-                                                    />
-                                                    <label>
-                                                        <input
-                                                            defaultChecked="checked"
-                                                            id={2}
-                                                            name="TripType"
-                                                            onclick="journeyChange('2')"
-                                                            type="radio"
-                                                            defaultValue={2}
-                                                        />
-                                                        <span>Round Trip</span>
-                                                    </label>
-                                                </div>
-                                            </li>
-                                            <li className="cff-list-tab">
-                                                <div
-                                                    className="inputSet radio-white radio mt0"
-                                                    bis_skin_checked={1}
-                                                >
-                                                    <label>
-                                                        <input
-                                                            defaultChecked="checked"
-                                                            id={1}
-                                                            name="TripType"
-                                                            onclick="journeyChange('1')"
-                                                            type="radio"
-                                                            defaultValue={1}
-                                                        />
-                                                        <span>One Way</span>
-                                                    </label>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                        <div className="clearfix" bis_skin_checked={1} />
-                                    </div>
-                                    <div className="row" bis_skin_checked={1}>
-                                        <div className="col-sm-12" bis_skin_checked={1}>
-                                            <input
-                                                id="SearchReturnFlight"
-                                                name="SearchReturnFlight"
-                                                type="hidden"
-                                                defaultValue="False"
-                                            />
-                                            <input
-                                                id="userSearchId"
-                                                name="userSearchId"
-                                                type="hidden"
-                                                defaultValue="21988_b7b2a3a2f8e44ce6a66bfeea7258ae9d"
-                                            />
-                                            <input
-                                                id="pageType"
-                                                name="pageType"
-                                                type="hidden"
-                                                defaultValue="home"
-                                            />
-                                            <input
-                                                id="pageID"
-                                                name="pageID"
-                                                type="hidden"
-                                                defaultValue="home"
-                                            />
-                                            <input
-                                                id="TripType"
-                                                name="TripType"
-                                                type="hidden"
-                                                defaultValue={1}
-                                            />
-                                            <div className="column-2 pr-5" bis_skin_checked={1}>
-                                                <label>Leaving from</label>
-                                                <div className="relative" bis_skin_checked={1}>
-                                                    <img
-                                                        src="/us/images/location-icon.png"
-                                                        className="input-icon"
-                                                    />
-                                                    <input
-                                                        className="textoverflow input_origin ui-autocomplete-input"
-                                                        data-val="true"
-                                                        data-val-required="The origin field is required."
-                                                        id="origin"
-                                                        name="origin"
-                                                        placeholder="Leaving from"
-                                                        type="text"
-                                                        defaultValue="PAT - Jayaprakash Narayan,Patna,IN"
-                                                        autoComplete="off"
-                                                    />
-                                                    <span
-                                                        className="field-validation-valid"
-                                                        data-valmsg-for="origin"
-                                                        data-valmsg-replace="true"
-                                                    />
-                                                    <i
-                                                        className="clear_field"
-                                                        id="clrOrigin"
-                                                        onclick="clrlocation('o');"
-                                                    />
-                                                </div>
-                                                <span
-                                                    id="sameSearch"
-                                                    className="column-2 pr-5 error-txt"
-                                                    style={{ color: "#ffd800", clear: "both" }}
-                                                />
-                                                <span
-                                                    className="swap_button"
-                                                    style={{ cursor: "pointer" }}
-                                                    onclick="swapDepRet()"
-                                                >
-                                                    <i className="fa fa-exchange" aria-hidden="true" />
-                                                </span>
-                                            </div>
-                                            <div className="column-2 pr-5" bis_skin_checked={1}>
-                                                <label>Going to</label>
-                                                <div className="relative" bis_skin_checked={1}>
-                                                    <img
-                                                        src="/us/images/location-icon.png"
-                                                        className="input-icon"
-                                                    />
-                                                    <input
-                                                        className="textoverflow input_destination ui-autocomplete-input"
-                                                        data-val="true"
-                                                        data-val-required="The destination field is required."
-                                                        id="destination"
-                                                        name="destination"
-                                                        placeholder="Going to"
-                                                        type="text"
-                                                        defaultValue="LAX - Los Angeles All Airports,Los Angeles,California,US"
-                                                        autoComplete="off"
-                                                    />
-                                                    <span
-                                                        className="field-validation-valid"
-                                                        data-valmsg-for="destination"
-                                                        data-valmsg-replace="true"
-                                                    />
-                                                    <i
-                                                        className="clear_field destination"
-                                                        id="clrDestination"
-                                                        onclick="clrlocation('d');"
-                                                    />
-                                                </div>
-                                                <span
-                                                    id="sameSearchDest"
-                                                    className="error-txt"
-                                                    style={{ color: "#ffd800", clear: "both" }}
-                                                />
-                                            </div>
-                                            <div
-                                                className="column-2 pr-5 calender-blc"
-                                                bis_skin_checked={1}
-                                            >
-                                                <label>Travel Dates</label>
-                                                <div
-                                                    className="calender-txt calender-block"
-                                                    bis_skin_checked={1}
-                                                >
-                                                    <span>
-                                                        <img
-                                                            src="/us/images/calender-icon.png"
-                                                            className="input-icon cal-icon depart-cal"
-                                                        />
-                                                        <input
-                                                            className="departDate hasDatepicker"
-                                                            id="fromDateDisplay"
-                                                            name="fromDateDisplay"
-                                                            readOnly="readonly"
-                                                            required="required"
-                                                            type="text"
-                                                            defaultValue="Aug 30, 2024"
-                                                        />
-                                                        <input
-                                                            className="pl10"
-                                                            data-val="true"
-                                                            data-val-date="The field TravelDate must be a date."
-                                                            data-val-required="The TravelDate field is required."
-                                                            id="TravelDate"
-                                                            name="TravelDate"
-                                                            readOnly="readonly"
-                                                            required="required"
-                                                            type="hidden"
-                                                            defaultValue="8/30/2024 12:00:00 AM"
-                                                        />
-                                                    </span>
-                                                    <span>
-                                                        <img
-                                                            src="/us/images/calender-icon.png"
-                                                            className="input-icon cal-icon retcal"
-                                                            style={{ display: "none" }}
-                                                        />
-                                                        <input
-                                                            className="returnDate hasDatepicker"
-                                                            id="toDateDisplay"
-                                                            name="toDateDisplay"
-                                                            readOnly="readonly"
-                                                            required="required"
-                                                            type="text"
-                                                            defaultValue="Sep 05, 2024"
-                                                            style={{ display: "none" }}
-                                                        />
-                                                        <input
-                                                            className="pl10"
-                                                            data-val="true"
-                                                            data-val-date="The field ReturnDate must be a date."
-                                                            data-val-required="The ReturnDate field is required."
-                                                            id="ReturnDate"
-                                                            name="ReturnDate"
-                                                            readOnly="readonly"
-                                                            required="required"
-                                                            type="hidden"
-                                                            defaultValue="9/6/2024 9:19:43 AM"
-                                                        />
-                                                    </span>
-                                                    <div className="cleafix" bis_skin_checked={1} />
-                                                </div>
-                                            </div>
-                                            <input
-                                                id="OriginAirport_AirportCode"
-                                                name="OriginAirport.AirportCode"
-                                                type="hidden"
-                                                defaultValue="PAT"
-                                            />
-                                            <input
-                                                id="DestinationAirport_AirportCode"
-                                                name="DestinationAirport.AirportCode"
-                                                type="hidden"
-                                                defaultValue="LAX"
-                                            />
-                                            <div
-                                                className="column-4 pr-5 position-static"
-                                                bis_skin_checked={1}
-                                            >
-                                                <div className="position-relative  " bis_skin_checked={1}>
-                                                    <label>Traveler(s), Cabin</label>
-                                                    <div
-                                                        className="relative drop-errow"
-                                                        bis_skin_checked={1}
-                                                    >
-                                                        <input
-                                                            type="text"
-                                                            id="travelerOpen"
-                                                            defaultValue="1 Traveler, Economy"
-                                                            readOnly="readonly"
-                                                            autoComplete="off"
-                                                            onclick="showpaxpopup();"
-                                                            className="pl10 hand"
-                                                        />
-                                                    </div>
-                                                    <div
-                                                        id="selectpax"
-                                                        className="traveler-fees-slide traveller_block"
-                                                        style={{ display: "none" }}
-                                                        bis_skin_checked={1}
-                                                    >
-                                                        <a href="javascript:void(0);" className="popup-close">
-                                                            <img src="/us/images/uc/cancel.svg" alt="" />
-                                                        </a>
-                                                        <label className="traveller_label">Adult(s)</label>
-                                                        <ul className="adults">
-                                                            <li className="active">1</li>
-                                                            <li>2</li>
-                                                            <li>3</li>
-                                                            <li>4</li>
-                                                            <li>5</li>
-                                                            <li>6</li>
-                                                            <li>7</li>
-                                                            <li>8</li>
-                                                            <li>9</li>
-                                                        </ul>
-                                                        <label className="traveller_label">
-                                                            Children (2-11 yrs)
-                                                        </label>
-                                                        <ul className="childs">
-                                                            <li className="active">0</li>
-                                                            <li>1</li>
-                                                            <li>2</li>
-                                                            <li>3</li>
-                                                            <li>4</li>
-                                                            <li>5</li>
-                                                            <li>6</li>
-                                                            <li>7</li>
-                                                            <li>8</li>
-                                                        </ul>
-                                                        <div className="row" bis_skin_checked={1}>
-                                                            <div className="col-50" bis_skin_checked={1}>
-                                                                <label className="traveller_label">
-                                                                    Infant (on lap)
-                                                                </label>
-                                                                <ul className="infonlap">
-                                                                    <li className="active">0</li>
-                                                                    <li>1</li>
-                                                                    <li>2</li>
-                                                                    <li>3</li>
-                                                                    <li>4</li>
-                                                                </ul>
-                                                            </div>
-                                                            <div className="col-50 space" bis_skin_checked={1}>
-                                                                <label className="traveller_label">
-                                                                    Infant (on seat)
-                                                                </label>
-                                                                <ul className="infonseat">
-                                                                    <li className="active">0</li>
-                                                                    <li>1</li>
-                                                                    <li>2</li>
-                                                                    <li>3</li>
-                                                                    <li>4</li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                        <div className="clearfix" bis_skin_checked={1} />
-                                                        <label id="ermsg" className="error-txt" />
-                                                        <button type="button" className="done_button done">
-                                                            Apply
-                                                        </button>
-                                                        <div className="class_block" bis_skin_checked={1}>
-                                                            <span className="traveller_label">Cabin</span>
-                                                            <div
-                                                                className="select-dropdown drop-errow"
-                                                                bis_skin_checked={1}
-                                                            >
-                                                                <select id="CabinType" name="CabinType">
-                                                                    <option selected="selected" value="Economy">
-                                                                        Economy
-                                                                    </option>
-                                                                    <option value="PremiumEconomy">
-                                                                        PremiumEconomy
-                                                                    </option>
-                                                                    <option value="Business">Business</option>
-                                                                    <option value="First">First</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div className="clearfix" bis_skin_checked={1} />
-                                                        <span className="tooltip-custom minor-txt ">
-                                                            <u className="blue">Unaccompanied Minor</u>
-                                                            <div className="promo-detail" bis_skin_checked={1}>
-                                                                <span className="arrow" />
-                                                                <p
-                                                                    className="mb5px"
-                                                                    style={{ textAlign: "left" }}
-                                                                >
-                                                                    Booking flights for an unaccompanied minor? Some
-                                                                    airlines have restrictions on children under the
-                                                                    age of 18 years traveling alone. If you have any
-                                                                    questions, please <br />
-                                                                    <a href="/us/contact-us" target="_blank">
-                                                                        contact us
-                                                                    </a>
-                                                                    . Otherwise please include at least 1 adult then
-                                                                    hit "Search"
-                                                                </p>
-                                                            </div>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button
-                                                type="submit"
-                                                className="search-btn"
-                                                onclick="return valid('false');"
-                                            >
-                                                Search
-                                            </button>
-                                            <input
-                                                data-val="true"
-                                                data-val-number="The field Adults must be a number."
-                                                data-val-required="The Adults field is required."
-                                                id="Adults"
-                                                name="Adults"
-                                                type="hidden"
-                                                defaultValue={1}
-                                            />
-                                            <input
-                                                data-val="true"
-                                                data-val-number="The field Children must be a number."
-                                                data-val-required="The Children field is required."
-                                                id="Children"
-                                                name="Children"
-                                                type="hidden"
-                                                defaultValue={0}
-                                            />
-                                            <input
-                                                data-val="true"
-                                                data-val-number="The field InfantWs must be a number."
-                                                data-val-required="The InfantWs field is required."
-                                                id="InfantWs"
-                                                name="InfantWs"
-                                                type="hidden"
-                                                defaultValue={0}
-                                            />
-                                            <input
-                                                data-val="true"
-                                                data-val-number="The field Infants must be a number."
-                                                data-val-required="The Infants field is required."
-                                                id="Infants"
-                                                name="Infants"
-                                                type="hidden"
-                                                defaultValue={0}
-                                            />
-                                            <input
-                                                id="CabinType"
-                                                name="CabinType"
-                                                type="hidden"
-                                                defaultValue="Economy"
-                                            />
-                                            <input
-                                                data-val="true"
-                                                data-val-required="The isFromAirline field is required."
-                                                id="isFromAirline"
-                                                name="isFromAirline"
-                                                type="hidden"
-                                                defaultValue="False"
-                                            />
-                                            <input
-                                                id="searchCampaign"
-                                                name="searchCampaign"
-                                                type="hidden"
-                                                defaultValue=""
-                                            />
-                                            <input
-                                                id="searchContent"
-                                                name="searchContent"
-                                                type="hidden"
-                                                defaultValue=""
-                                            />
-                                            <input
-                                                id="searchMedium"
-                                                name="searchMedium"
-                                                type="hidden"
-                                                defaultValue=""
-                                            />
-                                            <input
-                                                id="sourceMedia"
-                                                name="sourceMedia"
-                                                type="hidden"
-                                                defaultValue="googlepmax"
-                                            />
-                                            <input
-                                                id="fromDateIn"
-                                                name="fromDateIn"
-                                                type="hidden"
-                                                defaultValue={2024}
-                                            />
-                                            <input
-                                                id="toDateIn"
-                                                name="toDateIn"
-                                                type="hidden"
-                                                defaultValue={2024}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="modify-spacer" bis_skin_checked={1} />
-                                    <div className="row" bis_skin_checked={1}>
-                                        <div className="col-sm-8" bis_skin_checked={1}>
-                                            <div className="row" bis_skin_checked={1}>
-                                                <div
-                                                    className="col-sm-6 col-md-4 hide"
-                                                    id="div_airline"
-                                                    name="div_airline"
-                                                    bis_skin_checked={1}
-                                                >
-                                                    <div
-                                                        className="input-city selectairline"
-                                                        bis_skin_checked={1}
-                                                    >
-                                                        <i
-                                                            className="fa fa-search input-icon"
-                                                            aria-hidden="true"
-                                                        />
-                                                        <input
-                                                            className="textoverflow ui-autocomplete-input"
-                                                            id="airlinecode"
-                                                            name="airlinecode"
-                                                            placeholder="Search Preferred Airline"
-                                                            type="text"
-                                                            defaultValue=""
-                                                            autoComplete="off"
-                                                        />
-                                                        <i
-                                                            className="clear_field selectairline-clear"
-                                                            id="clrAirline"
-                                                            style={{ display: "none" }}
-                                                            onclick="clrlocation('a');"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    className="col-sm-4 col-md-3  hide"
-                                                    bis_skin_checked={1}
-                                                >
-                                                    <div
-                                                        style={{ marginTop: 8 }}
-                                                        className="hidden-xs"
-                                                        bis_skin_checked={1}
-                                                    />
-                                                    <div className="inputSet2" bis_skin_checked={1}>
-                                                        <label className="direct-flights ml40">
-                                                            <input
-                                                                data-val="true"
-                                                                data-val-required="The SearchDirectFlight field is required."
-                                                                id="SearchDirectFlight"
-                                                                name="SearchDirectFlight"
-                                                                type="checkbox"
-                                                                defaultValue="true"
-                                                            />
-                                                            <input
-                                                                name="SearchDirectFlight"
-                                                                type="hidden"
-                                                                defaultValue="false"
-                                                            />{" "}
-                                                            <span>Direct Flights </span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <input
-                                                    type="hidden"
-                                                    defaultValue="false"
-                                                    id="isDirectFlight"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4" bis_skin_checked={1}></div>
-                                    </div>
-                                    <span id="sameSearch" className="error-txt" />
-                                </div>
-                            </form>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -683,37 +115,75 @@ const NoResults = () => {
         <div className="mobile-header-fixed" bis_skin_checked={1}>
             <div className="mobile-itenery modifySearchMobile" bis_skin_checked={1}>
                 <div className="result-itenery" bis_skin_checked={1}>
-                    <div className="row" bis_skin_checked={1}>
-                        <div className="col-xs-12" bis_skin_checked={1}>
-                            <a>
-                                <div className="modify-src-btn" bis_skin_checked={1}>
-                                    <img src="/us/images/svg/edit-icon.svg" alt="" />
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <a href="javascript:void(0);" onClick={openFlightSearch}>
+                                <div className="modify-src-btn">
+                                    <img
+                                        src="https://www.lookbyfare.com/us/images/svg/edit-icon.svg"
+                                        alt="Edit Icon"
+                                    />
                                 </div>
                             </a>
-                            <div className="city-itenery" bis_skin_checked={1}>
-                                <div className="column" bis_skin_checked={1}>
-                                    <p className="airportCode">PAT</p>
+                            {isFlightSearchVisible && (
+                                <div className="modify-engine-wrapper open">
+                                    <a
+                                        href="javascript:void(0);"
+                                        className="close-sidebar fa fa-close"
+                                        onClick={() => setFlightSearchVisible(false)}
+                                    />
+
+                                    <div className="holder">
+                                        <div className="modify-engine">
+                                            <div className="container">
+                                                <div className="search_detail edit-listing-searchdetails hand">
+                                                    {!isSearchVisible ? (
+                                                        <FlightSearch />
+                                                    ) : (
+                                                        <a
+                                                            className="close-listing-search visible-lg visible-md"
+                                                            onClick={() => setIsSearchVisible(false)}
+                                                        >
+                                                            Close {/* [x] */}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="column" bis_skin_checked={1}>
-                                    <div className="airporticon" bis_skin_checked={1}>
+                            )}
+                            <div className="city-itenery">
+                                <div className="column">
+                                    <p className="airportCode">{searchParam.get("origin")}</p>
+                                </div>
+                                <div className="column">
+                                    <div className="airporticon">
                                         <b>
-                                            {" "}
-                                            <i
-                                                className="fa fa-long-arrow-right"
-                                                aria-hidden="true"
-                                            />{" "}
+                                            <i className="fa fa-long-arrow-right" aria-hidden="true" />
                                         </b>
                                     </div>
                                 </div>
-                                <div className="column" bis_skin_checked={1}>
-                                    <p className="airportCode">LAX</p>
+                                <div className="column">
+                                    <p className="airportCode">{searchParam.get("destination")}</p>
                                 </div>
-                                <div className="clearfix" bis_skin_checked={1} />
-                                <div className="itenery-date" bis_skin_checked={1}>
-                                    Aug 30, 2024
-                                    <span className="traveller-xxs">
-                                        <span>&nbsp; | &nbsp;</span>1 Traveler
-                                    </span>
+                                <div className="clearfix" />
+
+                                <div className="itenery-date">
+
+                                    {searchParam.get("tripType") === 'Round-Trip' ? (
+                                        <>
+                                            {searchParam.get("depDate")}, {searchParam.get("returnD")},
+                                            <span>1 Traveler</span>,
+                                            {searchParam.get("cabin")}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {searchParam.get("depDate")},
+                                            <span>1 Traveler</span>,
+                                            {searchParam.get("cabin")}
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -768,9 +238,9 @@ const NoResults = () => {
                                     <p className="text">
                                         We’ve searched more than 400 airlines that we sell,
                                         <br /> and couldn't find any flights from <strong>
-                                            PAT
+                                            {searchParam.get("origin")}
                                         </strong>{" "}
-                                        to <strong>LAX</strong>
+                                        to <strong>{searchParam.get("destination")}</strong>
                                     </p>
                                     <div className="bottom" bis_skin_checked={1}>
                                         <p>Call us at (24x7)</p>

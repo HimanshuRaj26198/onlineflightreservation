@@ -61,19 +61,19 @@ const Footer = () => {
                                     <div className="column">
                                         <h4>Top Flight Destinations</h4>
                                         <ul>
-                                            <li><a href="/assets/flights/cheap-flights-to-las-vegas-las-usa.html"
+                                            <li><a href="/home/las-vegas"
                                                 title="Las Vegas">Las Vegas</a></li>
-                                            <li><a href="/assets/flights/cheap-flights-to-atlanta-atl-usa.html"
+                                            <li><a href="/home/atlanta"
                                                 title="Atlanta">Atlanta</a></li>
-                                            <li><a href="/assets/flights/cheap-flights-to-newyork-nyc-usa.html"
+                                            <li><a href="/home/new-york"
                                                 title="New York">New York</a></li>
-                                            <li><a href="/assets/flights/cheap-flights-to-fortlauderdale-fll-usa.html"
+                                            <li><a href="/home/for-lauderdale"
                                                 title="Fort Lauderdale">Fort Lauderdale</a></li>
-                                            <li><a href="/assets/flights/cheap-flights-to-washington-was-usa.html"
+                                            <li><a href="/home/washington"
                                                 title="Washington DC">Washington DC</a></li>
-                                            <li><a href="/assets/flights/cheap-flights-to-denver-den-usa.html"
+                                            <li><a href="/home/denver"
                                                 title="Denver">Denver</a></li>
-                                            <li><a href="/assets/flights/cheap-flights-to-tel-aviv-tlv-israel.html"
+                                            <li><a href="/home/tel-aviv"
                                                 title="Tel Aviv">Tel Aviv</a></li>
                                         </ul>
                                     </div>
@@ -234,7 +234,7 @@ const Footer = () => {
                             queries answered, you can write to us at <a
                                 href="mailto:contact@onlineflightreservation.com"><span
                                     className="__cf_email__"
-                                    data-cfemail="ddaea8adadb2afa99db1b2b2b6bfa4bbbcafb8f3beb2b0">contact@onlineflightreservation.com</span></a>
+                                    data-cfemail="ddaea8adadb2afa99db1b2b2b6bfa4bbbcafb8f3beb2b0"><b>contact@onlineflightreservation.com</b></span></a>
                         </p>
                     </div>
                 </div>

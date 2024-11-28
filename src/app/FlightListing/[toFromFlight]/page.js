@@ -1,6 +1,6 @@
 "use client"
 import FlightOfferCard from '@/app/_components/FlightOffers/page';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
 import FlightCard from '@/app/_components/FlightCard/page';
 import airlines from "../../../../lib/airlines.json";
@@ -10,7 +10,6 @@ import FlightDetail from "@/app/_components/FlightDetail/page";
 import { motion } from 'framer-motion';
 import Loading from "@/app/loading";
 import OfferPopup from "@/app/_components/OfferPopup/page";
-import { useRouter } from "next/navigation";
 import Slider, { Range } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
@@ -46,7 +45,6 @@ const FlightListing = () => {
     const [activeTab, setActiveTab] = useState('all');
     const [uniqueAirlines, setUniqueAirlines] = useState([]);
     const searchParam = useSearchParams();
-
 
     const [activeFlight, setActiveFlight] = useState(null);
     const [filteredFlights, setFilteredFlights] = useState([]);
@@ -88,11 +86,11 @@ const FlightListing = () => {
         return acc;
     }, {});
 
-    
+
     // Convert back to an array
     const availableStops = Object.values(minPriceStops);
-    
-    console.log(availableStops,"MINIMUM PRICES");
+
+    console.log(availableStops, "MINIMUM PRICES");
 
     // FILTERING THE FLIGHT
     useEffect(() => {
@@ -307,8 +305,8 @@ const FlightListing = () => {
                 }
             }
 
-            console.log(searchParam.get("returnD"));
-            console.log(searchParam.get("depDate"));
+            // console.log(searchParam.get("returnD"));
+            // console.log(searchParam.get("depDate"));
 
 
             let cabinRestrictionObj = {};
@@ -462,7 +460,7 @@ const FlightListing = () => {
                 setFlightLists(FlightList);
 
                 if (FlightList.length <= 0) {
-                    router.push("/home/no-results");
+                    router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
                 } else {
                     setFlightLists(FlightList);
                     setLoading(false);
@@ -473,11 +471,11 @@ const FlightListing = () => {
                     }, 25000);
                 }
             } catch (err) {
-                // router.push("/home/no-results");
+                // router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
             }
         }
         fetchFlightOffers();
-    }, [])
+    }, [searchParam])
 
     const handleTabClick = (tabId) => {
         setActiveTab(tabId);
@@ -620,11 +618,31 @@ const FlightListing = () => {
             return flightPrice >= newRange[0] && flightPrice <= newRange[1];
         });
 
-        // setAppliedFilters(prev =>
-        //     prev.filter(filter => filter.type !== 'price').concat({ type: 'Price range', value: priceRange })
-        // );
-
         setFilteredFlights(filtered);
+
+        setAppliedFilters(prevFilters => {
+
+            const priceFilterIndex = prevFilters.findIndex(filter => filter.type === 'Price range');
+
+            if (priceFilterIndex !== -1) {
+
+                const updatedFilters = [...prevFilters];
+                updatedFilters[priceFilterIndex] = {
+                    type: 'Price range',
+                    value: `$${newRange[0]} - $${newRange[1]}`,
+                };
+                return updatedFilters;
+            } else {
+
+                return [
+                    ...prevFilters,
+                    {
+                        type: 'Price range',
+                        value: `$${newRange[0]} - $${newRange[1]}`,
+                    },
+                ];
+            }
+        });
     };
 
     const resetFilters = () => {
@@ -747,7 +765,7 @@ const FlightListing = () => {
                                 <div className="col-xs-12">
                                     <a>
                                         <div className="modify-src-btn">
-                                            <img src="/us/images/svg/edit-icon.svg" alt="" />
+                                            <img src="https://www.lookbyfare.com/us/images/svg/edit-icon.svg" alt="" />
                                         </div>
                                     </a>
                                     <div className="city-itenery">
@@ -781,7 +799,7 @@ const FlightListing = () => {
                     <div className="filter_strip_mobile modifyFilterMobile hidden-lg hidden-md">
                         <img
                             className="filter_icon_mobile responsiveFilter_btn"
-                            src="/us/images/svg/filter-icon.svg"
+                            src="https://www.lookbyfare.com/us/images/svg/filter-icon.svg"
                         />
                         <ul>
                             <li id="filter_strip_mobile_stops">
@@ -1123,7 +1141,7 @@ const FlightListing = () => {
                                                         className="multi-airline-icon"
                                                         style={{ display: "none", margin: "10px 0 0" }}
                                                     >
-                                                        <img src="images/airlinesLogo.png" /> Indicate
+                                                        <img src="https://www.lookbyfare.com/us/images/listing/mal-blue.png" /> Indicate
                                                         Multiple Airline
                                                     </div>
                                                 </div>

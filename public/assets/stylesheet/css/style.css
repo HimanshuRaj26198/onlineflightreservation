@@ -17386,7 +17386,7 @@ select {
 @media(max-width:767px) {
     .results-page .modify-engine-wrapper.open {
         display: block;
-        background: #1b75bc;
+        background: #3ea0ed;
         padding: 20px 0;
         position: fixed;
         left: 0;
@@ -17562,7 +17562,7 @@ select {
 }
 
 .search_detail {
-    color: #fff
+    color:#1f1f1f
 }
 
 .search_detail .fa-exchange {
@@ -20345,7 +20345,7 @@ select {
     border-top: 1px solid #eee;
     margin: 0 -20px;
     width: 600px;
-    position: fixed;
+    /* position: fixed; */
     bottom: 0;
     border-radius: 0;
     z-index: 2
@@ -20527,10 +20527,11 @@ select {
 .leg-top-fix .detail-head .close-btn {
     position: absolute;
     top: 0;
-    left: -30px;
+    left: -10px;
     padding: 14px 15px;
     font-size: 13px;
-    background: #fff
+    background: #fff;
+    cursor: pointer;
 }
 
 @media(max-width:1169px) {

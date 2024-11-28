@@ -5,6 +5,12 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+import TopDestinationsArr from "@/assets/top_destination.json";
+import TopFlightDestinationArr from "@/assets/top_flight_destination.json"
+import TopFlightDestinationCard from "@/app/_components/TopFlightDestinationCard/page";
+import TopDestinationCard from "@/app/_components/TopDestinationCard/page";
+
+
 const UnitedAirlines = () => {
     const secondSetting = {
         infinite: true,
@@ -174,7 +180,7 @@ const UnitedAirlines = () => {
                                     >
                                         <i class="fa fa-plane" aria-hidden="true"></i> Flights
                                     </li>
-                                    <li
+                                    {/* <li
                                         id="carTab"
                                         class="engin-tab"
                                         onclick="clickEngineShow('carEngineId','carTab');"
@@ -195,7 +201,7 @@ const UnitedAirlines = () => {
                                     >
                                         <i class="cruise_icon"></i>
                                         Cruise
-                                    </li>
+                                    </li> */}
                                 </ul>
                             </div>
                             <div class="common_searchCntr">
@@ -1541,243 +1547,32 @@ const UnitedAirlines = () => {
                                 </div>
 
                                 <div class="leftCol">
+                                    {/* top flight destination */}
                                     <div class="top__dealbox">
+
                                         <ul>
-                                            <li onclick="submitSearchFlight('PHL', 'ATL', 'Aug 27, 2024', 'Aug 28, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/f9.png"
-                                                        class="deal__logo"
-                                                        alt="f9"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Philadelphia - Atlanta</strong>
-                                                    <div class="small_text">Aug 27 - Aug 28</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $38
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('DFW', 'ORD', 'Aug 27, 2024', 'Aug 28, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/nk.png"
-                                                        class="deal__logo"
-                                                        alt="nk"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Dallas - Chicago</strong>
-                                                    <div class="small_text">Aug 27 - Aug 28</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $40
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('SDF', 'FLL', 'Aug 26, 2024', 'Aug 30, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/g4.png"
-                                                        class="deal__logo"
-                                                        alt="g4"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Louisville - Fort Lauderdale</strong>
-                                                    <div class="small_text">Aug 26 - Aug 30</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $115
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('YYZ', 'YHZ', 'Aug 27, 2024', 'Aug 28, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/f8.png"
-                                                        class="deal__logo"
-                                                        alt="f8"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Toronto - Halifax</strong>
-                                                    <div class="small_text">Aug 27 - Aug 28</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $118
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('LAS', 'LAX', 'Aug 30, 2024', 'Aug 31, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/as.png"
-                                                        class="deal__logo"
-                                                        alt="as"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Las Vegas - Los Angeles</strong>
-                                                    <div class="small_text">Aug 30 - Aug 31</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $121
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('EWR', 'FLL', 'Aug 27, 2024', 'Aug 28, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/nk.png"
-                                                        class="deal__logo"
-                                                        alt="nk"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Newark Liberty - Fort Lauderdale</strong>
-                                                    <div class="small_text">Aug 27 - Aug 28</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $147
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('MIA', 'SJU', 'Aug 26, 2024', 'Aug 29, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/f9.png"
-                                                        class="deal__logo"
-                                                        alt="f9"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Miami - San Juan</strong>
-                                                    <div class="small_text">Aug 26 - Aug 29</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $148
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('DFW', 'CUN', 'Aug 27, 2024', 'Aug 29, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/aa.png"
-                                                        class="deal__logo"
-                                                        alt="aa"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Dallas - Cancun</strong>
-                                                    <div class="small_text">Aug 27 - Aug 29</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $242
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('IAH', 'SAL', 'Aug 26, 2024', 'Aug 28, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/y4.png"
-                                                        class="deal__logo"
-                                                        alt="y4"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Houston - San Salvador</strong>
-                                                    <div class="small_text">Aug 26 - Aug 28</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $261
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
-                                            <li onclick="submitSearchFlight('IAH', 'SAL', 'Aug 26, 2024', 'Aug 29, 2024', 'RoundTrip','Economy','home')">
-                                                <figure>
-                                                    <img
-                                                        src="/assets//flights/flight/airlinelogo-png/ta.png"
-                                                        class="deal__logo"
-                                                        alt="ta"
-                                                    />
-                                                </figure>
-                                                <div class="deal__detail">
-                                                    <strong>Houston - San Salvador</strong>
-                                                    <div class="small_text">Aug 26 - Aug 29</div>
-                                                </div>
-                                                <div class="deal__price">
-                                                    <small class="small_text">From</small> $270
-                                                    <div class="small_text">Per adult</div>
-                                                </div>
-                                            </li>
+                                            {TopFlightDestinationArr && TopFlightDestinationArr.flat().map((des, index) => {
+                                                return <TopFlightDestinationCard key={index} destination={des} />;
+                                            })}
                                         </ul>
+
+
                                     </div>
                                     <div class="dealbox__note">
                                         <b>Note:</b> All fares are quoted in USD. Last updated on{" "}
                                         <span class="text-link-orange">
                                             Sat, Aug 24, 2024 at 05:00 AM.
                                         </span>
-                                        , the fares mentioned above are for flight tickets and
-                                        inclusive of taxes & fees.{" "}
+                                        , the fares mentioned above are for flight tickets and inclusive
+                                        of taxes & fees.{" "}
                                     </div>
                                 </div>
 
                                 <div class="rightCol">
                                     <div class="destination__block">
-                                        <div class="destination_row">
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-los-angeles-lax-usa.html"
-                                            >
-                                                <img src="/assets/images/home/lax.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Los Angeles <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-atlanta-atl-usa.html"
-                                            >
-                                                <img src="/assets/images/home/atl.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Atlanta <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                        </div>
-                                        <div class="destination_row">
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-newyork-nyc-usa.html"
-                                            >
-                                                <img src="/assets/images/home/nyc.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    New York <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                            <a
-                                                class="block"
-                                                href="/assets/flights/cheap-flights-to-fortlauderdale-fll-usa.html"
-                                            >
-                                                <img src="/assets/images/home/fll.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Fort Lauderdale <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                        </div>
-                                        <div class="row2">
-                                            <a
-                                                class="block big--block"
-                                                href="/assets/flights/cheap-flights-to-washington-was-usa.html"
-                                            >
-                                                <img src="/assets/images/home/was.jpg" alt="image1" />
-                                                <figcaption class="destination__title">
-                                                    Washington D.C. <i class="fa fa-long-arrow-right"></i>
-                                                </figcaption>
-                                            </a>
-                                        </div>
+                                        {TopDestinationsArr && TopDestinationsArr.map(a => {
+                                            return <TopDestinationCard destination={a} />
+                                        })}
                                     </div>
                                 </div>
                             </div>
@@ -1792,28 +1587,28 @@ const UnitedAirlines = () => {
                             <ul>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon13860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon1.svg?v=1"
                                         alt="Exclusive Fares"
                                     />
                                     <p>Exclusive Fares</p>
                                 </li>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon23860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon2.svg?v=1"
                                         alt="Latest Sales & Discounts"
                                     />
                                     <p>Latest Sales & Discounts</p>
                                 </li>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon33860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon3.svg?v=1"
                                         alt="Members only Deals"
                                     />
                                     <p>Members only Deals</p>
                                 </li>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon43860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon4.svg?v=1"
                                         alt="Special Promo Codes & more"
                                     />
                                     <p>Special Promo Codes & more</p>

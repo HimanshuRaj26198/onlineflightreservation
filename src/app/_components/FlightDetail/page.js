@@ -339,8 +339,7 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
                     </div>
 
                     <div class="text-center" bis_skin_checked="1">
-                        <button id="btnSelectfra_sss901" class="continue_btn" onclick="$('#div_gotopayment').show();Filter.submitbut('sss901',1)">Continue with Refundable Booking</button>
-
+                        <button id="btnSelectfra_sss901" class="continue_btn" onclick="$('#div_gotopayment').show();Filter.submitbut('sss901',1)" onClick={handleCotnueViewDetail}>Continue with Refundable Booking</button>
                     </div>
                 </div>
             </div>

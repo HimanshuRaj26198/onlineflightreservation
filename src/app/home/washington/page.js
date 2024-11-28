@@ -9,7 +9,7 @@ import TopFlightDestinationArr from "@/assets/top_flight_destination.json"
 import TopFlightDestinationCard from "@/app/_components/TopFlightDestinationCard/page";
 import TopDestinationCard from "@/app/_components/TopDestinationCard/page";
 
-const AllegiantAirlines = () => {
+const lasVegas = () => {
     const secondSetting = {
         infinite: true,
         slidesToShow: 3,
@@ -82,7 +82,7 @@ const AllegiantAirlines = () => {
                     <div class="logo-center visible-xs">
                         <img src="/assets/images/home/privacy-icon-xs.png" />
                     </div>
-                    <h3>Allegiant Airlines Reservation</h3>
+                    <h3>JetBlue Airways Reservation</h3>
                     <ul>
                         <li>
                             <span class="number">1.</span>We restrict sharing of your
@@ -153,7 +153,7 @@ const AllegiantAirlines = () => {
                                     fontSize: "24px",
                                 }}
                             >
-                                Allegiant Airline Reservations Online
+                                Cheap Flight to Washington DC
                             </h1>
                             <span
                                 style={{
@@ -204,8 +204,7 @@ const AllegiantAirlines = () => {
                             </div>
                             <div class="common_searchCntr">
                                 <section id="flightEngineId">
-                                    <FlightSearch airline="G4" />
-
+                                    <FlightSearch airline={"IAD"} />
                                 </section>
 
                                 <section id="carEngineId" style={{ display: "none" }}>
@@ -2116,5 +2115,6 @@ const AllegiantAirlines = () => {
     );
 };
 
-export default AllegiantAirlines;
+export default lasVegas;
+
 

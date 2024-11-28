@@ -48,7 +48,7 @@ const DestinationPage = () => {
     const searchParams = useSearchParams();
     const name = searchParams.get("name");
 
-    console.log(params, "current params");
+    // console.log(params, "current params");
 
     return (
         <>
@@ -1517,28 +1517,28 @@ const DestinationPage = () => {
                             <ul>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon13860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon1.svg?v=1"
                                         alt="Exclusive Fares"
                                     />
                                     <p>Exclusive Fares</p>
                                 </li>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon23860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon2.svg?v=1"
                                         alt="Latest Sales & Discounts"
                                     />
                                     <p>Latest Sales & Discounts</p>
                                 </li>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon33860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon3.svg?v=1"
                                         alt="Members only Deals"
                                     />
                                     <p>Members only Deals</p>
                                 </li>
                                 <li>
                                     <img
-                                        src="/assets/images/footer/subscribe/subscribe_icon43860.svg?v=1"
+                                        src="https://www.lookbyfare.com/us/images/footer/subscribe/subscribe_icon4.svg?v=1"
                                         alt="Special Promo Codes & more"
                                     />
                                     <p>Special Promo Codes & more</p>

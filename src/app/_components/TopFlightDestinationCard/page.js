@@ -40,7 +40,7 @@ const TopFlightDestinationCard = ({ destination }) => {
 
     const handleClick = () => {
         if (destination?.source?.iataCode && destination?.source?.name) {
-            router.push(`/FlightListing/${sanitizedDestinationName}?name=${encodeURIComponent(destination.source.name)}&name1=${encodeURIComponent(destination.destination.name)}&destination=${destination.source.iataCode}&origin=${destination.destination.iataCode}&depDate=${destination.depDate}&adult=1&child=0&infant=0&cabin=ECONOMY&airline=all&tripType=One-Way&dateRange=${encodeURIComponent(destination.dateRange)}&token=${token}`);
+            router.push(`/FlightListing/${sanitizedDestinationName}?name=${encodeURIComponent(destination.source.name)}&name1=${encodeURIComponent(destination.destination.name)}&destination=${destination.source.iataCode}&origin=${destination.destination.iataCode}&depDate=${destination.depDate}&returnD=${destination.returnDate}&adult=1&child=0&infant=0&cabin=ECONOMY&airline=all&tripType=Round-trip&dateRange=${encodeURIComponent(destination.dateRange)}&token=${token}`);
         }
     };
 

@@ -1,6 +1,5 @@
 "use client"
 import FlightCard from "@/app/_components/FlightCard/page";
-import FilterCarousel from "@/app/_components/SlickCrousel/page";
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import airportsDB from "../../../../../lib/airports.json";
@@ -20,7 +19,6 @@ const FlightResultCompnent = () => {
     const searchParams = useSearchParams();
     const origin = searchParams.get("origin");
     const destination = searchParams.get("destination");
-
     const searchParam = useSearchParams();
     const searchRef = useRef(null);
 
@@ -28,31 +26,45 @@ const FlightResultCompnent = () => {
     const [flightList, setFlightList] = useState([]);
     const [flightDetail, setFlightDetailVisible] = useState(false);
     const [selectedFlight, setSelectedFlight] = useState(null);
+
     const [maxHeight, setMaxHeight] = useState("0px");
     const [mobileFilterVisible, setMobileFilterVisible] = useState(false);
     const [openedFilter, setOpenedFilter] = useState("Stops");
-    const [filtersObj, setFiltersObj] = useState({ stops: 0 });
     const [offerPopupVisible, setOfferPopupVisible] = useState(false);
+
     const [loading, setLoading] = useState(true);
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [activeTab, setActiveTab] = useState('all');
     const [depName, setDepName] = useState(null)
 
+    const [nearbyAirports, setNearbyAirports] = useState([]);
     const [activeFlight, setActiveFlight] = useState(null);
     const [filteredFlights, setFilteredFlights] = useState([]);
     const [stopFilter, setStopFilter] = useState("")
+
     const [airlinesDetails, setAirlineDetails] = useState([])
     const [showMoreAirlines, setShowMoreAirlines] = useState(false);
     const [appliedFilters, setAppliedFilters] = useState([]);
     const [selectedAirports, setSelectedAirports] = useState([]);
+
     const [selectedStop, setSelectedStop] = useState(null);
     const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
     const [selectedAirlines, setSelectedAirlines] = useState([]);
     const [isRoundTrip, setIsRoundTrip] = useState(false);
+
     const [selectedDepartureFilter, setSelectedDepartureFilter] = useState("");
     const [selectedArrivalFilter, setSelectedArrivalFilter] = useState("");
     const [departureCity, setDepartureCity] = useState('');
     const [arrivalCity, setArrivalCity] = useState('');
+
+    const [visibleCount, setVisibleCount] = useState(10);
+    const [isFlightSearchVisible, setFlightSearchVisible] = useState(false);
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(1000);
+
+    const [grandTotal, setGrandTotal] = useState("");
+    const [nearTotal, setNearTotal] = useState("");
+    const [shortestTotal, setShortestTotal] = useState("");
 
 
     const timeFilters = [
@@ -62,6 +74,12 @@ const FlightResultCompnent = () => {
         { label: "Evening", timeRange: "After 6pm", iconSrc: "/assets/images/listing/e.png", value: "After 6pm" },
     ];
 
+    const [isCollapsed, setIsCollapsed] = useState(true); // Track the collapse state
+
+    const toggleMatrix = () => {
+        setIsCollapsed(!isCollapsed); // Toggle the collapse state
+    };
+
     useEffect(() => {
         const tripType = searchParam.get("tripType");
         setIsRoundTrip(tripType === 'Round-Trip');
@@ -69,7 +87,7 @@ const FlightResultCompnent = () => {
 
     const stopOptions = flightList.flatMap(flight => {
         const stops = flight.itineraries[0].segments.length - 1;
-        const grandTotal = flight.price.grandTotal;
+        const grandTotal = parseFloat(flight.price.grandTotal);
 
         return [
             { label: "Non Stop", value: 0, price: grandTotal, flight },
@@ -80,6 +98,8 @@ const FlightResultCompnent = () => {
 
     // Group by stop type and find minimum price
     const minPriceStops = stopOptions.reduce((acc, option) => {
+
+        // console.log(option, "OPTIONS");
 
         if (option.value >= 0 && option.value <= 2) {
             if (!acc[option.value] || option.price < acc[option.value].price) {
@@ -98,8 +118,8 @@ const FlightResultCompnent = () => {
 
     // Filter the Flight 
     useEffect(() => {
-        console.log("coming here");
-        console.log({ activeFlight });
+        // console.log("coming here");
+        // console.log({ activeFlight });
         let tmpData = flightList;
         if (activeFlight !== null) {
             tmpData = flightList.filter((obj) => {
@@ -143,7 +163,7 @@ const FlightResultCompnent = () => {
 
 
         setFilteredFlights(tmpData);
-    }, [activeFlight, flightList, stopFilter])
+    }, [activeFlight, flightList, stopFilter, selectedAirports])
 
     const handleStopFilter = (type) => {
         const selectedOption = availableStops.find(option => option.label === type);
@@ -159,23 +179,40 @@ const FlightResultCompnent = () => {
                 : [...prevSelected, airportCode];
 
             setAppliedFilters((prevFilters) => {
+                let newFilters;
+
                 if (isSelected) {
-
-                    return prevFilters.filter(filter => filter.value !== airportCode);
+                    // Remove airport filter if the checkbox is unchecked
+                    newFilters = prevFilters.filter(filter => filter.value !== airportCode);
                 } else {
-
-                    return [...prevFilters, { type: 'Airport', value: airportCode }];
+                    // Add airport filter if the checkbox is checked
+                    newFilters = [...prevFilters, { type: 'Airport', value: airportCode }];
                 }
+
+                return newFilters;
             });
 
             return newSelected;
         });
     };
 
+
     const filterFlights = (flights, isArrival) => {
         return flights.filter(flight => {
-            const time = new Date(flight.itineraries[isArrival ? 1 : 0].segments[0].departure.at).getHours();
-            switch (isArrival ? selectedArrivalFilter : selectedDepartureFilter) {
+            // Determine which itinerary to use
+            const itineraryIndex = isArrival && flight.itineraries.length > 1 ? 1 : 0;
+            const segments = flight.itineraries[itineraryIndex]?.segments;
+
+            if (!segments || segments.length === 0) {
+                return false;
+            }
+
+            const time = new Date(segments[0].departure.at).getHours();
+
+            // Use selected filter based on whether we're filtering arrival or departure
+            const filterValue = isArrival ? selectedArrivalFilter : selectedDepartureFilter;
+
+            switch (filterValue) {
                 case 'Before 6am':
                     return time < 6;
                 case '6am - 12pm':
@@ -185,7 +222,7 @@ const FlightResultCompnent = () => {
                 case 'After 6pm':
                     return time >= 18;
                 default:
-                    return true;
+                    return true; // No filter applied
             }
         });
     };
@@ -229,15 +266,10 @@ const FlightResultCompnent = () => {
     const handleCheckboxChange = (flight) => {
         const { airlineCode } = flight;
 
-        setSelectedAirlines((prevSelected) => {
-            if (prevSelected.includes(airlineCode)) {
-                // If already selected, remove it
-                return prevSelected.filter(code => code !== airlineCode);
-            } else {
-                // If not selected, add it
-                return [...prevSelected, airlineCode];
-            }
-        });
+        // Set selected airline to only the one that's currently selected
+        setSelectedAirlines([airlineCode]);
+
+        // Set the active flight or reset if the same airline is clicked
         setActiveFlight(prev => (prev && prev.airlineCode === airlineCode) ? null : flight);
     };
 
@@ -293,10 +325,9 @@ const FlightResultCompnent = () => {
             }
         });
 
-        console.log(flightDetails, "Flights");
+        // console.log(flightDetails, "Flights");
 
         setAirlineDetails(flightDetails)
-
         return flightDetails;
     };
 
@@ -304,21 +335,12 @@ const FlightResultCompnent = () => {
         setOfferPopupVisible(false);
     }
 
-    useEffect(() => {
-        console.log(filtersObj);
-    }, filtersObj);
-
     const handleTabClick = (tabId) => {
         setActiveTab(tabId);
     };
 
     const oneway = searchParam.get("tripType") === 'One-Way';
     // console.log(oneway, "ONEWAY");
-
-    const origin1 = searchParam.get("origin");
-    const destination1 = searchParam.get("destination");
-    const depDate1 = searchParam.get("depdate");
-    const returnD1 = searchParam.get("returnD");
 
     useEffect(() => {
         const fetchFlightOffers = async () => {
@@ -352,6 +374,7 @@ const FlightResultCompnent = () => {
                 }
             }
 
+            // console.log(cabinRestrictionObj, "ARRRRRRRRRRR");
 
             let query = {
                 "currencyCode": "USD",
@@ -379,8 +402,7 @@ const FlightResultCompnent = () => {
                                     "1"
                                 ]
                             }
-                        ],
-                        "carrierRestrictions": cabinRestrictionObj
+                        ]
 
                     },
 
@@ -422,8 +444,7 @@ const FlightResultCompnent = () => {
                                     "1", "2"
                                 ]
                             }
-                        ],
-                        "carrierRestrictions": cabinRestrictionObj
+                        ]
 
                     },
 
@@ -458,9 +479,6 @@ const FlightResultCompnent = () => {
                     return a;
                 });
 
-
-
-
                 let newFlightList;
 
                 if (!oneway) {
@@ -476,7 +494,7 @@ const FlightResultCompnent = () => {
                                 if (cabin) segment.cabin = cabin;
                             });
                         });
-                        console.log(newFlightList, "NEWFLIGHTLIST");
+                        // console.log(newFlightList, "NEWFLIGHTLIST");
 
                         return a;
                     });
@@ -487,7 +505,7 @@ const FlightResultCompnent = () => {
                     setFlightList(FlightList);
                 } else {
                     const twoway = [...(FlightList || []), ...(newFlightList || [])]
-                    console.log(twoway, "TWOWAY");
+                    // console.log(twoway, "TWOWAY");
 
                     setFlightList(twoway);
                 }
@@ -501,7 +519,7 @@ const FlightResultCompnent = () => {
 
                 setFlightList(FlightList);
                 if (FlightList.length <= 0) {
-                    router.push(`/home/no-results/origin=${origin1}&destination=${destination1}&depDate=${depDate1}&returnD=${returnD1}`);
+                    router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
                 } else {
                     setFlightList(FlightList);
                     setLoading(false);
@@ -509,10 +527,10 @@ const FlightResultCompnent = () => {
                         if (!offerPopupVisible) {
                             setOfferPopupVisible(true);
                         }
-                    }, 25000);
+                    }, 500000);
                 }
             } catch (err) {
-                router.push(`/home/no-results/origin=${origin1}&destination=${destination1}&depDate=${depDate1}&returnD=${returnD1}`);
+                router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
             }
         }
         fetchFlightOffers();
@@ -523,7 +541,6 @@ const FlightResultCompnent = () => {
     };
 
     useEffect(() => {
-
         if (isSearchVisible) {
             setMaxHeight(`${searchRef.current.scrollHeight}px`);
         } else {
@@ -533,13 +550,11 @@ const FlightResultCompnent = () => {
 
     // Filtering the flight based on Near By airports
 
-    const [nearbyAirports, setNearbyAirports] = useState([]);
-
     useEffect(() => {
         const fetchNearbyAirports = async () => {
 
             if (flightList.length === 0) {
-                console.log("No flights available.");
+                // console.log("No flights available.");
                 return;
             }
 
@@ -547,8 +562,8 @@ const FlightResultCompnent = () => {
             const latitude = arrivalSegment.latitude;
             const longitude = arrivalSegment.longitude;
 
-            console.log(latitude, "HEY Latitude");
-            console.log(longitude, "HEY Longitude");
+            // console.log(latitude, "HEY Latitude");
+            // console.log(longitude, "HEY Longitude");
 
             try {
                 let response = await fetch(`https://api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=200&page%5Blimit%5D=10&page%5Boffset%5D=0&sort=relevance`, {
@@ -559,7 +574,7 @@ const FlightResultCompnent = () => {
                 });
 
                 let result = await response.json();
-                console.log(result, "FINAL");
+                // console.log(result, "FINAL");
 
 
 
@@ -617,7 +632,6 @@ const FlightResultCompnent = () => {
     }, [flightList]);
 
     // Filtering the data based on Shortest Flight 
-
     const getShortestFlights = () => {
         return [...flightList]
             .sort((a, b) => {
@@ -625,11 +639,6 @@ const FlightResultCompnent = () => {
             })
             .slice(0, 10);
     }
-
-    // For active tab 
-    const [grandTotal, setGrandTotal] = useState("");
-    const [nearTotal, setNearTotal] = useState("");
-    const [shortestTotal, setShortestTotal] = useState("");
 
     useEffect(() => {
 
@@ -639,10 +648,9 @@ const FlightResultCompnent = () => {
         const nearbyPrices = Array.isArray(nearbyAirports) ? nearbyAirports.map(flight => flight.price) : [];
         const shortestPrices = Array.isArray(shortestFlights) ? shortestFlights.map(flight => flight.price) : [];
 
-        console.log(allPrices, "ALL PRICES");
-        console.log(nearbyPrices, "NEARBY");
-        console.log(shortestPrices, "SHORTEST");
-
+        // console.log(allPrices, "ALL PRICES");
+        // console.log(nearbyPrices, "NEARBY");
+        // console.log(shortestPrices, "SHORTEST");
 
         if (allPrices.length > 0 || nearbyPrices.length > 0 || shortestPrices.length > 0) {
             setGrandTotal(allPrices[0]?.grandTotal);
@@ -656,8 +664,6 @@ const FlightResultCompnent = () => {
 
     }, [flightList, nearbyAirports]);
 
-    const [minPrice, setMinPrice] = useState(0);
-    const [maxPrice, setMaxPrice] = useState(1000);
     useEffect(() => {
         if (flightList.length > 0) {
             const prices = flightList.map(flight => parseFloat(flight.price.grandTotal));
@@ -678,11 +684,31 @@ const FlightResultCompnent = () => {
             return flightPrice >= newRange[0] && flightPrice <= newRange[1];
         });
 
-        // setAppliedFilters(prev =>
-        //     prev.filter(filter => filter.type !== 'price').concat({ type: 'Price range', value: priceRange })
-        // );
-
         setFilteredFlights(filtered);
+
+        setAppliedFilters(prevFilters => {
+
+            const priceFilterIndex = prevFilters.findIndex(filter => filter.type === 'Price range');
+
+            if (priceFilterIndex !== -1) {
+
+                const updatedFilters = [...prevFilters];
+                updatedFilters[priceFilterIndex] = {
+                    type: 'Price range',
+                    value: `$${newRange[0]} - $${newRange[1]}`,
+                };
+                return updatedFilters;
+            } else {
+
+                return [
+                    ...prevFilters,
+                    {
+                        type: 'Price range',
+                        value: `$${newRange[0]} - $${newRange[1]}`,
+                    },
+                ];
+            }
+        });
     };
 
     const resetFilters = () => {
@@ -692,6 +718,40 @@ const FlightResultCompnent = () => {
     };
 
     const total = parseInt(searchParam.get("adult")) + parseInt(searchParam.get("child"))
+
+    // For Mobile View 
+    const filters = [
+        { id: "stops", label: "Stops", tabId: "tab-1", resetFunction: "restFilter", resetParam: "stops" },
+        { id: "price", label: "Price", tabId: "tab-3", resetFunction: "restpricefilter", resetParam: "" },
+        { id: "airlines", label: "Airlines", tabId: "tab-5", resetFunction: "restFilter", resetParam: "airline" },
+        { id: "time", label: "Time", tabId: "tab-4", resetFunction: "restmobdepretfilter", resetParam: "" },
+        { id: "airports", label: "DepartureAirports", tabId: "tab-6", resetFunction: "restFilter", resetParam: "airports" }
+    ];
+
+    // Handler to open FlightSearch component
+    const openFlightSearch = () => {
+        setFlightSearchVisible(true);
+    }
+
+    // Load more results
+    const loadMoreResults = () => {
+        setVisibleCount(visibleCount + 10); // Load 10 more results
+    };
+
+    // Reset all filters
+    const resetAllFilters = () => {
+        setStopFilter(null);
+        setActiveFlight(null);
+        setAppliedFilters([]);
+        setSelectedStop(null)
+        setPriceRange({ min: minPrice, max: maxPrice });
+        setFilteredFlights(flightList);
+        setSelectedAirlines([]);
+        setSelectedDepartureFilter("");
+        setSelectedArrivalFilter("");
+        setSelectedAirports([]);
+        setVisibleCount(10);
+    };
 
     return <>
         {!offerPopupVisible && flightList && <div onClick={() => setOfferPopupVisible(true)} className="count-top-icon pointer uc-minimize-strip" id="reopen_ucb" bis_skin_checked="1">
@@ -717,7 +777,7 @@ const FlightResultCompnent = () => {
                 {/* <!-- Nav tabs --> */}
                 <div class="leg-top-fix" bis_skin_checked="1">
                     <div class="detail-head" bis_skin_checked="1">
-                        <a class="close-btn" onClick={() => setFlightDetailVisible(false)} ><img src="/assets/images/uc/cancel.svg" alt=" /" /></a>
+                        <a class="close-btn" style={{}} onClick={() => setFlightDetailVisible(false)} ><img src="/assets/images/uc/cancel.svg" alt=" /" /></a>
                     </div>
                     <ul class="flight-leg-tab" role="tablist">
                         <li role="presentation" class="active deptab"><a href="#" onclick="flightdetailAction(0)" aria-controls="Departure" role="tab" data-toggle="tab"><i class="fa fa-plane" style={{ transform: "rotate(45deg)" }}></i> Departure</a></li>
@@ -733,6 +793,7 @@ const FlightResultCompnent = () => {
                 className="midum-overlay"
                 style={{ display: "none" }}
             />
+
             <div className="modify-engine-wrapper">
                 <a href="javascript:void(0);" className="close-sidebar fa fa-close" />
                 <div className="holder">
@@ -743,92 +804,139 @@ const FlightResultCompnent = () => {
                                     <div className="row" onClick={handleEditSearchClick} style={{ cursor: 'pointer' }}>
                                         <div className="">
                                             <div className="search_detail edit-listing-searchdetails hand">
-                                                <div className="col-sm-8">
-                                                    {searchParam.get("tripType") === 'Round-Trip' ? (
-                                                        <>
-                                                            {origin} &nbsp;
-                                                            <b>
-                                                                <i className="fa fa-exchange" />
-                                                            </b>
-                                                            &nbsp; {destination}
-                                                            <br />
-                                                            {searchParam.get("depDate")}, {searchParam.get("returnD")}, {total} Travelers, {searchParam.get("cabin")}
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            {origin} &nbsp;
-                                                            <b>
-                                                                <i className="fa fa-arrow-right" />
-                                                            </b>
-                                                            &nbsp; {destination}
-                                                            <br />
-                                                            {searchParam.get("depDate")}, {total} Travelers, {searchParam.get("cabin")}
-                                                        </>
-                                                    )}
+                                                <div className="">
+                                                    <button
+                                                        type="button"
+                                                        className="modify_search pull-right edit-listing-search"
+                                                        onClick={handleEditSearchClick}
+                                                    >
+                                                        Edit Search
+                                                    </button>
+                                                    <div className="col-sm-8 ">
+                                                        {searchParam.get("tripType") === 'Round-Trip' ? (
+                                                            <>
+                                                                {origin} &nbsp;
+                                                                <b>
+                                                                    <i className="fa fa-exchange" />
+                                                                </b>
+                                                                &nbsp; {destination}
+                                                                <br />
+                                                                {searchParam.get("depDate")}, {searchParam.get("returnD")}, {total} Travelers, {searchParam.get("cabin")}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                {origin} &nbsp;
+                                                                <b>
+                                                                    <i className="fa fa-arrow-right" />
+                                                                </b>
+                                                                &nbsp; {destination}
+                                                                <br />
+                                                                {searchParam.get("depDate")}, {total} Travelers, {searchParam.get("cabin")}
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    className="modify_search pull-right edit-listing-search"
-                                                    onClick={handleEditSearchClick}
-                                                >
-                                                    Edit Search
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
-                                        Close {/* */} [x]
-                                    </a>
+                                    <>
+                                        <a className="close-listing-search visible-lg visible-md visible-sm" onClick={handleEditSearchClick}>
+                                            Close {/* */} [x]
+                                        </a>
+                                        <div ref={searchRef}>
+                                            <section id="flightEngineId">
+                                                <FlightSearch />
+                                            </section>
+                                        </div>
+                                    </>
+
                                 )}
 
                             </div>
-                            <div ref={searchRef}
-                                style={{
-                                    maxHeight: maxHeight,
-                                    overflow: "hidden",
-                                    transition: "max-height 0.5s ease-in-out",
-                                }}>
-                                <FlightSearch />
-                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* MOBILE VIEW */}
             <div className="mobile-header-fixed">
                 <div className="mobile-itenery modifySearchMobile">
                     <div className="result-itenery">
                         <div className="row">
                             <div className="col-xs-12">
-                                <a>
+
+                                <a href="javascript:void(0);" onClick={openFlightSearch}>
                                     <div className="modify-src-btn">
-                                        <img src="/assets/images/svg/edit-icon.svg" alt="" />
+                                        <img
+                                            src="https://www.lookbyfare.com/us/images/svg/edit-icon.svg"
+                                            alt="Edit Icon"
+                                        />
                                     </div>
                                 </a>
+
+
+                                {/* For Recheck Tommorow */}
+
+                                {isFlightSearchVisible && (
+                                    <div className="modify-engine-wrapper open">
+                                        <a
+                                            href="javascript:void(0);"
+                                            className="close-sidebar fa fa-close"
+                                            onClick={() => setFlightSearchVisible(false)}
+                                        />
+
+                                        <div className="holder">
+                                            <div className="modify-engine">
+                                                <div className="container">
+                                                    <div className="search_detail edit-listing-searchdetails hand">
+                                                        {!isSearchVisible ? (
+                                                            <FlightSearch />
+                                                        ) : (
+                                                            <a
+                                                                className="close-listing-search visible-lg visible-md"
+                                                                onClick={() => setIsSearchVisible(false)}
+                                                            >
+                                                                Close {/* [x] */}
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Flight itinerary details */}
                                 <div className="city-itenery">
                                     <div className="column">
-                                        <p className="airportCode">BOS</p>
+                                        <p className="airportCode">{origin}</p>
                                     </div>
                                     <div className="column">
                                         <div className="airporticon">
                                             <b>
-                                                {" "}
-                                                <i
-                                                    className="fa fa-long-arrow-right"
-                                                    aria-hidden="true"
-                                                />{" "}
+                                                <i className="fa fa-long-arrow-right" aria-hidden="true" />
                                             </b>
                                         </div>
                                     </div>
                                     <div className="column">
-                                        <p className="airportCode">LAX</p>
+                                        <p className="airportCode">{destination}</p>
                                     </div>
                                     <div className="clearfix" />
+
                                     <div className="itenery-date">
-                                        Aug 29, 2024
-                                        <span className="traveller-xxs">
-                                            <span>&nbsp; | &nbsp;</span>1 Traveler
-                                        </span>
+                                        {searchParam.get('tripType') === 'Round-Trip' ? (
+                                            <>
+                                                {searchParam.get('depDate')}, {searchParam.get('returnD')},{' '}
+                                                <span>{total} Traveler</span>, {searchParam.get('cabin')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {searchParam.get('depDate')},{' '}
+                                                <span>{total} Traveler</span>, {searchParam.get('cabin')}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -836,81 +944,36 @@ const FlightResultCompnent = () => {
                     </div>
                 </div>
 
-                {/* MOBILE VIEW */}
                 <div className="filter_strip_mobile modifyFilterMobile hidden-lg hidden-md">
                     <img
                         className="filter_icon_mobile responsiveFilter_btn" onClick={() => setMobileFilterVisible(true)}
-                        src="/assets/images/svg/filter-icon.svg"
+                        src="https://www.lookbyfare.com/us/images/svg/filter-icon.svg"
                     />
                     <ul>
-                        <li id="filter_strip_mobile_stops">
-                            <a
-                                onClick="Filter.filtertabactive('tab-1', 'stops');"
-                                href="javascript:void(0);"
+                        {filters.map((tab) => (
+                            <li
+                                key={tab.id}
+                                id={`filterTabs_${tab.id}`}
+                                onClick={() => {
+                                    setOpenedFilter(tab.label);  // Set the opened filter label
+                                    setMobileFilterVisible(true); // Set the mobile filter visible
+                                }}
+                                className={openedFilter === tab.label ? "active" : ""}
                             >
-                                Stops
-                            </a>
-                            <span className="reset_filter" onClick="Filter.restFilter('stops')">
-                                X
-                            </span>
-                        </li>
-                        <li id="filter_strip_mobile_price">
-                            <a
-                                onClick="Filter.filtertabactive('tab-3', 'price');"
-                                href="javascript:void(0);"
-                            >
-                                Price
-                            </a>
-                            <span className="reset_filter" onClick="Filter.restpricefilter('')">
-                                X
-                            </span>
-                        </li>
-                        <li id="filter_strip_mobile_airlines">
-                            <a
-                                onClick="Filter.filtertabactive('tab-5', 'airlines');"
-                                href="javascript:void(0);"
-                            >
-                                {" "}
-                                Airlines
-                            </a>{" "}
-                            <span className="reset_filter" onClick="Filter.restFilter('airline')">
-                                X
-                            </span>
-                        </li>
-                        <li id="filter_strip_mobile_time">
-                            <a
-                                onClick="Filter.filtertabactive('tab-4', 'time');"
-                                href="javascript:void(0);"
-                            >
-                                Time
-                            </a>{" "}
-                            <span
-                                className="reset_filter"
-                                onClick="Filter.restmobdepretfilter('')"
-                            >
-                                X
-                            </span>
-                        </li>
-                        <li id="filter_strip_mobile_airports">
-                            <a
-                                onClick="Filter.filtertabactive('tab-6', 'airports');"
-                                href="javascript:void(0);"
-                            >
-                                Airports
-                            </a>{" "}
-                            <span
-                                className="reset_filter"
-                                onClick="Filter.restFilter('airports')"
-                            >
-                                X
-                            </span>
-                        </li>
+                                <a data-toggle="tab" href={`#${tab.id}`}>
+                                    {tab.label}
+                                </a>
+                            </li>
+                        ))}
+
                     </ul>
                 </div>
             </div>
+
             <loading>
                 <div className="loader" style={{ position: "absolute", display: "none" }} />
             </loading>
+
             <div id="div_gotopayment" style={{ display: "none" }}>
                 <div
                     style={{
@@ -931,6 +994,7 @@ const FlightResultCompnent = () => {
                 </div>
                 <div className="midum-overlay" id="fadebackground" />
             </div>
+
             <div className="listing-wrapper">
                 <div className="container">
                     <input type="hidden" id="tabvalue" name="tabvalue" defaultValue="all" />
@@ -939,7 +1003,7 @@ const FlightResultCompnent = () => {
                         role="button"
                         id="marixOption"
                         data-toggle="collapse"
-                        onClick="matrixOpen();"
+                        onClick={toggleMatrix}
                         href="javascript:void(0);"
                         aria-expanded="true"
                         aria-controls="airlineMatrixblock"
@@ -968,31 +1032,18 @@ const FlightResultCompnent = () => {
                                     </svg>
                                 </div>
                                 <ul className="filterTabs">
-                                    <li id="filterTabs_tab-1" onClick={() => setOpenedFilter("Stops")} className={openedFilter === "Stops" && "active"}>
-                                        <a data-toggle="tab">
-                                            Stops
-                                        </a>
-                                    </li>
-                                    <li id="filterTabs_tab-3">
-                                        <a data-toggle="tab" href="#tab-3">
-                                            Price
-                                        </a>
-                                    </li>
-                                    <li id="filterTabs_tab-5">
-                                        <a data-toggle="tab" href="#tab-5">
-                                            Airlines
-                                        </a>
-                                    </li>
-                                    <li id="filterTabs_tab-4">
-                                        <a data-toggle="tab" href="#tab-4">
-                                            Time
-                                        </a>
-                                    </li>
-                                    <li id="filterTabs_tab-6">
-                                        <a data-toggle="tab" href="#tab-6">
-                                            Airports
-                                        </a>
-                                    </li>
+                                    {filters.map((tab) => (
+                                        <li
+                                            key={tab.id}
+                                            id={`filterTabs_${tab.id}`}
+                                            onClick={() => setOpenedFilter(tab.label)}
+                                            className={openedFilter === tab.label ? "active" : ""}
+                                        >
+                                            <a data-toggle="tab" href={`#${tab.id}`}>
+                                                {tab.label}
+                                            </a>
+                                        </li>
+                                    ))}
                                 </ul>
                                 <div className="clearfix" />
                                 <div className="holder">
@@ -1004,17 +1055,7 @@ const FlightResultCompnent = () => {
                                                     href="javascript:void(0);"
                                                     className="clear-all-filters pull-right hidden-xs"
                                                     style={{ display: "block" }}
-                                                    onClick={() => {
-                                                        setStopFilter(null);
-                                                        setActiveFlight(null);
-                                                        setAppliedFilters([]);
-                                                        setSelectedStop(null)
-                                                        setPriceRange({ min: minPrice, max: maxPrice });
-                                                        setFilteredFlights(flightList);
-                                                        setSelectedAirlines([]);
-                                                        setSelectedDepartureFilter("");
-                                                        setSelectedArrivalFilter("");
-                                                    }}
+                                                    onClick={resetAllFilters}
                                                 >
                                                     Reset all
                                                 </a>
@@ -1062,9 +1103,17 @@ const FlightResultCompnent = () => {
                                             </div>
                                         </div>
 
-                                        <div id="tab-3" className="filter-item tab-pane">
+                                        <div
+                                            id="tab-3"
+                                            className={`filter-item tab-pane ${openedFilter === "Price" && "active"}`}
+                                            style={{ clear: "both" }}
+                                        >
                                             <div className="head">
-                                                <a href="javascript:void(0);" className="headairport" onClick={resetFilters}>
+                                                <a
+                                                    href="javascript:void(0);"
+                                                    className="headairport"
+                                                    onClick={resetFilters}
+                                                >
                                                     Reset
                                                 </a>
                                                 Price Range
@@ -1085,8 +1134,11 @@ const FlightResultCompnent = () => {
                                             </div>
                                         </div>
 
-
-                                        <div id="tab-4" className="filter-item tab-pane">
+                                        <div
+                                            id="tab-4"
+                                            className={`filter-item tab-pane ${openedFilter === "Time" && "active"}`}
+                                            style={{ clear: "both" }}
+                                        >
                                             <div className="head">
                                                 <a
                                                     href="javascript:void(0);"
@@ -1126,8 +1178,7 @@ const FlightResultCompnent = () => {
                                                             href="javascript:void(0);"
                                                             className="headrettime"
                                                             style={{ display: "none" }} // Adjust visibility based on your needs
-                                                            onClick={() => {
-                                                            }}
+                                                            onClick={() => { }}
                                                         >
                                                             Reset
                                                         </a>
@@ -1151,10 +1202,12 @@ const FlightResultCompnent = () => {
                                                     </div>
                                                 </div>
                                             )}
-
                                         </div>
 
-                                        <div id="tab-5" className="filter-item bdrR0 tab-pane">
+                                        <div
+                                            id="tab-5"
+                                            className={`filter-item bdrR0 tab-pane ${openedFilter === "Airlines" && "active"}`}
+                                        >
                                             <div className="head">
                                                 <a
                                                     href="javascript:void(0);"
@@ -1167,7 +1220,6 @@ const FlightResultCompnent = () => {
                                                 >
                                                     Reset
                                                 </a>
-
                                                 Airlines
                                             </div>
                                             <div className="filter-data">
@@ -1203,13 +1255,16 @@ const FlightResultCompnent = () => {
                                                     className="multi-airline-icon"
                                                     style={{ display: "none", margin: "10px 0 0" }}
                                                 >
-                                                    <img src="/assets/images/home/mal-blue.png" /> Indicate
+                                                    <img src="https://www.lookbyfare.com/us/images/listing/mal-blue.png" /> Indicate
                                                     Multiple Airline
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div id="tab-6" className="filter-item tab-pane">
+                                        <div
+                                            id="tab-6"
+                                            className={`filter-item tab-pane ${openedFilter === "DepartureAirports" && "active"}`}
+                                        >
                                             <div className="head">
                                                 <a
                                                     href="javascript:void(0);"
@@ -1222,9 +1277,17 @@ const FlightResultCompnent = () => {
                                                     Reset
                                                 </a>
                                                 <i className="fa fa-plane" style={{ transform: "rotate(45deg)" }} />
-                                                <span>Departure Airports</span>
+
+                                                <span>
+                                                    {searchParam.get("tripType") === 'One-Way'
+                                                        ? 'Departure Airports'
+                                                        : 'Departure Airports'
+                                                    }
+                                                </span>
                                             </div>
+
                                             <div className="filter-data">
+
                                                 {Array.from(new Set(airlinesDetails.map(flight => flight.departureAirportIata)))
                                                     .map(airportCode => {
                                                         const flight = airlinesDetails.find(flight => flight.departureAirportIata === airportCode);
@@ -1235,13 +1298,41 @@ const FlightResultCompnent = () => {
                                                                         type="checkbox"
                                                                         name="departureairports"
                                                                         checked={selectedAirports.includes(airportCode)}
-                                                                        onChange={() => handleCheckboxChanges(airportCode)}
+                                                                        onChange={() => handleCheckboxChanges(airportCode, 'departure')}
                                                                     />
                                                                     <span>{flight.departureAirportIata} ({flight.departureAirportName})</span>
                                                                 </label>
                                                             </div>
                                                         );
                                                     })}
+
+                                                {searchParam.get("tripType") === 'Round-Trip' && (
+
+                                                    <>
+                                                        <i className="fa fa-plane" style={{ transform: "rotate(45deg)" }} />
+                                                        <div className="head">
+                                                            <span ><b>Arrival Airports</b></span>
+                                                        </div>
+                                                        {Array.from(new Set(airlinesDetails.map(flight => flight.arrivalAirportIata)))
+                                                            .map(airportCode => {
+                                                                const flight = airlinesDetails.find(flight => flight.arrivalAirportIata === airportCode);
+                                                                return (
+                                                                    <div className="inputSet" key={airportCode}>
+                                                                        <label className="mode">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                name="arrivalairports"
+                                                                                checked={selectedAirports.includes(airportCode)}
+                                                                                onChange={() => handleCheckboxChanges(airportCode, 'arrival')}
+                                                                            />
+                                                                            <span>{flight.arrivalAirportIata} ({flight.arrivalAirportName})</span>
+                                                                        </label>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                    </>
+                                                )}
+
                                                 <div className="clearfix" />
                                             </div>
                                         </div>
@@ -1251,12 +1342,12 @@ const FlightResultCompnent = () => {
                                 <div className="mobile-button">
                                     <a
                                         href="javascript:void(0);"
-                                        onClick="Filter.resetAll()"
+                                        onClick={resetAllFilters}
                                         className="reset-all-filters"
                                     >
                                         Reset all Filter
                                     </a>
-                                    <a href="javascript:void(0);" className="apply-filters">
+                                    <a href="javascript:void(0);" className="apply-filters" onClick={() => setMobileFilterVisible(false)}>
                                         Close
                                     </a>
                                 </div>
@@ -1265,6 +1356,7 @@ const FlightResultCompnent = () => {
                         <div className="col-sm-12 col-md-9 col-xs-12">
                             <div className="listing-matrix-section">
                                 <FlightOfferCard airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter} />
+
                             </div>
                             <div className="covid-list hidden-xs">
                                 <b>Note:</b> All the fares displayed are for One Way Trip and are in
@@ -1332,6 +1424,7 @@ const FlightResultCompnent = () => {
                                                         setSelectedAirlines([]);
                                                         setSelectedDepartureFilter("");
                                                         setSelectedArrivalFilter("");
+                                                        setSelectedAirports([]);
                                                     }}
                                                 >
                                                     Reset all
@@ -1375,7 +1468,6 @@ const FlightResultCompnent = () => {
                                 </ul>
                             </div>
 
-
                             {/* Content Area */}
                             <div className="result-block sss901">
                                 <div className="row">
@@ -1396,7 +1488,7 @@ const FlightResultCompnent = () => {
                                 </div>
 
 
-                                {activeTab === 'all' && filteredFlights.map((flight, index) => (
+                                {activeTab === 'all' && filteredFlights.slice(0, visibleCount).map((flight, index) => (
                                     <FlightCard
                                         key={index}
                                         setSelectedFlight={setSelectedFlight}
@@ -1407,7 +1499,7 @@ const FlightResultCompnent = () => {
                                 ))}
 
 
-                                {activeTab === 'nearby' && Array.isArray(nearbyAirports) && nearbyAirports.map((flight, index) => (
+                                {activeTab === 'nearby' && Array.isArray(nearbyAirports) && nearbyAirports.slice(0, visibleCount).map((flight, index) => (
                                     <FlightCard
                                         key={index}
                                         setSelectedFlight={setSelectedFlight}
@@ -1418,7 +1510,7 @@ const FlightResultCompnent = () => {
                                 ))}
 
 
-                                {activeTab === 'shortest' && getShortestFlights().map((flight, index) => (
+                                {activeTab === 'shortest' && getShortestFlights().slice(0, visibleCount).map((flight, index) => (
                                     <FlightCard
                                         key={index}
                                         setSelectedFlight={setSelectedFlight}
@@ -1475,22 +1567,25 @@ const FlightResultCompnent = () => {
                                 name="totalpage"
                                 defaultValue={57}
                             />
-                            <div
-                                className="load-more"
-                                style={{ cursor: "pointer" }}
-                            >
-                                More Result
-                            </div>
+                            {filteredFlights.length > visibleCount && (
+                                <div id="containerListing">
+                                    <div className="load-more" style={{ cursor: 'pointer' }} onClick={loadMoreResults}>
+                                        More Results
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
             <form
                 id="fltdetailspack"
                 name="fltdetailspack"
                 method="get"
                 target="_blank"
             ></form>
+
             <div className="trigger-wrapper" style={{ display: "none" }}>
                 <div className="trigger-searching">
                     <span className="close-btn" id="tiggerclose">
@@ -1508,6 +1603,7 @@ const FlightResultCompnent = () => {
                 </div>
                 <div className="mobile-laover" />
             </div>
+
             {/* <style
                 // dangerouslySetInnerHTML={{
                 //     __html:

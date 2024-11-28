@@ -26,8 +26,8 @@ const Navbar = () => {
     }
 
     const showSignIn = () => {
-        // setLoginPopupVisible(true);
-        // setSignUpVisible(false);
+        setLoginPopupVisible(true);
+        setSignUpVisible(false);
     }
 
     useEffect(() => {
@@ -157,18 +157,33 @@ const Navbar = () => {
             window.Tawk_API.maximize();
         }
     };
-    
-    return <>
 
+    const closeMenu = () => {
+        setMobMenuOpen(false);
+    };
+    const toggleMenu = () => {
+        setMobMenuOpen(prev => !prev);
+    };
+
+    return <>
+        <div className="header-call-strip">
+            <a id="hdr_contactNo" href="tel:+1(888) 267-5955">
+                <img src="/assets/images/uc/animation-call-white-icon.gif" width="22" height="22" /> Call Now:
+                <span id="hdr_span">+1(888) 267-5955</span>
+            </a>
+        </div>
         <header className="navigation_block ">
-            <div className="header-call-strip">
+
+            {/* <div className="header-call-strip">
                 <a id="hdr_contactNo" href="tel:+1(888) 267-5955">
                     <img src="/assets/images/uc/animation-call-white-icon.gif" width="22" height="22" /> Call Now:
                     <span id="hdr_span">+1(888) 267-5955</span>
                 </a>
-            </div>
+            </div> */}
+
             <nav className="navbar-default navbar-static-top menuBox">
                 <div className="container">
+
                     <div className="navbar-header">
                         <a href="#" className="chat-iconss visible-xs" style={{
                             position: "absolute",
@@ -178,19 +193,31 @@ const Navbar = () => {
                             fontWeight: 700,
                             color: "#ff7f00"
                         }}></a>
-                        <button onClick={() => setMobMenuOpen(prev => !prev)} type="button" className="navbar-toggle">
+
+                        <button onClick={toggleMenu} type="button" className="navbar-toggle">
                             <span className="sr-only">Toggle navigation</span>
-                            {mobMenuOpen ? <span><a href className="mobileMenuClose">X</a></span> : <><span className="icon-bar"></span>
-                                <span className="icon-bar"></span>
-                                <span className="icon-bar"></span></>}
+                            {mobMenuOpen ? (
+                                <span>
+                                    {/* <a href="#" className="mobileMenuClose" onClick={closeMenu}>X</a> */}
+                                </span>
+                            ) : (
+                                <>
+                                    <span className="icon-bar"></span>
+                                    <span className="icon-bar"></span>
+                                    <span className="icon-bar"></span>
+                                </>
+                            )}
                         </button>
 
                         <a className="navbar-brand" href="/"><img src="/assets/logo.png"
                             alt="https://onlineflightreservations.one" /></a>
                     </div>
-                    <div id="navbar" className={`navbar-collapse ${mobMenuOpen ? "mainMenuOpen" : "main_navigation"}`}>
-                        {/* <a href className="mobileMenuClose">X</a> */}
-                        <div style={{ backgroundColor: "#0066b2" }} className="pull-right phone-number">
+
+                    <div id="navbar" className={`navbar-collapse main_navigation ${mobMenuOpen ? 'mainMenuopen' : 'mainMenuClosed'}`}>
+                        <a href="#" className="mobileMenuClose active" onClick={closeMenu}>
+                            X
+                        </a>
+                        <div className="pull-right phone-number">
                             <div className="call_27">Call 24/7 for our best deals</div>
                             <a className="phoneNumber" id="nav_contactNo" href="tel:+1(888) 267-5955">
                                 <img src="/assets/images/uc/newcall3a02.gif?1222" className="call-icon" />
@@ -224,13 +251,13 @@ const Navbar = () => {
                     <ul className="profile_menu">
                         <li>
                             <div className="topmenuBox">
-                                {/* <ul id="divlogin" style={{ display: "block" }}>
+                                <ul id="divlogin" style={{ display: "block" }}>
                                     <li style={{ cursor: "pointer" }} className="dropdown loginDropdown">
                                         {!user || !sessionStorage.getItem('user') ? <a onClick={() => setLoginPopupVisible(true)}
                                             className="login">&nbsp;<span className="hidden-xs">Sign in</span></a> : <a onClick={() => { signOut(auth); sessionStorage.removeItem("user") }}
                                                 className="login">&nbsp;<span className="hidden-xs">Sign out</span></a>}
                                     </li>
-                                </ul> */}
+                                </ul>
                                 <ul id="divwelcome" style={{ display: "none" }}>
                                     <li className="dropdown loginDropdown">
                                         <a href="#" className="login">
@@ -262,7 +289,6 @@ const Navbar = () => {
                             </div>
                         </li>
                     </ul>
-
                 </div>
             </nav>
 
