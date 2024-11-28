@@ -541,6 +541,10 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                     <a
                                         href=""
                                         className="popup-close"
+                                        onClick={(e) => {
+                                            e.preventDefault(); // Prevent the page from reloading
+                                            setShowPax(false);  // Close the popup by updating state
+                                          }}
                                     >
                                         <img src="/assets/images/uc/cancel.svg" alt />
                                     </a>

@@ -17022,7 +17022,7 @@ select {
 }
 
 .modify-engine-wrapper {
-    background: #1b75bc;
+    background: #1b94f3;
     padding: 10px 0;
     position: relative
 }
@@ -17386,7 +17386,7 @@ select {
 @media(max-width:767px) {
     .results-page .modify-engine-wrapper.open {
         display: block;
-        background: #3ea0ed;
+        background: #1b94f3;
         padding: 20px 0;
         position: fixed;
         left: 0;
@@ -17482,7 +17482,7 @@ select {
 }
 
 .mobile-itenery {
-    background: #1b75bc;
+    background: #1b94f3;
     color: #fff;
     width: 100%;
     overflow: hidden;

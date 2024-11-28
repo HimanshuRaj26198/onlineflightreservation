@@ -69,7 +69,7 @@ const NoResults = () => {
                                                         </b>
                                                         &nbsp; {searchParam.get("destination")}
                                                         <br />
-                                                        {searchParam.get("depDate")}, {searchParam.get("returnD")}, 1 Travelers, {searchParam.get("cabin")}
+                                                        {searchParam.get("depDate")}, {searchParam.get("returnD")}, 1 Travelers {searchParam.get("cabin")}
                                                     </>
                                                 ) : (
                                                     <>
@@ -79,7 +79,7 @@ const NoResults = () => {
                                                         </b>
                                                         &nbsp; {searchParam.get("destination")}
                                                         <br />
-                                                        {searchParam.get("depDate")}, 1 Travelers, {searchParam.get("cabin")}
+                                                        {searchParam.get("depDate")}, 1 Travelers {searchParam.get("cabin")}
                                                     </>
                                                 )}
                                             </div>
@@ -94,20 +94,19 @@ const NoResults = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
-                                    Close {/* */} [x]
-                                </a>
+                                <>
+                                    <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
+                                        Close {/* */} [x]
+                                    </a>
+                                    <div ref={searchRef}
+                                    >
+                                        <FlightSearch />
+                                    </div>
+                                </>
                             )}
 
                         </div>
-                        <div ref={searchRef}
-                            style={{
-                                maxHeight: maxHeight,
-                                overflow: "hidden",
-                                transition: "max-height 0.5s ease-in-out",
-                            }}>
-                            <FlightSearch />
-                        </div>
+
                     </div>
                 </div>
             </div>

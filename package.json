@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "antd": "^5.21.6",
+    "authorizenet": "^1.0.9",
     "bootstrap": "^5.3.3",
     "country-state-city": "^3.2.1",
     "firebase": "^10.13.1",

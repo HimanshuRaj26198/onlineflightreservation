@@ -498,49 +498,49 @@ const PurchasePage = () => {
         console.log("Saving card details:", cardDetails);
     }, [cardDetails]);
 
-    const handleInputChange = (e) => {
-        const { value } = e.target; // Get the value from the target element
-        if (e.target === cardnoRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                cardNo: value, // Update the cardNo property
-            }));
-        } else if (e.target === cardRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                cardType: value, // Update the cardType property
-            }));
-        } else if (e.target === cardholdernameRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                cardHolderName: value, // Update the cardHolderName property
-            }));
-        } else if (e.target === expmonthRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                expiry: {
-                    ...prevDetails.expiry,
-                    month: value, // Update the month property
-                },
-            }));
-        } else if (e.target === expyearRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                expiry: {
-                    ...prevDetails.expiry,
-                    year: value, // Update the year property
-                },
-            }));
-        } else if (e.target === cvvRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                expiry: {
-                    ...prevDetails.expiry,
-                    cvv: value, // Update the cvv property
-                },
-            }));
-        }
-    };
+    // const handleInputChange = (e) => {
+    //     const { value } = e.target; // Get the value from the target element
+    //     if (e.target === cardnoRef.current) {
+    //         setCardDetails((prevDetails) => ({
+    //             ...prevDetails,
+    //             cardNo: value, // Update the cardNo property
+    //         }));
+    //     } else if (e.target === cardRef.current) {
+    //         setCardDetails((prevDetails) => ({
+    //             ...prevDetails,
+    //             cardType: value, // Update the cardType property
+    //         }));
+    //     } else if (e.target === cardholdernameRef.current) {
+    //         setCardDetails((prevDetails) => ({
+    //             ...prevDetails,
+    //             cardHolderName: value, // Update the cardHolderName property
+    //         }));
+    //     } else if (e.target === expmonthRef.current) {
+    //         setCardDetails((prevDetails) => ({
+    //             ...prevDetails,
+    //             expiry: {
+    //                 ...prevDetails.expiry,
+    //                 month: value, // Update the month property
+    //             },
+    //         }));
+    //     } else if (e.target === expyearRef.current) {
+    //         setCardDetails((prevDetails) => ({
+    //             ...prevDetails,
+    //             expiry: {
+    //                 ...prevDetails.expiry,
+    //                 year: value, // Update the year property
+    //             },
+    //         }));
+    //     } else if (e.target === cvvRef.current) {
+    //         setCardDetails((prevDetails) => ({
+    //             ...prevDetails,
+    //             expiry: {
+    //                 ...prevDetails.expiry,
+    //                 cvv: value, // Update the cvv property
+    //             },
+    //         }));
+    //     }
+    // };
 
     // For Validation of the form
     // const validateForm = () => {
@@ -605,9 +605,30 @@ const PurchasePage = () => {
 
         // Add the new traveler to the array of travelers
         setTravellersDetails((prevState) => [...prevState, newTraveler]);
-        setTravelers([]);
+
+        // For Payment Gateway
+        try {
+            // Send the travelers' details to the backend API for flight reservation
+            const response = await fetch('/api/paymentGateway', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newTraveler ),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Reservation Successful! Transaction ID: ' + result.transactionId);
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
 
         // Clear individual fields after adding to the array
+        setTravelers([]);
+
         setCardDetails({
             cardHolderName: "",
             cardNo: "",
@@ -623,7 +644,7 @@ const PurchasePage = () => {
         });
 
         alert("Traveler details have been successfully added!");
-        await handleSubmit(newTraveler);  // Send email after traveler details are added
+        // await handleSubmit(newTraveler);  // Send email after traveler details are added
     };
 
     // Function to send email with the traveler details
@@ -637,8 +658,8 @@ const PurchasePage = () => {
     
     Traveler Info:
     Name: ${travelerData.travelers[0].firstName} ${travelerData.travelers[0].lastName}
-    Email: ${travelerData.travelers[0].email || 'Not Provided'}
-    Date of Birth: ${travelerData.travelers[0].dobDay || 'Not Provided'} ${travelerData.travelers[0].dobMonth || 'Not Provided'} ${travelerData.travelers[0].dobYear || 'Not Provided'}
+    Email: ${emailRef.current.value || 'Not Provided'}
+    Date of Birth: ${travelerData.travelers[0].dobDate || 'Not Provided'}/${travelerData.travelers[0].dobMonth || 'Not Provided'}/${travelerData.travelers[0].dobYear || 'Not Provided'}
     Gender: ${travelerData.travelers[0].gender === '1' ? 'Male' : 'Female'} 
     Phone Code: ${travelerData.travelers[0].phoneCode || 'Not Provided'}
     
@@ -4023,21 +4044,21 @@ const PurchasePage = () => {
                                                         >
                                                             important disclosures
                                                         </a>
-                                                        .
                                                     </span>
                                                 </p>
                                             </div>
                                         </div>
                                         <div id="div_Payment" className="step4" bis_skin_checked={1}>
-                                            {/* Billing Information */}
+                                            {/* Billing Information and Payment Details */}
                                             <BillingInfo
                                                 setBillingInfo={setBillingInfo}
                                                 billingInfo={billingInfo}
+                                                setCardDetails={setCardDetails}
+                                                cardDetails={cardDetails}
                                             />
 
                                             {/* PAYMENT DETAILS */}
-
-                                            <div className="form-box" bis_skin_checked={1}>
+                                            {/* <div className="form-box" bis_skin_checked={1}>
                                                 <div className="mainheading" bis_skin_checked={1}>
                                                     <img
                                                         src="/assets/images/svg/p-payment-detail.svg"
@@ -4523,8 +4544,8 @@ const PurchasePage = () => {
                                                         className="godaddy"
                                                     />
                                                 </div>
-                                                {/*  */}
-                                            </div>
+                                        
+                                            </div> */}
 
                                             <div className="form-box" bis_skin_checked={1}>
                                                 <div style={{ marginBottom: 5 }} bis_skin_checked={1}>
@@ -4557,7 +4578,7 @@ const PurchasePage = () => {
                                                 ))}
                                                 <div className="imp-msg" bis_skin_checked={1}>
                                                     <div className="tnc-txt" bis_skin_checked={1}>
-                                                        {/* Desktop View */}
+
                                                         {!mobileVisible && (
                                                             <p className="hidden-xs hidden-sm">
                                                                 By clicking, <span className="bkdyntxt">Book Now</span>

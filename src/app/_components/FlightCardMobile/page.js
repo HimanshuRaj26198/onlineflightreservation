@@ -6,7 +6,7 @@ import React, { useState } from "react";
 
 const FlightCardMobile = ({ airlinesData, setActiveFlight }) => {
 
-    console.log(airlinesData, "AirlinesData");
+    // console.log(airlinesData, "AirlinesData");
 
     const HandleFlightDetails = (flight) => {
         setActiveFlight(flight);
