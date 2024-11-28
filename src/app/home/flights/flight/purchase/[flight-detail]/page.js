@@ -840,14 +840,19 @@ const PurchasePage = () => {
         }
     };
 
+    // Function to toggle the flight detail visibility
+    const handleToggleFilterspdtl = () => {
+        setFlightDetailVisible(!flightDetailVisible); // Toggle visibility
+    };
+
     return <>
         {selectedFlight && <div className="body-content" bis_skin_checked="1">
             <div className="payment-wrapper kaxsdc" data-event="load" bis_skin_checked={1}>
                 <div className="container" bis_skin_checked={1}>
                     <div className="row" bis_skin_checked={1}>
                         <div className="col-sm-2 col-xs-12" bis_skin_checked={1}>
-                            <div className="go-button">
-                                <a href="#" onClick={gotolisting}>
+                            <div className="go-button" onClick={gotolisting}>
+                                <a href="#" >
                                     <i className="fa fa-angle-left" aria-hidden="true" /> Change Flight
                                 </a>
                             </div>
@@ -1329,7 +1334,7 @@ const PurchasePage = () => {
                                                         <a
                                                             className="close-btn visible-xs"
                                                             data-toggle="collapse"
-                                                            onclick="handleToggleFilterspdtl()"
+                                                            onClick={handleToggleFilterspdtl}
                                                         >
                                                             X
                                                         </a>
@@ -1595,7 +1600,7 @@ const PurchasePage = () => {
                                             </div>
                                             <div className="col-sm-8 col-xs-12" bis_skin_checked={1}>
                                                 <div className="row" bis_skin_checked={1}>
-                                                   
+
                                                     {/* Country Code */}
                                                     <div className="col-sm-3 col-xs-12">
                                                         <label>

@@ -74,6 +74,12 @@ const FlightResultCompnent = () => {
         { label: "Evening", timeRange: "After 6pm", iconSrc: "/assets/images/listing/e.png", value: "After 6pm" },
     ];
 
+    const [isCollapsed, setIsCollapsed] = useState(true); // Track the collapse state
+
+    const toggleMatrix = () => {
+        setIsCollapsed(!isCollapsed); // Toggle the collapse state
+    };
+
     useEffect(() => {
         const tripType = searchParam.get("tripType");
         setIsRoundTrip(tripType === 'Round-Trip');
@@ -798,56 +804,57 @@ const FlightResultCompnent = () => {
                                     <div className="row" onClick={handleEditSearchClick} style={{ cursor: 'pointer' }}>
                                         <div className="">
                                             <div className="search_detail edit-listing-searchdetails hand">
-                                                <div className="col-sm-8 ">
-                                                    {searchParam.get("tripType") === 'Round-Trip' ? (
-                                                        <>
-                                                            {origin} &nbsp;
-                                                            <b>
-                                                                <i className="fa fa-exchange" />
-                                                            </b>
-                                                            &nbsp; {destination}
-                                                            <br />
-                                                            {searchParam.get("depDate")}, {searchParam.get("returnD")}, {total} Travelers, {searchParam.get("cabin")}
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            {origin} &nbsp;
-                                                            <b>
-                                                                <i className="fa fa-arrow-right" />
-                                                            </b>
-                                                            &nbsp; {destination}
-                                                            <br />
-                                                            {searchParam.get("depDate")}, {total} Travelers, {searchParam.get("cabin")}
-                                                        </>
-                                                    )}
+                                                <div className="">
+                                                    <button
+                                                        type="button"
+                                                        className="modify_search pull-right edit-listing-search"
+                                                        onClick={handleEditSearchClick}
+                                                    >
+                                                        Edit Search
+                                                    </button>
+                                                    <div className="col-sm-8 ">
+                                                        {searchParam.get("tripType") === 'Round-Trip' ? (
+                                                            <>
+                                                                {origin} &nbsp;
+                                                                <b>
+                                                                    <i className="fa fa-exchange" />
+                                                                </b>
+                                                                &nbsp; {destination}
+                                                                <br />
+                                                                {searchParam.get("depDate")}, {searchParam.get("returnD")}, {total} Travelers, {searchParam.get("cabin")}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                {origin} &nbsp;
+                                                                <b>
+                                                                    <i className="fa fa-arrow-right" />
+                                                                </b>
+                                                                &nbsp; {destination}
+                                                                <br />
+                                                                {searchParam.get("depDate")}, {total} Travelers, {searchParam.get("cabin")}
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    className="modify_search pull-right edit-listing-search"
-                                                    onClick={handleEditSearchClick}
-                                                >
-                                                    Edit Search
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <a className="close-listing-search visible-lg visible-md visible-sm" onClick={handleEditSearchClick}>
-                                        Close {/* */} [x]
-                                    </a>
+                                    <>
+                                        <a className="close-listing-search visible-lg visible-md visible-sm" onClick={handleEditSearchClick}>
+                                            Close {/* */} [x]
+                                        </a>
+                                        <div ref={searchRef}>
+                                            <section id="flightEngineId">
+                                                <FlightSearch />
+                                            </section>
+                                        </div>
+                                    </>
+
                                 )}
 
                             </div>
-                            <div ref={searchRef}
-                                style={{
-                                    maxHeight: maxHeight,
-                                    overflow: "hidden",
-                                    transition: "max-height 0.5s ease-in-out",
-                                }}>
-                                <section id="flightEngineId">
-                                    <FlightSearch />
-                                </section>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -991,12 +998,12 @@ const FlightResultCompnent = () => {
             <div className="listing-wrapper">
                 <div className="container">
                     <input type="hidden" id="tabvalue" name="tabvalue" defaultValue="all" />
-                    {/* <a
+                    <a
                         className="matrix_btn visible-sm hidden-xs"
                         role="button"
                         id="marixOption"
                         data-toggle="collapse"
-                        onClick="matrixOpen();"
+                        onClick={toggleMatrix}
                         href="javascript:void(0);"
                         aria-expanded="true"
                         aria-controls="airlineMatrixblock"
@@ -1004,7 +1011,7 @@ const FlightResultCompnent = () => {
                     >
                         <i className="fa fa-th-large" aria-hidden="true" /> Matrix{" "}
                         <i className="fa fa-angle-up" aria-hidden="true" />
-                    </a> */}
+                    </a>
                     <div className="row">
                         <div className="col-sm-12 col-md-3 col-xs-12">
                             <div className={`show-component-mobile ${mobileFilterVisible && "open"}`}>
@@ -1348,9 +1355,8 @@ const FlightResultCompnent = () => {
                         </div>
                         <div className="col-sm-12 col-md-9 col-xs-12">
                             <div className="listing-matrix-section">
-                                <div className="tab-content">
-                                    <FlightOfferCard airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter} />
-                                </div >
+                                <FlightOfferCard airlinesData={uniqueAirlines} setActiveFlight={setActiveFlight} handleStopFilter={handleStopFilter} />
+
                             </div>
                             <div className="covid-list hidden-xs">
                                 <b>Note:</b> All the fares displayed are for One Way Trip and are in

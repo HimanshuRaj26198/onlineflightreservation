@@ -424,7 +424,10 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight, oneway 
                                                     </div>
                                                 </div>
 
+                                                <div className="leg-devider" />
+
                                                 <div className="row">
+                                                    
                                                     <div className="col-sm-3 col-xs-12 no-padding-left">
                                                         <span className="price-section visible-xs">
                                                             <price>
@@ -575,6 +578,7 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight, oneway 
                                                             {extractDuration(flight.itineraries[1]?.duration)}
                                                         </div>
                                                     </div>
+
                                                 </div>
                                             </>
                                         )
