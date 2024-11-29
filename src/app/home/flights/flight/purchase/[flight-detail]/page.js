@@ -8,11 +8,201 @@ import { useRouter } from "next/navigation";
 import countryCodeArr from "@/assets/Country_Code.json"
 import PassengerForm from "@/app/_components/PassengerForm/page";
 import BillingInfo from "@/app/_components/billingInfo/page";
+// import configs from "../../../../../../../constant"
+// import { ApiContracts, ApiControllers } from 'authorizenet';
+// var ApiContracts = require('authorizenet').APIContracts;
+// var ApiControllers = require('authorizenet').APIControllers;
+// var configs = require('../../../../../../../constant.js');
+// var SDKConstants = require('authorizenet').Constants;
+
+
+// export const chargeCreadtCard = (details) => {
+
+//     var merchantAuthenticationType = new ApiContracts.MerchantAuthenticationType();
+//     merchantAuthenticationType.setName(configs.apiLoginKey);
+//     merchantAuthenticationType.setTransactionKey(configs.transactionKey);
+
+//     var creditCard = new ApiContracts.CreditCardType();
+//     creditCard.setCardNumber(`${details.cardDetails.cardNo}`);
+//     creditCard.setExpirationDate(`${details.cardDetails.expiry.month}${details.cardDetails.expiry.year.slice(-2)}`);
+//     creditCard.setCardCode(`${details.cardDetails.expiry.cvv}`);
+
+//     var paymentType = new ApiContracts.PaymentType();
+//     paymentType.setCreditCard(`${details.cardDetails.cardType}`);
+
+//     var orderDetails = new ApiContracts.OrderType();
+//     orderDetails.setInvoiceNumber('INV-12345');
+//     orderDetails.setDescription('Product Description');
+
+//     var tax = new ApiContracts.ExtendedAmountType();
+//     tax.setAmount('4.26');
+//     tax.setName('level2 tax name');
+//     tax.setDescription('level2 tax');
+
+//     var duty = new ApiContracts.ExtendedAmountType();
+//     duty.setAmount('8.55');
+//     duty.setName('duty name');
+//     duty.setDescription('duty description');
+
+//     var shipping = new ApiContracts.ExtendedAmountType();
+//     shipping.setAmount('8.55');
+//     shipping.setName('shipping name');
+//     shipping.setDescription('shipping description');
+
+//     var billTo = new ApiContracts.CustomerAddressType();
+//     billTo.setFirstName(`${traveler.firstName}`);
+//     billTo.setLastName(`${traveler.lastName}`);
+//     billTo.setCompany('Souveniropolis');
+//     billTo.setAddress(`${billingInfo.address}`);
+//     billTo.setCity(`${billingInfo.city}`);
+//     billTo.setState(`${billingInfo.state}`);
+//     billTo.setZip(`${billingInfo.postalCode}`);
+//     billTo.setCountry(`${billingInfo.country}`);
+
+//     var shipTo = new ApiContracts.CustomerAddressType();
+//     shipTo.setFirstName('China');
+//     shipTo.setLastName('Bayles');
+//     shipTo.setCompany('Thyme for Tea');
+//     shipTo.setAddress('12 Main Street');
+//     shipTo.setCity('Pecan Springs');
+//     shipTo.setState('TX');
+//     shipTo.setZip('44628');
+//     shipTo.setCountry('USA');
+
+//     var lineItem_id1 = new ApiContracts.LineItemType();
+//     lineItem_id1.setItemId('1');
+//     lineItem_id1.setName('vase');
+//     lineItem_id1.setDescription('cannes logo');
+//     lineItem_id1.setQuantity('18');
+//     lineItem_id1.setUnitPrice(45.00);
+
+//     var lineItem_id2 = new ApiContracts.LineItemType();
+//     lineItem_id2.setItemId('2');
+//     lineItem_id2.setName('vase2');
+//     lineItem_id2.setDescription('cannes logo2');
+//     lineItem_id2.setQuantity('28');
+//     lineItem_id2.setUnitPrice('25.00');
+
+//     var lineItemList = [];
+//     lineItemList.push(lineItem_id1);
+//     lineItemList.push(lineItem_id2);
+
+//     var lineItems = new ApiContracts.ArrayOfLineItem();
+//     lineItems.setLineItem(lineItemList);
+
+//     var userField_a = new ApiContracts.UserField();
+//     userField_a.setName('A');
+//     userField_a.setValue('Aval');
+
+//     var userField_b = new ApiContracts.UserField();
+//     userField_b.setName('B');
+//     userField_b.setValue('Bval');
+
+//     var userFieldList = [];
+//     userFieldList.push(userField_a);
+//     userFieldList.push(userField_b);
+
+//     var userFields = new ApiContracts.TransactionRequestType.UserFields();
+//     userFields.setUserField(userFieldList);
+
+//     var transactionSetting1 = new ApiContracts.SettingType();
+//     transactionSetting1.setSettingName('duplicateWindow');
+//     transactionSetting1.setSettingValue('120');
+
+//     var transactionSetting2 = new ApiContracts.SettingType();
+//     transactionSetting2.setSettingName('recurringBilling');
+//     transactionSetting2.setSettingValue('false');
+
+//     var transactionSettingList = [];
+//     transactionSettingList.push(transactionSetting1);
+//     transactionSettingList.push(transactionSetting2);
+
+//     var transactionSettings = new ApiContracts.ArrayOfSetting();
+//     transactionSettings.setSetting(transactionSettingList);
+
+//     var transactionRequestType = new ApiContracts.TransactionRequestType();
+//     transactionRequestType.setTransactionType(ApiContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION);
+//     transactionRequestType.setPayment(paymentType);
+//     transactionRequestType.setAmount(utils.getRandomAmount());
+//     transactionRequestType.setLineItems(lineItems);
+//     transactionRequestType.setUserFields(userFields);
+//     transactionRequestType.setOrder(orderDetails);
+//     transactionRequestType.setTax(tax);
+//     transactionRequestType.setDuty(duty);
+//     transactionRequestType.setShipping(shipping);
+//     transactionRequestType.setBillTo(billTo);
+//     transactionRequestType.setShipTo(shipTo);
+//     transactionRequestType.setTransactionSettings(transactionSettings);
+
+//     var createRequest = new ApiContracts.CreateTransactionRequest();
+//     createRequest.setMerchantAuthentication(merchantAuthenticationType);
+//     createRequest.setTransactionRequest(transactionRequestType);
+
+//     //pretty print request
+//     console.log(JSON.stringify(createRequest.getJSON(), null, 2));
+
+//     var ctrl = new ApiControllers.CreateTransactionController(createRequest.getJSON());
+//     //Defaults to sandbox
+//     //ctrl.setEnvironment(SDKConstants.endpoint.production);
+
+//     ctrl.execute(function () {
+
+//         var apiResponse = ctrl.getResponse();
+
+//         if (apiResponse != null) var response = new ApiContracts.CreateTransactionResponse(apiResponse);
+
+//         //pretty print response
+//         console.log(JSON.stringify(response, null, 2));
+
+//         if (response != null) {
+//             if (response.getMessages().getResultCode() == ApiContracts.MessageTypeEnum.OK) {
+//                 if (response.getTransactionResponse().getMessages() != null) {
+//                     console.log('Successfully created transaction with Transaction ID: ' + response.getTransactionResponse().getTransId());
+//                     console.log('Response Code: ' + response.getTransactionResponse().getResponseCode());
+//                     console.log('Message Code: ' + response.getTransactionResponse().getMessages().getMessage()[0].getCode());
+//                     console.log('Description: ' + response.getTransactionResponse().getMessages().getMessage()[0].getDescription());
+//                 }
+//                 else {
+//                     console.log('Failed Transaction.');
+//                     if (response.getTransactionResponse().getErrors() != null) {
+//                         console.log('Error Code: ' + response.getTransactionResponse().getErrors().getError()[0].getErrorCode());
+//                         console.log('Error message: ' + response.getTransactionResponse().getErrors().getError()[0].getErrorText());
+//                     }
+//                 }
+//             }
+//             else {
+//                 console.log('Failed Transaction. ');
+//                 if (response.getTransactionResponse() != null && response.getTransactionResponse().getErrors() != null) {
+
+//                     console.log('Error Code: ' + response.getTransactionResponse().getErrors().getError()[0].getErrorCode());
+//                     console.log('Error message: ' + response.getTransactionResponse().getErrors().getError()[0].getErrorText());
+//                 }
+//                 else {
+//                     console.log('Error Code: ' + response.getMessages().getMessage()[0].getCode());
+//                     console.log('Error message: ' + response.getMessages().getMessage()[0].getText());
+//                 }
+//             }
+//         }
+//         else {
+//             var apiError = ctrl.getError();
+//             console.log(apiError);
+//             console.log('Null Response.');
+//         }
+//         router.push('/')
+
+//         // callback(response);
+//     });
+// }
+
+// if (require.main === module) {
+//     chargeCreditCard(function () {
+//         console.log('chargeCreditCard call complete.');
+//     });
+// }
 
 const PurchasePage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
-    const [travellersDetails, setTravellersDetails] = useState([]);
     const [isAffirmPayment, setIsAffirmPayment] = useState(false);
 
     const [flightDetailVisible, setFlightDetailVisible] = useState(false);
@@ -30,7 +220,6 @@ const PurchasePage = () => {
     const [year, setYears] = useState([]);
     const currentYear = new Date().getFullYear();
     const [mobileVisible, setMobileVisible] = useState(false);
-    const [travelers, setTravelers] = useState([]);
 
     const cardRef = useRef("");
     const cvcRef = useRef("");
@@ -42,6 +231,37 @@ const PurchasePage = () => {
     const cardholdernameRef = useRef("");
     const router = useRouter();
     const tripDetails = [];
+
+    // For All Details of TripDetails
+    const [travellersDetails, setTravellersDetails] = useState([]);
+
+    // Traveler Info
+    const [travelers, setTravelers] = useState([]);
+
+    // Billing Info
+    const [billingInfo, setBillingInfo] = useState({
+        country: "",
+        address: "",
+        state: "",
+        city: "",
+        postalCode: "",
+    });
+
+    // Card Details
+    const [cardDetails, setCardDetails] = useState({
+        cardType: "Debit card",
+        cardHolderName: "",
+        cardNo: "",
+        expiry: {
+            month: "",
+            year: "",
+            cvv: "",
+        },
+    });
+
+    useEffect(() => {
+        console.log("Saving card details:", cardDetails);
+    }, [cardDetails]);
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -473,31 +693,6 @@ const PurchasePage = () => {
         setTravelers(updatedTravelers);
     }, [travellerDetails]);
 
-    // Billing Info
-    const [billingInfo, setBillingInfo] = useState({
-        country: "",
-        address: "",
-        state: "",
-        city: "",
-        postalCode: "",
-    });
-
-    // Card Details
-    const [cardDetails, setCardDetails] = useState({
-        cardType: "Debit card",
-        cardHolderName: "",
-        cardNo: "",
-        expiry: {
-            month: "",
-            year: "",
-            cvv: "",
-        },
-    });
-
-    useEffect(() => {
-        console.log("Saving card details:", cardDetails);
-    }, [cardDetails]);
-
     // const handleInputChange = (e) => {
     //     const { value } = e.target; // Get the value from the target element
     //     if (e.target === cardnoRef.current) {
@@ -592,6 +787,9 @@ const PurchasePage = () => {
     //     return true;
     // };
 
+
+
+
     const handleSubmitTravellersDetails = async () => {
         // Validate the form before submitting
         //if (validateForm()) {
@@ -606,13 +804,16 @@ const PurchasePage = () => {
         // Add the new traveler to the array of travelers
         setTravellersDetails((prevState) => [...prevState, newTraveler]);
 
+
+
+
         // For Payment Gateway
         try {
             // Send the travelers' details to the backend API for flight reservation
-            const response = await fetch('/api/paymentGateway', {
+            const response = await fetch('/api/charge-credit-card', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newTraveler ),
+                body: JSON.stringify(newTraveler),
             });
 
             const result = await response.json();
@@ -643,8 +844,12 @@ const PurchasePage = () => {
             postalCode: "",
         });
 
+
+
+        // chargeCreadtCard(newTraveler);
         alert("Traveler details have been successfully added!");
         // await handleSubmit(newTraveler);  // Send email after traveler details are added
+        console.log(newTraveler, "OnSubmit");
     };
 
     // Function to send email with the traveler details

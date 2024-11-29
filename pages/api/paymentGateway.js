@@ -1,73 +1,92 @@
-import { ApiContracts, ApiControllers } from 'authorizenet';
+
+import * as AuthorizeNet from 'authorizenet';
+import { APIContracts, APIControllers } from 'authorizenet';
+//import * as AuthorizeNet from 'authorizenet';
 import configs from '../../constant';  // Ensure you have your API credentials here
+import { message } from 'antd';
+import { NextResponse } from 'next/server';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         try {
             // Log the request body for debugging
+            console.log("start me");
             console.log("Received Request Body:", req.body);
 
-            const { traveler, cardDetails, billingInfo } = req.body;
+            console.log("start me 2nd tradetai ke pahle");
+
+            // req.body = JSON.parse(req.body);  // Now convert string to object
+            // console.log("Converted Request Body:", req.body);
+
+            const { travelers, cardDetails, billingInfo } = req.body;
+
+            console.log("start me 3nd tradetai ke baad");
+
+            console.log("Traveler Data:", travelers);
+            console.log("Card Details:", cardDetails);
+            console.log("Billing Info:", billingInfo);
+
 
             // // Validate inputs
-            if (!traveler || !cardDetails || !billingInfo) {
-                return res.status(400).json({ success: false, message: 'Missing required information.' });
-            }
+            // if (!traveler || !cardDetails || !billingInfo) {
+            //     return res.status(400).json({ success: false, message: 'Missing required information.' });
+            // }
 
-            if (!cardDetails.cardNo || !cardDetails.expiry || !cardDetails.cvv) {
-                return res.status(400).json({ success: false, message: 'Incomplete payment details.' });
-            }
+            // if (!cardDetails.cardNo || !cardDetails.expiry || !cardDetails.cvv) {
+            //     return res.status(400).json({ success: false, message: 'Incomplete payment details.' });
+            // }
 
-            if (!billingInfo.address || !billingInfo.city || !billingInfo.country) {
-                return res.status(400).json({ success: false, message: 'Incomplete billing information.' });
-            }
+            // if (!billingInfo.address || !billingInfo.city || !billingInfo.country) {
+            //     return res.status(400).json({ success: false, message: 'Incomplete billing information.' });
+            // }
 
             // Extract traveler info (assuming one traveler for simplicity)
-            const firstTraveler = traveler[0];  // Assuming one traveler for simplicity
-
+            // const firstTraveler = travelers.firstName;  // Assuming one traveler for simplicity
+            // console.log(AuthorizeNet,"APIContracts");
             // Payment Processing with Authorize.Net
-            const merchantAuthenticationType = new ApiContracts.MerchantAuthenticationType();
+            const merchantAuthenticationType = new APIContracts.MerchantAuthenticationType();
             merchantAuthenticationType.setName(configs.apiLoginKey);
             merchantAuthenticationType.setTransactionKey(configs.transactionKey);
 
             // Credit Card information
-            const creditCard = new ApiContracts.CreditCardType();
+            const creditCard = new APIContracts.CreditCardType();
             creditCard.setCardNumber(cardDetails.cardNo);
             creditCard.setExpirationDate(cardDetails.expiry.month + cardDetails.expiry.year); // MMYYYY format
-            creditCard.setCardCode(cardDetails.cvv);
+            creditCard.setCardCode(`${cardDetails.expiry}`);
 
-            const paymentType = new ApiContracts.PaymentType();
+            const paymentType = new APIContracts.PaymentType();
             paymentType.setCreditCard(creditCard);
 
             // Billing Information
-            const billTo = new ApiContracts.CustomerAddressType();
-            billTo.setFirstName(firstTraveler.firstName);
-            billTo.setLastName(firstTraveler.lastName);
-            billTo.setAddress(billingInfo.address);
-            billTo.setCity(billingInfo.city);
-            billTo.setState(billingInfo.state);
-            billTo.setZip(billingInfo.postalCode);  // Postal Code
-            billTo.setCountry(billingInfo.country);
+            var billTo = new APIContracts.CustomerAddressType();
+            billTo.setFirstName(`${travelers.firstName}`);
+            billTo.setLastName(`${travelers.lastName}`);
+            billTo.setCompany('Souveniropolis');
+            billTo.setAddress(`${billingInfo.address}`);
+            billTo.setCity(`${billingInfo.city}`);
+            billTo.setState(`${billingInfo.state}`);
+            billTo.setZip(`${billingInfo.postalCode}`);
+            billTo.setCountry(`${billingInfo.country}`);
 
             // Order details (dynamic invoice number)
-            const orderDetails = new ApiContracts.OrderType();
+            const orderDetails = new APIContracts.OrderType();
             orderDetails.setInvoiceNumber('INV-' + new Date().getTime());  // Dynamic Invoice Number
-            orderDetails.setDescription('Flight Reservation for ' + firstTraveler.firstName + ' ' + firstTraveler.lastName);
+            orderDetails.setDescription('Flight Reservation for ' + `${travelers.firstName}` + ' ' + `${travelers.lastName}`);
 
             // Transaction details (example amount)
-            const transactionRequestType = new ApiContracts.TransactionRequestType();
-            transactionRequestType.setTransactionType(ApiContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION);
+            const transactionRequestType = new APIContracts.TransactionRequestType();
+            transactionRequestType.setTransactionType(APIContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION);
             transactionRequestType.setPayment(paymentType);
             transactionRequestType.setAmount(100); // Example amount, replace with actual flight amount
             transactionRequestType.setOrder(orderDetails);
             transactionRequestType.setBillTo(billTo);
 
             // Create transaction request
-            const createRequest = new ApiContracts.CreateTransactionRequest();
+            const createRequest = new APIContracts.CreateTransactionRequest();
             createRequest.setMerchantAuthentication(merchantAuthenticationType);
             createRequest.setTransactionRequest(transactionRequestType);
 
-            const ctrl = new ApiControllers.CreateTransactionController(createRequest.getJSON());
+            const ctrl = new APIControllers.CreateTransactionController(createRequest.getJSON());
 
             // Execute transaction
             ctrl.execute(function () {
@@ -77,9 +96,9 @@ export default async function handler(req, res) {
                 console.log("API Response:", apiResponse);
 
                 if (apiResponse != null) {
-                    const response = new ApiContracts.CreateTransactionResponse(apiResponse);
+                    const response = new APIContracts.CreateTransactionResponse(apiResponse);
 
-                    if (response.getMessages().getResultCode() === ApiContracts.MessageTypeEnum.OK) {
+                    if (response.getMessages().getResultCode() === APIContracts.MessageTypeEnum.OK) {
                         // Transaction successful
                         res.status(200).json({
                             success: true,
