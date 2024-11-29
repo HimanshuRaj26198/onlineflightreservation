@@ -13,6 +13,7 @@
     "authorizenet": "^1.0.9",
     "bootstrap": "^5.3.3",
     "country-state-city": "^3.2.1",
+    "dotenv": "^16.4.5",
     "firebase": "^10.13.1",
     "framer-motion": "^11.3.30",
     "https-proxy-agent": "^7.0.5",
