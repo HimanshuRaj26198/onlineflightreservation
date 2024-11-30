@@ -576,9 +576,9 @@ const FlightListing = () => {
         const nearbyPrices = Array.isArray(nearbyAirports) ? nearbyAirports.map(flight => flight.price) : [];
         const shortestPrices = Array.isArray(shortestFlights) ? shortestFlights.map(flight => flight.price) : [];
 
-        console.log(allPrices, "ALL PRICES");
-        console.log(nearbyPrices, "NEARBY");
-        console.log(shortestPrices, "SHORTEST");
+        // console.log(allPrices, "ALL PRICES");
+        // console.log(nearbyPrices, "NEARBY");
+        // console.log(shortestPrices, "SHORTEST");
 
 
         if (allPrices.length > 0 || nearbyPrices.length > 0 || shortestPrices.length > 0) {

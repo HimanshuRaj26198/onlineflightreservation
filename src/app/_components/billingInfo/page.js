@@ -822,8 +822,6 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                 </div>
             </div>
         </>
-
-
     )
 }
 

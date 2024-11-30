@@ -9,8 +9,8 @@ import TopDestinationsArr from "@/assets/top_destination.json";
 import TopFlightDestinationArr from "@/assets/top_flight_destination.json"
 import TopFlightDestinationCard from "../_components/TopFlightDestinationCard/page";
 
-
 const HomePage = () => {
+
     const secondSetting = {
         infinite: true,
         slidesToShow: 3,
@@ -39,6 +39,7 @@ const HomePage = () => {
             },
         ],
     };
+
     const settings = {
         infinite: true,
         slidesToShow: 3,
@@ -1506,8 +1507,6 @@ const HomePage = () => {
                                                 return <TopFlightDestinationCard key={index} destination={des} />;
                                             })}
                                         </ul>
-
-
                                     </div>
                                     <div class="dealbox__note">
                                         <b>Note:</b> All fares are quoted in USD. Last updated on{" "}

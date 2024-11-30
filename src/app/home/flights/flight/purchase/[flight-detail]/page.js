@@ -13,8 +13,8 @@ const PurchasePage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
     const [isAffirmPayment, setIsAffirmPayment] = useState(false);
-
     const [flightDetailVisible, setFlightDetailVisible] = useState(false);
+
     const [isScrolled, setIsScrolled] = useState(false);
     const [formedFilled, setFormFilled] = useState(false);
     const emailRef = useRef("");
@@ -29,20 +29,13 @@ const PurchasePage = () => {
     const [year, setYears] = useState([]);
     const currentYear = new Date().getFullYear();
     const [mobileVisible, setMobileVisible] = useState(false);
-
-    const cardRef = useRef("");
-    const cvcRef = useRef("");
-    const cvvRef = useRef("");
-    const cardnoRef = useRef("");
-    const expmonthRef = useRef("");
-
-    const expyearRef = useRef("");
-    const cardholdernameRef = useRef("");
     const router = useRouter();
-    const tripDetails = [];
 
     // For All Details of TripDetails
     const [travellersDetails, setTravellersDetails] = useState([]);
+
+    // Contact Details of Traveler
+    const [contactDetails, setContactDetails] = useState({});
 
     // Traveler Info
     const [travelers, setTravelers] = useState([]);
@@ -191,14 +184,14 @@ const PurchasePage = () => {
                 AlternateMobile: alternateNumRef.current.value,
                 CountryCode: selectedCountry.dialCode
             };
-            tripDetails.push(contactData);
+            setContactDetails(contactData);
 
             // Log the data to verify
             // console.log("CONTACT DATA: ", contactData);
             fetch("https://script.google.com/macros/s/AKfycbwVmb-Fq-ph0V-Buszfxf-iww-DuyO7M7s7APz-3-yNsDeXO3XWQCG3-djqs9kJ1X1CdA/exec",
                 {
                     method: "POST",
-                    body: contactData
+                    body: contactDetails
                 }
             ).then(res => console.log(res), setFormFilled(true)).catch(err => console.log(err));
         }
@@ -381,8 +374,7 @@ const PurchasePage = () => {
         }
     }, [])
 
-    console.log(selectedFlight, "SELECTED FLIGHT");
-    // console.log(selectedFlight,"SELECTED FLIGHT");
+    // console.log(selectedFlight, "SELECTED FLIGHT");
 
     const printEvent = (e) => {
         console.log(e.target)
@@ -502,109 +494,13 @@ const PurchasePage = () => {
         setTravelers(updatedTravelers);
     }, [travellerDetails]);
 
-    // const handleInputChange = (e) => {
-    //     const { value } = e.target; // Get the value from the target element
-    //     if (e.target === cardnoRef.current) {
-    //         setCardDetails((prevDetails) => ({
-    //             ...prevDetails,
-    //             cardNo: value, // Update the cardNo property
-    //         }));
-    //     } else if (e.target === cardRef.current) {
-    //         setCardDetails((prevDetails) => ({
-    //             ...prevDetails,
-    //             cardType: value, // Update the cardType property
-    //         }));
-    //     } else if (e.target === cardholdernameRef.current) {
-    //         setCardDetails((prevDetails) => ({
-    //             ...prevDetails,
-    //             cardHolderName: value, // Update the cardHolderName property
-    //         }));
-    //     } else if (e.target === expmonthRef.current) {
-    //         setCardDetails((prevDetails) => ({
-    //             ...prevDetails,
-    //             expiry: {
-    //                 ...prevDetails.expiry,
-    //                 month: value, // Update the month property
-    //             },
-    //         }));
-    //     } else if (e.target === expyearRef.current) {
-    //         setCardDetails((prevDetails) => ({
-    //             ...prevDetails,
-    //             expiry: {
-    //                 ...prevDetails.expiry,
-    //                 year: value, // Update the year property
-    //             },
-    //         }));
-    //     } else if (e.target === cvvRef.current) {
-    //         setCardDetails((prevDetails) => ({
-    //             ...prevDetails,
-    //             expiry: {
-    //                 ...prevDetails.expiry,
-    //                 cvv: value, // Update the cvv property
-    //             },
-    //         }));
-    //     }
-    // };
-
-    // For Validation of the form
-    // const validateForm = () => {
-    //     const missingFields = [];
-
-    //     // Traveler Info validation
-    //     if (!travelerInfo.title) missingFields.push("Title");
-    //     if (!travelerInfo.firstName) missingFields.push("First Name");
-    //     if (!travelerInfo.lastName) missingFields.push("Last Name");
-    //     if (!travelerInfo.gender) missingFields.push("Gender");
-    //     if (
-    //         !travelerInfo.dob.day ||
-    //         !travelerInfo.dob.month ||
-    //         !travelerInfo.dob.year
-    //     ) {
-    //         missingFields.push("Date of Birth");
-    //     }
-
-    //     // Card Info validation
-    //     if (!cardDetails.cardHolderName) missingFields.push("Card Holder Name");
-    //     if (!cardDetails.cardNo) missingFields.push("Card Number");
-    //     if (
-    //         !cardDetails.expiry.month ||
-    //         !cardDetails.expiry.year ||
-    //         !cardDetails.expiry.cvv
-    //     ) {
-    //         missingFields.push("Card Expiry and CVV");
-    //     }
-
-    //     // Billing Info validation
-    //     if (!billingInfo.country) missingFields.push("Country");
-    //     if (!billingInfo.address) missingFields.push("Address");
-    //     if (!billingInfo.state) missingFields.push("State");
-    //     if (!billingInfo.city) missingFields.push("City");
-    //     if (!billingInfo.postalCode) missingFields.push("Postal Code");
-
-    //     // Contact Info validation
-    //     if (!contactInfo.email) missingFields.push("Email");
-    //     if (contactInfo.email !== contactInfo.retypeEmail)
-    //         missingFields.push("Emails do not match");
-
-    //     if (missingFields.length > 0) {
-    //         toast.error(
-    //             `Please fill the following fields: ${missingFields.join(", ")}`
-    //         );
-    //         return false;
-    //     }
-
-    //     return true;
-    // };
-
-
-
+    console.log(contactDetails, "ContactDetails");
 
     const handleSubmitTravellersDetails = async () => {
-        // Validate the form before submitting
-        //if (validateForm()) {
-        // Combine all the data into a single traveler object
 
+        // Combine all the data into a single newTraveler object
         const newTraveler = {
+            contactDetails,
             travelers,
             cardDetails,
             billingInfo,
@@ -613,8 +509,7 @@ const PurchasePage = () => {
         // Add the new traveler to the array of travelers
         setTravellersDetails((prevState) => [...prevState, newTraveler]);
 
-
-
+        await handleSubmit(newTraveler);  // Send email after traveler details are added
 
         // For Payment Gateway
         try {
@@ -626,19 +521,20 @@ const PurchasePage = () => {
             });
 
             const result = await response.json();
-
             if (result.success) {
-                alert('Reservation Successful! Transaction ID: ' + result.transactionId);
+                toast.success('Reservation Successful! Transaction ID: ' + result.transactionId);
+                router.push('/home/confirmationPage/book-flight-confirms')
             } else {
-                alert('Error: ' + result.message);
+                toast.error('Error: ' + result.message);
             }
         } catch (error) {
-            alert('Error: ' + error.message);
+            toast.error('Error: ' + error.message);
         }
-
 
         // Clear individual fields after adding to the array
         setTravelers([]);
+
+        setContactDetails({})
 
         setCardDetails({
             cardHolderName: "",
@@ -653,18 +549,11 @@ const PurchasePage = () => {
             city: "",
             postalCode: "",
         });
-
-
-
-        // chargeCreadtCard(newTraveler);
-        alert("Traveler details have been successfully added!");
-        // await handleSubmit(newTraveler);  // Send email after traveler details are added
-        console.log(newTraveler, "OnSubmit");
+        // alert("Traveler details have been successfully added!");
     };
 
     // Function to send email with the traveler details
     const handleSubmit = async (travelerData) => {
-
 
         const emailContent = `
         Hello ${travelerData.travelers[0].firstName} ${travelerData.travelers[0].lastName},
@@ -713,7 +602,6 @@ const PurchasePage = () => {
         }
     };
 
-
     useEffect(() => {
         console.log("Updated travellers details:", travellersDetails);
     }, [travellersDetails]);
@@ -742,11 +630,6 @@ const PurchasePage = () => {
             return updatedTravelers;
         });
     };
-
-    const [gender, setGender] = useState([
-        { id: 1, gender: '1', title: 'Mr' },
-        { id: 2, gender: '2', title: 'Mrs' },
-    ]);
 
     // Handle gender change for each traveler
     const handleGenderChange = (id, gender) => {
@@ -849,9 +732,6 @@ const PurchasePage = () => {
             return isDifferent ? updatedTravelers : prevTravelers;
         });
     }, [travelers]); // Include travelers as dependency to trigger when travelers change
-
-    tripDetails.push(travelers);
-    console.log(tripDetails, "TRAVELERS-DETAILS");
 
     const handleAffirmPayment = () => {
         console.log('Processing payment with Affirm...');
@@ -3612,6 +3492,7 @@ const PurchasePage = () => {
                                             className="step3"
                                             bis_skin_checked={1}
                                         ></div>
+
                                         <div
                                             className="price-summary"
                                             id="price_block"
@@ -4063,6 +3944,7 @@ const PurchasePage = () => {
                                                 </p>
                                             </div>
                                         </div>
+
                                         <div id="div_Payment" className="step4" bis_skin_checked={1}>
                                             {/* Billing Information and Payment Details */}
                                             <BillingInfo
