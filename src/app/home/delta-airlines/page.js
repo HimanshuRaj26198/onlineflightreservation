@@ -71,25 +71,25 @@ const DeltaAirlines = () => {
 
     return (
         <>
-            <div class="body-content">
-                <div class="information_popup hidden-xs" style={{ display: "none" }}>
-                    <a href="javascript:void(0);" class="information_close-popup">
+            <div className="body-content">
+                <div className="information_popup hidden-xs" style={{ display: "none" }}>
+                    <a href="javascript:void(0);" className="information_close-popup">
                         &times;
                     </a>
-                    <div class="logo-center hidden-xs">
+                    <div className="logo-center hidden-xs">
                         <img src="/assets/images/home/privacy-icon.png" />
                     </div>
-                    <div class="logo-center visible-xs">
+                    <div className="logo-center visible-xs">
                         <img src="/assets/images/home/privacy-icon-xs.png" />
                     </div>
                     <h3>Delta Airlines Reservation</h3>
                     <ul>
                         <li>
-                            <span class="number">1.</span>We restrict sharing of your
+                            <span className="number">1.</span>We restrict sharing of your
                             information.
                         </li>
                         <li>
-                            <span class="number">2.</span>We do not use your personal
+                            <span className="number">2.</span>We do not use your personal
                             information for any promotional activity.
                         </li>
                     </ul>
@@ -104,7 +104,7 @@ const DeltaAirlines = () => {
   
   
                       $(document).ready(function () {
-                          document.documentElement.classList.add('cooke');
+                          document.documentElement.classNameList.add('cooke');
   
                           var showMsg = "";
                           if (commonSetting.local_storage == 1) {
@@ -140,10 +140,10 @@ const DeltaAirlines = () => {
               `}
                 />
 
-                <div class="main-engine-wrapper ">
-                    <div class="container hidden-xs">
+                <div className="main-engine-wrapper ">
+                    <div className="container hidden-xs">
                         <div
-                            class="engine-label"
+                            className="engine-label"
                             style={{ textAlign: "left", color: "#fff", marginTop: "30px" }}
                         >
                             <h1
@@ -167,42 +167,42 @@ const DeltaAirlines = () => {
                             </span>
                         </div>
                     </div>
-                    <div class="main-search-engine home_event_h">
-                        <div class="container">
-                            <div class="engine-tabs">
+                    <div className="main-search-engine home_event_h">
+                        <div className="container">
+                            <div className="engine-tabs">
                                 <ul>
                                     <li
                                         id="flightTab"
-                                        class="engin-tab active"
+                                        className="engin-tab active"
                                         onclick="clickEngineShow('flightEngineId','flightTab');"
                                     >
-                                        <i class="fa fa-plane" aria-hidden="true"></i> Flights
+                                        <i className="fa fa-plane" aria-hidden="true"></i> Flights
                                     </li>
                                     {/* <li
                                         id="carTab"
-                                        class="engin-tab"
+                                        className="engin-tab"
                                         onclick="clickEngineShow('carEngineId','carTab');"
                                     >
-                                        <i class="fa fa-car" aria-hidden="true"></i> Cars
+                                        <i className="fa fa-car" aria-hidden="true"></i> Cars
                                     </li>
                                     <li
                                         id="hotelTab"
-                                        class="engin-tab"
+                                        className="engin-tab"
                                         onclick="clickEngineShow('hotelEngineId','hotelTab');"
                                     >
-                                        <i class="fa fa-building" aria-hidden="true"></i> Hotels
+                                        <i className="fa fa-building" aria-hidden="true"></i> Hotels
                                     </li>
                                     <li
                                         id="cruiseTab"
-                                        class="engin-tab"
+                                        className="engin-tab"
                                         onclick="clickEngineShow('cruiseEngineId','cruiseTab');"
                                     >
-                                        <i class="cruise_icon"></i>
+                                        <i className="cruise_icon"></i>
                                         Cruise
                                     </li> */}
                                 </ul>
                             </div>
-                            <div class="common_searchCntr">
+                            <div className="common_searchCntr">
                                 <section id="flightEngineId">
                                     <FlightSearch airline="DL" />
 
@@ -211,11 +211,11 @@ const DeltaAirlines = () => {
                                 <section id="carEngineId" style={{ display: "none" }}>
                                     <Script dangerouslySetInnerHTML={`var carsearchAction = '/us/cars/searching';`} />
                                     <form id="CarForm">
-                                        <div class="searchBox" id="carEngineId">
-                                            <div class="searchBlock">
-                                                <div class="row">
-                                                    <div class="col-sm-12 col-xs-12">
-                                                        <ul class="location-type inputSet">
+                                        <div className="searchBox" id="carEngineId">
+                                            <div className="searchBlock">
+                                                <div className="row">
+                                                    <div className="col-sm-12 col-xs-12">
+                                                        <ul className="location-type inputSet">
                                                             <li>
                                                                 <label>
                                                                     <input name="changeLocation" checked="checked" id="sameDrop" type="radio" />
@@ -236,16 +236,16 @@ const DeltaAirlines = () => {
                                                     id="hdn_currentDate"
                                                     value="8/25/2024 4:14:56 AM"
                                                 />
-                                                <div class="row">
-                                                    <div class="col-lg-3 col-md-6 col-sm-12">
-                                                        <label class="form-label">Destination</label>
-                                                        <div class="input-city">
+                                                <div className="row">
+                                                    <div className="col-lg-3 col-md-6 col-sm-12">
+                                                        <label className="form-label">Destination</label>
+                                                        <div className="input-city">
                                                             <img
                                                                 src="images/location-icon.png"
-                                                                class="input-icon"
+                                                                className="input-icon"
                                                             />
                                                             <input
-                                                                class="textbox"
+                                                                className="textbox"
                                                                 data-val="true"
                                                                 data-val-required="The pickUpCityDisplay field is required."
                                                                 id="pickUpCityDisplay"
@@ -255,7 +255,7 @@ const DeltaAirlines = () => {
                                                                 value
                                                             />
                                                             <span
-                                                                class="field-validation-valid"
+                                                                className="field-validation-valid"
                                                                 data-valmsg-for="PickUpCity"
                                                                 data-valmsg-replace="true"
                                                             ></span>
@@ -277,14 +277,14 @@ const DeltaAirlines = () => {
                                                             />
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12">
-                                                        <div class="input-city">
+                                                    <div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
+                                                        <div className="input-city">
                                                             <img
                                                                 src="images/location-icon.png"
-                                                                class="input-icon"
+                                                                className="input-icon"
                                                             />
                                                             <input
-                                                                class="textbox"
+                                                                className="textbox"
                                                                 id="dropOffCityDisplay"
                                                                 name="dropOffCityDisplay"
                                                                 placeholder="Drop off Location"
@@ -292,7 +292,7 @@ const DeltaAirlines = () => {
                                                                 value
                                                             />
                                                             <span
-                                                                class="field-validation-valid"
+                                                                className="field-validation-valid"
                                                                 data-valmsg-for="DropOffCity"
                                                                 data-valmsg-replace="true"
                                                             ></span>
@@ -313,9 +313,9 @@ const DeltaAirlines = () => {
 
                                                             <a
                                                                 href="javascript:void(0);"
-                                                                class="widgetdrop-off_close"
+                                                                className="widgetdrop-off_close"
                                                             ></a>
-                                                            <div class="widgetdrop-off inputSet">
+                                                            <div className="widgetdrop-off inputSet">
                                                                 <label>
                                                                     <span>
                                                                         Need a different <br /> Drop off Location?
@@ -324,18 +324,18 @@ const DeltaAirlines = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                                        <div class="row">
-                                                            <div class="col-md-3 col-7 col-xs-7 sm-pr-5">
-                                                                <label class="form-label">Pick up Date</label>
-                                                                <div class="input-city">
+                                                    <div className="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                        <div className="row">
+                                                            <div className="col-md-3 col-7 col-xs-7 sm-pr-5">
+                                                                <label className="form-label">Pick up Date</label>
+                                                                <div className="input-city">
                                                                     <img
                                                                         src="images/calender-icon.png"
-                                                                        class="input-icon cal-icon"
+                                                                        className="input-icon cal-icon"
                                                                     />
                                                                     <input
                                                                         Value="Aug 25, 2024"
-                                                                        class="hand textbox"
+                                                                        className="hand textbox"
                                                                         id="fromcarDateDisplay"
                                                                         name="fromcarDateDisplay"
                                                                         readonly="readonly"
@@ -355,11 +355,11 @@ const DeltaAirlines = () => {
                                                                     />
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-3 col-5 col-xs-5">
-                                                                <label class="form-label">Time</label>
-                                                                <div class="input-city downArrow">
+                                                            <div className="col-md-3 col-5 col-xs-5">
+                                                                <label className="form-label">Time</label>
+                                                                <div className="input-city downArrow">
                                                                     <select
-                                                                        class="select"
+                                                                        className="select"
                                                                         data-val="true"
                                                                         data-val-required="The PickUpHour field is required."
                                                                         id="PickUpHour"
@@ -418,16 +418,16 @@ const DeltaAirlines = () => {
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-3 col-7 sm-pr-5 col-xs-7">
-                                                                <label class="form-label">Drop off Date</label>
-                                                                <div class="input-city">
+                                                            <div className="col-md-3 col-7 sm-pr-5 col-xs-7">
+                                                                <label className="form-label">Drop off Date</label>
+                                                                <div className="input-city">
                                                                     <img
                                                                         src="images/calender-icon.png"
-                                                                        class="input-icon cal-icon"
+                                                                        className="input-icon cal-icon"
                                                                     />
                                                                     <input
                                                                         Value="Sep 01, 2024"
-                                                                        class="hand textbox"
+                                                                        className="hand textbox"
                                                                         id="tocarDateDisplay"
                                                                         name="tocarDateDisplay"
                                                                         readonly="readonly"
@@ -447,11 +447,11 @@ const DeltaAirlines = () => {
                                                                     />
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-3 col-5 col-xs-5">
-                                                                <label class="form-label">Time</label>
-                                                                <div class="input-city downArrow">
+                                                            <div className="col-md-3 col-5 col-xs-5">
+                                                                <label className="form-label">Time</label>
+                                                                <div className="input-city downArrow">
                                                                     <select
-                                                                        class="select"
+                                                                        className="select"
                                                                         data-val="true"
                                                                         data-val-required="The DropOffHour field is required."
                                                                         id="DropOffHour"
@@ -533,21 +533,21 @@ const DeltaAirlines = () => {
                                                         value="True"
                                                     />
                                                 </div>
-                                                <div class="row">
+                                                <div className="row">
                                                     <span
                                                         id="sameSearchcar"
-                                                        class="col-lg-3 col-md-6 col-sm-12 error-txt hidden-xs"
+                                                        className="col-lg-3 col-md-6 col-sm-12 error-txt hidden-xs"
                                                     ></span>
                                                     <span
                                                         id="sameSearchcarDrop"
-                                                        class="col-lg-3 col-md-6 col-sm-12 error-txt hidden-xs"
+                                                        className="col-lg-3 col-md-6 col-sm-12 error-txt hidden-xs"
                                                     ></span>
                                                 </div>
-                                                <div class="engine-bottom-txt">
-                                                    <div class="row">
-                                                        <div class="col-sm-9">
-                                                            <div class="row inputSet">
-                                                                <div class="col-sm-5">
+                                                <div className="engine-bottom-txt">
+                                                    <div className="row">
+                                                        <div className="col-sm-9">
+                                                            <div className="row inputSet">
+                                                                <div className="col-sm-5">
                                                                     <label
                                                                         style={{
                                                                             display: "inline",
@@ -556,7 +556,7 @@ const DeltaAirlines = () => {
                                                                     >
                                                                         <input
                                                                             checked="checked"
-                                                                            class="checkeddiv"
+                                                                            className="checkeddiv"
                                                                             type="checkbox"
                                                                         />
                                                                         <span>
@@ -565,16 +565,16 @@ const DeltaAirlines = () => {
                                                                         </span>
                                                                     </label>
                                                                     <div
-                                                                        class="tooltip-custom"
+                                                                        className="tooltip-custom"
                                                                         style={{ display: "inline" }}
                                                                     >
                                                                         <i
-                                                                            class="fa fa-info"
+                                                                            className="fa fa-info"
                                                                             aria-hidden="true"
                                                                         ></i>
-                                                                        <div class="promo-detail">
-                                                                            <span class="arrow"></span>
-                                                                            <p class="m-0">
+                                                                        <div className="promo-detail">
+                                                                            <span className="arrow"></span>
+                                                                            <p className="m-0">
                                                                                 Additional Fee may apply for driver
                                                                                 under 30 Yrs or above 65 Yrs old, at the
                                                                                 time of rental. Please check term and
@@ -583,7 +583,7 @@ const DeltaAirlines = () => {
                                                                         </div>
                                                                     </div>
                                                                     <ul
-                                                                        class="driver-age-list inputSet radio_green"
+                                                                        className="driver-age-list inputSet radio_green"
                                                                         style={{ display: "none" }}
                                                                     >
                                                                         <li>
@@ -631,31 +631,31 @@ const DeltaAirlines = () => {
                                                                     type="hidden"
                                                                     value="35"
                                                                 />
-                                                                <div class="col-sm-7">
-                                                                    <div class="checkbox-expend">
+                                                                <div className="col-sm-7">
+                                                                    <div className="checkbox-expend">
                                                                         {" "}
                                                                         <a
                                                                             href="javascript:void(0)"
                                                                             onclick="advaOptionsShow();"
-                                                                            class="advanced-option"
+                                                                            className="advanced-option"
                                                                         >
                                                                             {" "}
                                                                             Advanced Options{" "}
                                                                             <i
-                                                                                class="fa fa-angle-down"
+                                                                                className="fa fa-angle-down"
                                                                                 aria-hidden="true"
                                                                             ></i>
                                                                         </a>{" "}
                                                                     </div>
                                                                     <div
-                                                                        class="row"
+                                                                        className="row"
                                                                         style={{ display: "none" }}
                                                                         id="advaOptionsDiv"
                                                                     >
-                                                                        <div class="col-sm-6 col-12">
-                                                                            <div class="input-city downArrow mb-sm-2">
+                                                                        <div className="col-sm-6 col-12">
+                                                                            <div className="input-city downArrow mb-sm-2">
                                                                                 <select
-                                                                                    class="select"
+                                                                                    className="select"
                                                                                     id="VendorCode"
                                                                                     name="VendorCode"
                                                                                 >
@@ -749,10 +749,10 @@ const DeltaAirlines = () => {
                                                                                 </select>
                                                                             </div>
                                                                         </div>
-                                                                        <div class="col-sm-6 col-12">
-                                                                            <div class="input-city downArrow">
+                                                                        <div className="col-sm-6 col-12">
+                                                                            <div className="input-city downArrow">
                                                                                 <select
-                                                                                    class="select"
+                                                                                    className="select"
                                                                                     id="VehicleType"
                                                                                     name="VehicleType"
                                                                                 >
@@ -781,10 +781,10 @@ const DeltaAirlines = () => {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-sm-3">
-                                                            <div class="text-right">
+                                                        <div className="col-sm-3">
+                                                            <div className="text-right">
                                                                 <a
-                                                                    class="search-btn"
+                                                                    className="search-btn"
                                                                     onclick="return validcar();"
                                                                 >
                                                                     Search
@@ -854,30 +854,30 @@ const DeltaAirlines = () => {
                                 </section>
 
                                 <section id="hotelEngineId" style={{ display: "none" }}>
-                                    <div class="searchBg" id="htleng">
+                                    <div className="searchBg" id="htleng">
                                         <section>
                                             <form
 
                                                 id="HotelForm"
                                             >
-                                                <div class="row">
-                                                    <div class="col-xs-12">
-                                                        <div class="row">
-                                                            <div class="col-lg-10">
-                                                                <div class="row">
-                                                                    <div class="col-md-12 col-lg-4">
-                                                                        <div class="input-city">
-                                                                            <label class="form-label">
+                                                <div className="row">
+                                                    <div className="col-xs-12">
+                                                        <div className="row">
+                                                            <div className="col-lg-10">
+                                                                <div className="row">
+                                                                    <div className="col-md-12 col-lg-4">
+                                                                        <div className="input-city">
+                                                                            <label className="form-label">
                                                                                 Where to ?
                                                                             </label>
-                                                                            <div class="relative">
+                                                                            <div className="relative">
                                                                                 <img
                                                                                     src="/assets/hotel/images/location-icon.png"
-                                                                                    class="input-icon"
+                                                                                    className="input-icon"
                                                                                 />
                                                                                 <input
                                                                                     autoComplete="off"
-                                                                                    class="textoverflow ui-autocomplete-input"
+                                                                                    className="textoverflow ui-autocomplete-input"
                                                                                     id="htlsearch"
                                                                                     name="htlsearch"
                                                                                     placeholder="City/Location?"
@@ -885,32 +885,32 @@ const DeltaAirlines = () => {
                                                                                     value
                                                                                 />
                                                                                 <span
-                                                                                    class="field-validation-valid"
+                                                                                    className="field-validation-valid"
                                                                                     data-valmsg-for="htlsearch"
                                                                                     data-valmsg-replace="true"
                                                                                 ></span>
-                                                                                <span class="field-validation-valid"></span>
+                                                                                <span className="field-validation-valid"></span>
                                                                             </div>
                                                                         </div>
                                                                         <div
                                                                             id="sameSearchhotel"
-                                                                            class="error-txt"
+                                                                            className="error-txt"
                                                                             style={{ clear: "both" }}
                                                                         ></div>
                                                                     </div>
-                                                                    <div class="col-xs-12 col-sm-6  col-lg-4">
-                                                                        <label class="form-label cal-label">
+                                                                    <div className="col-xs-12 col-sm-6  col-lg-4">
+                                                                        <label className="form-label cal-label">
                                                                             Travel Date(s)
                                                                         </label>
-                                                                        <div class="calender-txt calender-block">
-                                                                            <span class="relative">
+                                                                        <div className="calender-txt calender-block">
+                                                                            <span className="relative">
                                                                                 <img
                                                                                     src="/assets/hotel/images/calender-icon.png"
-                                                                                    class="cal"
+                                                                                    className="cal"
                                                                                 />
                                                                                 <input
                                                                                     Value="Sep 01, 2024"
-                                                                                    class="hand"
+                                                                                    className="hand"
                                                                                     data-val="true"
                                                                                     data-val-required="The fromhotelDateDisplay field is required."
                                                                                     id="fromhotelDateDisplay"
@@ -941,14 +941,14 @@ const DeltaAirlines = () => {
                                                                                     value="9/1/2024 4:14:56 AM"
                                                                                 />
                                                                             </span>
-                                                                            <span class="relative">
+                                                                            <span className="relative">
                                                                                 <img
-                                                                                    class="cal"
+                                                                                    className="cal"
                                                                                     src="/assets/hotel/images/calender-icon.png"
                                                                                 />
                                                                                 <input
                                                                                     Value="Sep 03, 2024"
-                                                                                    class="hand"
+                                                                                    className="hand"
                                                                                     data-val="true"
                                                                                     data-val-required="The tohotelDateDisplay field is required."
                                                                                     id="tohotelDateDisplay"
@@ -981,29 +981,29 @@ const DeltaAirlines = () => {
                                                                             </span>
                                                                         </div>
                                                                         <span
-                                                                            class="field-validation-valid"
+                                                                            className="field-validation-valid"
                                                                             data-valmsg-for="fromhotelDateDisplay"
                                                                             data-valmsg-replace="true"
                                                                         ></span>
                                                                         <span
-                                                                            class="field-validation-valid"
+                                                                            className="field-validation-valid"
                                                                             data-valmsg-for="tohotelDateDisplay"
                                                                             data-valmsg-replace="true"
                                                                         ></span>
                                                                     </div>
-                                                                    <div class="col-xs-12 col-sm-6  col-lg-4">
-                                                                        <div class="input-border traveler-fees-toggle pointer">
-                                                                            <label class="form-label cal-label">
+                                                                    <div className="col-xs-12 col-sm-6  col-lg-4">
+                                                                        <div className="input-border traveler-fees-toggle pointer">
+                                                                            <label className="form-label cal-label">
                                                                                 Guests, Rooms
                                                                             </label>
-                                                                            <div class="relative  drop-errow">
+                                                                            <div className="relative  drop-errow">
                                                                                 <img
-                                                                                    class="input-icon"
+                                                                                    className="input-icon"
                                                                                     src="/assets/hotel/images/traveller-icon.png"
                                                                                 />
                                                                                 <input
                                                                                     autoComplete="off"
-                                                                                    class="hand"
+                                                                                    className="hand"
                                                                                     id="roomGuest"
                                                                                     name="roomGuest"
                                                                                     onclick="showhtlmoreRoom();"
@@ -1017,28 +1017,28 @@ const DeltaAirlines = () => {
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="engine-bottom-txt">
-                                                                    <div class="row">
-                                                                        <div class="col-md-6">
+                                                                <div className="engine-bottom-txt">
+                                                                    <div className="row">
+                                                                        <div className="col-md-6">
                                                                             <label
-                                                                                class="form-label moreoptions"
+                                                                                className="form-label moreoptions"
                                                                                 onclick="showhtladvance();"
                                                                             >
                                                                                 Advance Search Option{" "}
                                                                                 <i
-                                                                                    class="fa fa-angle-down"
+                                                                                    className="fa fa-angle-down"
                                                                                     aria-hidden="true"
                                                                                 ></i>
                                                                             </label>
                                                                             <div
-                                                                                class="row lessoptions"
+                                                                                className="row lessoptions"
                                                                                 style={{ display: "none" }}
                                                                             >
-                                                                                <div class="col-sm-6">
-                                                                                    <div class="input-border traveler-fees-toggle pointer ao">
-                                                                                        <span class="hotel-icon"></span>
+                                                                                <div className="col-sm-6">
+                                                                                    <div className="input-border traveler-fees-toggle pointer ao">
+                                                                                        <span className="hotel-icon"></span>
                                                                                         <input
-                                                                                            class="hotel-name-input"
+                                                                                            className="hotel-name-input"
                                                                                             id="hotelName"
                                                                                             name="hotelName"
                                                                                             placeholder="Hotel Name"
@@ -1047,10 +1047,10 @@ const DeltaAirlines = () => {
                                                                                         />
                                                                                     </div>
                                                                                 </div>
-                                                                                <div class="col-sm-6">
-                                                                                    <div class="input-border traveler-fees-toggle pointer dropdown-errow ao">
+                                                                                <div className="col-sm-6">
+                                                                                    <div className="input-border traveler-fees-toggle pointer dropdown-errow ao">
                                                                                         <span
-                                                                                            class="star-icon"
+                                                                                            className="star-icon"
                                                                                             aria-hidden="true"
                                                                                         ></span>
                                                                                         <select
@@ -1081,14 +1081,14 @@ const DeltaAirlines = () => {
                                                                     </div>
                                                                     <span
                                                                         id="sameSearch"
-                                                                        class="error-txt"
+                                                                        className="error-txt"
                                                                     ></span>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-2">
-                                                                <div class="text-right">
+                                                            <div className="col-lg-2">
+                                                                <div className="text-right">
                                                                     <button
-                                                                        class="hotel-search-btn"
+                                                                        className="hotel-search-btn"
                                                                         onclick="return checkurlhtl();"
                                                                     >
                                                                         Search
@@ -1101,31 +1101,31 @@ const DeltaAirlines = () => {
 
                                                 <div
                                                     id="htlselectpax"
-                                                    class="room-details"
+                                                    className="room-details"
                                                     style={{ display: "none" }}
                                                 >
-                                                    <div class="hotel-room-block">
+                                                    <div className="hotel-room-block">
                                                         <a
                                                             href="javascript:void(0);"
                                                             onclick="Doneroom()"
-                                                            class="popup-close"
+                                                            className="popup-close"
                                                         >
-                                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                                            <i className="fa fa-times" aria-hidden="true"></i>
                                                         </a>
-                                                        <div class="row">
-                                                            <div class="col-sm-4">
-                                                                <div class="roomadd">
-                                                                    <div class="room-name">Room 1</div>
-                                                                    <div class="add-guest">
+                                                        <div className="row">
+                                                            <div className="col-sm-4">
+                                                                <div className="roomadd">
+                                                                    <div className="room-name">Room 1</div>
+                                                                    <div className="add-guest">
                                                                         <span>
                                                                             <a
                                                                                 href="javascript:void(0);"
                                                                                 id="subadultCount1"
                                                                                 onclick="removeadultpax(1)"
                                                                             >
-                                                                                <i class="fa fa-minus"></i>
+                                                                                <i className="fa fa-minus"></i>
                                                                             </a>
-                                                                            <b class="value" id="adultCount1">
+                                                                            <b className="value" id="adultCount1">
                                                                                 {" "}
                                                                                 2{" "}
                                                                             </b>
@@ -1134,21 +1134,21 @@ const DeltaAirlines = () => {
                                                                                 id="addadultCount1"
                                                                                 onclick="addadultpax(1)"
                                                                             >
-                                                                                <i class="fa fa-plus"></i>
+                                                                                <i className="fa fa-plus"></i>
                                                                             </a>
                                                                         </span>
                                                                         Adult
                                                                     </div>
-                                                                    <div class="add-guest">
+                                                                    <div className="add-guest">
                                                                         <span>
                                                                             <a
                                                                                 href="javascript:void(0);"
                                                                                 id="subChildCount1"
                                                                                 onclick="removeaChildPax(1)"
                                                                             >
-                                                                                <i class="fa fa-minus"></i>
+                                                                                <i className="fa fa-minus"></i>
                                                                             </a>
-                                                                            <b class="value" id="ChildCount1">
+                                                                            <b className="value" id="ChildCount1">
                                                                                 0
                                                                             </b>
                                                                             <a
@@ -1156,32 +1156,32 @@ const DeltaAirlines = () => {
                                                                                 id="addChildCount1"
                                                                                 onclick="addChildpax(1)"
                                                                             >
-                                                                                <i class="fa fa-plus"></i>
+                                                                                <i className="fa fa-plus"></i>
                                                                             </a>
                                                                         </span>
                                                                         Child <small>(0-17)</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="select-age">
-                                                                    <div class="childdiv_1"></div>
+                                                            <div className="col-sm-8">
+                                                                <div className="select-age">
+                                                                    <div className="childdiv_1"></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="sec-devider"></div>
+                                                            <div className="sec-devider"></div>
                                                         </div>
                                                         <div id="nextdiv"> </div>
-                                                        <div class="add-room">
+                                                        <div className="add-room">
                                                             <a
                                                                 href="javascript:void(0);"
-                                                                class="another-btn"
+                                                                className="another-btn"
                                                                 onclick="addroom()"
                                                             >
                                                                 + Add another room
                                                             </a>
                                                             <a
                                                                 href="javascript:void(0);"
-                                                                class="removerroom remove-btn"
+                                                                className="removerroom remove-btn"
                                                                 style={{ display: "none" }}
                                                                 onclick="removeroom()"
                                                             >
@@ -1189,7 +1189,7 @@ const DeltaAirlines = () => {
                                                             </a>
                                                             <a
                                                                 href="javascript:void(0);"
-                                                                class="close-btn htlclose-btn"
+                                                                className="close-btn htlclose-btn"
                                                                 onclick="Doneroom()"
                                                             >
                                                                 Done
@@ -1238,9 +1238,9 @@ const DeltaAirlines = () => {
                                 </section>
 
                                 <section id="cruiseEngineId" style={{ display: "none" }}>
-                                    <div class="contactenquiry" style={{ display: "block" }}>
-                                        <div class="row">
-                                            <div class="col-sm-3 col-xs-12">
+                                    <div className="contactenquiry" style={{ display: "block" }}>
+                                        <div className="row">
+                                            <div className="col-sm-3 col-xs-12">
                                                 <input
                                                     type="text"
                                                     id="txtCruiseDest"
@@ -1249,9 +1249,9 @@ const DeltaAirlines = () => {
                                                     placeholder="Destination"
                                                     autoComplete="off"
                                                 />
-                                                <span id="cruiseDestErrMsg" class="error-txt"></span>
+                                                <span id="cruiseDestErrMsg" className="error-txt"></span>
                                             </div>
-                                            <div class="col-sm-3 col-xs-12">
+                                            <div className="col-sm-3 col-xs-12">
                                                 <input
                                                     type="text"
                                                     id="txtCruiseLine"
@@ -1260,9 +1260,9 @@ const DeltaAirlines = () => {
                                                     placeholder="Cruise Line"
                                                     autoComplete="off"
                                                 />
-                                                <span id="cruiseLineErrMsg" class="error-txt"></span>
+                                                <span id="cruiseLineErrMsg" className="error-txt"></span>
                                             </div>
-                                            <div class="col-sm-6 col-xs-12">
+                                            <div className="col-sm-6 col-xs-12">
                                                 <input
                                                     type="text"
                                                     id="txtCruiseLength"
@@ -1271,44 +1271,44 @@ const DeltaAirlines = () => {
                                                     placeholder="Cruise Length"
                                                     autoComplete="off"
                                                 />
-                                                <span id="cruiseLengthErrMsg" class="error-txt"></span>
+                                                <span id="cruiseLengthErrMsg" className="error-txt"></span>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                        <div className="row">
+                                            <div className="col-md-3 col-sm-3 col-xs-12">
                                                 <input
                                                     type="text"
                                                     id="txtCruiseGuestName"
                                                     minlength="1"
                                                     maxlength="100"
                                                     placeholder="Name"
-                                                    class="cc"
+                                                    className="cc"
                                                     autoComplete="off"
                                                 />
                                                 <span
                                                     id="cruiseGuestNameErrMsg"
-                                                    class="error-txt"
+                                                    className="error-txt"
                                                 ></span>
                                             </div>
-                                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                            <div className="col-md-3 col-sm-3 col-xs-12">
                                                 <input
                                                     type="text"
                                                     id="txtCruiseGuestEmail"
                                                     minlength="1"
                                                     maxlength="100"
                                                     placeholder="Email"
-                                                    class="cc"
+                                                    className="cc"
                                                     autoComplete="off"
                                                 />
                                                 <span
                                                     id="cruiseGuestEmailErrMsg"
-                                                    class="error-txt"
+                                                    className="error-txt"
                                                 ></span>
                                             </div>
-                                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div className="col-md-4 col-sm-6 col-xs-12">
                                                 <input
                                                     type="tel"
-                                                    class="tel"
+                                                    className="tel"
                                                     readonly="readonly"
                                                     id="txtCruiseGuestPhCode"
                                                     placeholder="Contact number"
@@ -1317,7 +1317,7 @@ const DeltaAirlines = () => {
                                                 <input
                                                     type="text"
                                                     id="txtCruiseGuestPhoneNo"
-                                                    class="phoneno"
+                                                    className="phoneno"
                                                     minlength="10"
                                                     maxlength="15"
                                                     placeholder="Phone No"
@@ -1325,14 +1325,14 @@ const DeltaAirlines = () => {
                                                 />
                                                 <span
                                                     id="cruiseGuestPhoneNoErrMsg"
-                                                    class="error-txt"
+                                                    className="error-txt"
                                                 ></span>
                                             </div>
-                                            <div class="col-md-2 col-sm-5 col-xs-12">
-                                                <div id="dvReqACruiseCall" class="text-right">
+                                            <div className="col-md-2 col-sm-5 col-xs-12">
+                                                <div id="dvReqACruiseCall" className="text-right">
                                                     <button
                                                         id="btnReqACruiseCall"
-                                                        class="search-btn"
+                                                        className="search-btn"
                                                         onClick="return cruise.submitReqACruiseCallRQData();"
                                                     >
                                                         Request a Call
@@ -1344,12 +1344,12 @@ const DeltaAirlines = () => {
 
                                     <div
                                         id="dvCruiseAjaxLoader"
-                                        class="common_popup"
+                                        className="common_popup"
                                         style={{ display: "none" }}
                                     >
-                                        <div class="center-block">
-                                            <div class="outer">
-                                                <div class="sucesspopupmsg" style={{ width: "200px" }}>
+                                        <div className="center-block">
+                                            <div className="outer">
+                                                <div className="sucesspopupmsg" style={{ width: "200px" }}>
                                                     <img src="/assets/images/loading.gif" />
                                                 </div>
                                             </div>
@@ -1358,16 +1358,16 @@ const DeltaAirlines = () => {
 
                                     <div
                                         id="dvCruiseCallRQSuccessPopup"
-                                        class="common_popup"
+                                        className="common_popup"
                                         style={{ display: "none" }}
                                     >
-                                        <div class="center-block">
-                                            <div class="outer">
-                                                <div class="sucesspopupmsg">
+                                        <div className="center-block">
+                                            <div className="outer">
+                                                <div className="sucesspopupmsg">
                                                     <a
                                                         href="javascript:void(0);"
                                                         id="btnClsCruiseCallRQSuccessPopup"
-                                                        class="close_popup"
+                                                        className="close_popup"
                                                     >
                                                         <img
                                                             src="/assets/images/svg/close-popup.svg"
@@ -1378,13 +1378,13 @@ const DeltaAirlines = () => {
                                                         src="/assets/images/svg/sucessfull_check.svg"
                                                         alt="thumb"
                                                     />
-                                                    <div class="thanku">Thank You!</div>
-                                                    <div class="submitreq">
+                                                    <div className="thanku">Thank You!</div>
+                                                    <div className="submitreq">
                                                         For Submitting Your Request
                                                     </div>
-                                                    <div class="request">
+                                                    <div className="request">
                                                         your request reference is{" "}
-                                                        <strong class="customer_support">
+                                                        <strong className="customer_support">
                                                             <span id="spnCruiseCallRQId"></span>
                                                         </strong>
                                                     </div>
@@ -1393,7 +1393,7 @@ const DeltaAirlines = () => {
                                                         Contact You Shortly. For More Information, You Can
                                                         Call Us At
                                                     </p>
-                                                    <div class="customer_support">
+                                                    <div className="customer_support">
                                                         <a href="tel:+1-248-274-7239">+1-248-274-7239</a>
                                                     </div>
                                                 </div>
@@ -1422,25 +1422,25 @@ const DeltaAirlines = () => {
                     </div>
                 </div>
 
-                <div class="relative">
-                    <div class="newcustomer__serviceBox">
-                        <div class="container">
-                            <div class="holder">
-                                <div class="column">
+                <div className="relative">
+                    <div className="newcustomer__serviceBox">
+                        <div className="container">
+                            <div className="holder">
+                                <div className="column">
                                     <a
-                                        class="affirm-site-modal affirm-link cursor"
+                                        className="affirm-site-modal affirm-link cursor"
                                         data-page-type="homepage"
                                     >
-                                        <span class="icon1"></span>
+                                        <span className="icon1"></span>
                                         <h4>Buy now,pay over time</h4>
                                         <p>
                                             Make monthly payments <br /> with no hidden fees
                                         </p>
                                     </a>
                                 </div>
-                                <div class="column">
+                                <div className="column">
                                     <a href="/assets/best_price.html" target="_blank">
-                                        <span class="icon2"></span>
+                                        <span className="icon2"></span>
                                         <h4>Price Match Promise</h4>
                                         <p>
                                             Found a lower fare, we will <br /> reimburse the
@@ -1448,16 +1448,16 @@ const DeltaAirlines = () => {
                                         </p>
                                     </a>
                                 </div>
-                                <div class="column">
-                                    <span class="icon3"></span>
+                                <div className="column">
+                                    <span className="icon3"></span>
                                     <h4>Quick & Easy</h4>
                                     <p>
                                         Book your preferred flights & <br /> hotels in just a few
                                         clicks.
                                     </p>
                                 </div>
-                                <div class="column">
-                                    <span class="icon4"></span>
+                                <div className="column">
+                                    <span className="icon4"></span>
                                     <h4>Fast and Safe</h4>
                                     <p>
                                         State-of-the-art technology to <br /> secure your data.
@@ -1468,11 +1468,11 @@ const DeltaAirlines = () => {
                     </div>
                 </div>
 
-                <div class="customer__service" style={{ display: "none" }}>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 col-xs-12">
-                                <div class="customer__block affirm--block">
+                <div className="customer__service" style={{ display: "none" }}>
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-md-3 col-sm-6 col-xs-12">
+                                <div className="customer__block affirm--block">
                                     <img src="/assets/images/affirm-logo.png" alt />
                                     <h3>
                                         Buy now,
@@ -1481,16 +1481,16 @@ const DeltaAirlines = () => {
                                     </h3>
                                     <p>Make monthly payments with no hidden fees.</p>
                                     <a
-                                        class="affirm-site-modal affirm-link cursor"
+                                        className="affirm-site-modal affirm-link cursor"
                                         data-page-type="homepage"
                                     >
                                         Learn more
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-sm-6 col-xs-12">
-                                <div class="customer__block">
-                                    <div class="cs-icon">
+                            <div className="col-md-3 col-sm-6 col-xs-12">
+                                <div className="customer__block">
+                                    <div className="cs-icon">
                                         <img
                                             src="/assets/images/price-match-logo.png"
                                             alt="price-match-logo"
@@ -1507,9 +1507,9 @@ const DeltaAirlines = () => {
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-sm-6 col-xs-12">
-                                <div class="customer__block">
-                                    <div class="cs-icon">
+                            <div className="col-md-3 col-sm-6 col-xs-12">
+                                <div className="customer__block">
+                                    <div className="cs-icon">
                                         <img
                                             src="/assets/images/quick-easy-logo.png"
                                             alt="quick-easy-logo"
@@ -1523,8 +1523,8 @@ const DeltaAirlines = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-sm-6 col-xs-12">
-                                <div class="customer__block">
+                            <div className="col-md-3 col-sm-6 col-xs-12">
+                                <div className="customer__block">
                                     <img
                                         src="/assets/images/cloudflare-safe.png"
                                         alt="cloudflare-safe"
@@ -1535,18 +1535,18 @@ const DeltaAirlines = () => {
                     </div>
                 </div>
 
-                <div class="top__dealsCntr">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="page__title">
+                <div className="top__dealsCntr">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <div className="page__title">
                                     <h2>Top Flight Destinations</h2>
-                                    <div class="sub__title">Offers for all travel styles</div>
+                                    <div className="sub__title">Offers for all travel styles</div>
                                 </div>
 
-                                <div class="leftCol">
+                                <div className="leftCol">
                                     {/* top flight destination */}
-                                    <div class="top__dealbox">
+                                    <div className="top__dealbox">
 
                                         <ul>
                                             {TopFlightDestinationArr && TopFlightDestinationArr.flat().map((des, index) => {
@@ -1556,9 +1556,9 @@ const DeltaAirlines = () => {
 
 
                                     </div>
-                                    <div class="dealbox__note">
+                                    <div className="dealbox__note">
                                         <b>Note:</b> All fares are quoted in USD. Last updated on{" "}
-                                        <span class="text-link-orange">
+                                        <span className="text-link-orange">
                                             Sat, Aug 24, 2024 at 05:00 AM.
                                         </span>
                                         , the fares mentioned above are for flight tickets and inclusive
@@ -1566,8 +1566,8 @@ const DeltaAirlines = () => {
                                     </div>
                                 </div>
 
-                                <div class="rightCol">
-                                    <div class="destination__block">
+                                <div className="rightCol">
+                                    <div className="destination__block">
                                         {TopDestinationsArr && TopDestinationsArr.map(a => {
                                             return <TopDestinationCard destination={a} />
                                         })}
@@ -1578,9 +1578,9 @@ const DeltaAirlines = () => {
                     </div>
                 </div>
 
-                <div class="subscribeBoxHome">
-                    <div class="container">
-                        <div class="subscribeBg">
+                <div className="subscribeBoxHome">
+                    <div className="container">
+                        <div className="subscribeBg">
                             <h2>Subscribe To Our Newsletter</h2>
                             <ul>
                                 <li>
@@ -1612,115 +1612,115 @@ const DeltaAirlines = () => {
                                     <p>Special Promo Codes & more</p>
                                 </li>
                             </ul>
-                            <a href="javascript:void(0);" class="subscribehomeBtn">
+                            <a href="javascript:void(0);" className="subscribehomeBtn">
                                 Subscribe Now
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <div class="hotel__deals">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="page__title">
+                <div className="hotel__deals">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <div className="page__title">
                                     <h2>Top Hotel Destinations</h2>
-                                    <div class="sub__title">
+                                    <div className="sub__title">
                                         Hotels that speak comfort and luxury
                                     </div>
                                 </div>
-                                <Slider {...settings} className="dealCntr dealSlider" >
+                                <Slider {...settings} classNameName="dealCntr dealSlider" >
 
                                     <div
-                                        class="deal__item"
+                                        className="deal__item"
                                         onclick="window.open('us/hotel/hotels/hotels-in-las-vegas-las-10801.html');"
                                     >
-                                        <div class="block">
+                                        <div className="block">
                                             <figure>
                                                 <img src="/assets/images/home/hotels/las.jpg" alt />
                                             </figure>
-                                            <div class="deal__detail">
-                                                <div class="deal__title">Las Vegas</div>
+                                            <div className="deal__detail">
+                                                <div className="deal__title">Las Vegas</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div
-                                        class="deal__item"
+                                        className="deal__item"
                                         onclick="window.open('us/hotel/hotels/hotels-in-cancun-cun-54072.html');"
                                     >
-                                        <div class="block">
+                                        <div className="block">
                                             <figure>
                                                 <img src="/assets/images/home/hotels/cancun.jpg" alt />
                                             </figure>
-                                            <div class="deal__detail">
-                                                <div class="deal__title">Cancun</div>
+                                            <div className="deal__detail">
+                                                <div className="deal__title">Cancun</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div
-                                        class="deal__item"
+                                        className="deal__item"
                                         onclick="window.open('us/hotel/hotels/hotels-in-london-lon-63982.html');"
                                     >
-                                        <div class="block">
+                                        <div className="block">
                                             <figure>
                                                 <img src="/assets/images/home/hotels/lon.jpg" alt />
                                             </figure>
-                                            <div class="deal__detail">
-                                                <div class="deal__title">London</div>
+                                            <div className="deal__detail">
+                                                <div className="deal__title">London</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div
-                                        class="deal__item"
+                                        className="deal__item"
                                         onclick="window.open('us/hotel/hotels/hotels-in-new-york-nyc-14189.html');"
                                     >
-                                        <div class="block">
+                                        <div className="block">
                                             <figure>
                                                 <img src="/assets/images/home/hotels/nyc.jpg" alt />
                                             </figure>
-                                            <div class="deal__detail">
-                                                <div class="deal__title">New York</div>
+                                            <div className="deal__detail">
+                                                <div className="deal__title">New York</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div
-                                        class="deal__item"
+                                        className="deal__item"
                                         onclick="window.open('us/hotel/hotels/hotels-in-toronto-yto-65326.html');"
                                     >
-                                        <div class="block">
+                                        <div className="block">
                                             <figure>
                                                 <img src="/assets/images/home/hotels/toronto.jpg" alt />
                                             </figure>
-                                            <div class="deal__detail">
-                                                <div class="deal__title">Toronto</div>
+                                            <div className="deal__detail">
+                                                <div className="deal__title">Toronto</div>
                                             </div>
                                         </div>
                                     </div>
 
                                 </Slider>
-                                {/* <div class="dealCntr dealSlider"></div> */}
+                                {/* <div className="dealCntr dealSlider"></div> */}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="newserviceBox">
-                    <div class="container">
-                        <div class="page__title">
+                <div className="newserviceBox">
+                    <div className="container">
+                        <div className="page__title">
                             <h3>Exclusive Add on Services</h3>
                         </div>
-                        <div class="holder">
-                            <div class="column">
+                        <div className="holder">
+                            <div className="column">
                                 <a href="/assets/baggage-fees.html" target="_blank">
                                     <img src="/assets/images/home/new/baggage.jpg" alt="baggage" />
                                     <h4>Baggage</h4>
                                 </a>
                             </div>
-                            <div class="column">
+                            <div className="column">
                                 <img src="/assets/images/home/new/seat.jpg" alt="seat" />
                                 <h4>Seats</h4>
                             </div>
-                            <div class="column">
+                            <div className="column">
                                 <a
                                     href="/assets/airlines/web-check-in/online-check-in.html"
                                     target="_blank"
@@ -1732,7 +1732,7 @@ const DeltaAirlines = () => {
                                     <h4>Online Check-in</h4>
                                 </a>
                             </div>
-                            <div class="column">
+                            <div className="column">
                                 <a href="/assets/travel-insurance.html" target="_blank">
                                     <img
                                         src="/assets/images/home/new/travel-insurance.jpg"
@@ -1744,40 +1744,40 @@ const DeltaAirlines = () => {
                         </div>
                     </div>
                 </div>
-                <div class="clearfix"></div>
+                <div className="clearfix"></div>
                 <br />
                 <div
                     id="tpmyModal66c74c2d0abcdbabb7a4c9ba"
-                    class="modal fade tpmodelpopUp"
+                    className="modal fade tpmodelpopUp"
                     role="dialog"
                 >
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <button type="button" class="close" data-dismiss="modal">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <button type="button" className="close" data-dismiss="modal">
                                     x
                                 </button>
-                                <div class="trustpilot-wraper">
-                                    <div class="review-block">
-                                        <div class="review-content">
-                                            <div class="rating-strip">
-                                                <div class="time">2 days ago</div>
-                                                <span class="first-letter">D</span>
-                                                <div class="tp-rating position">
+                                <div className="trustpilot-wraper">
+                                    <div className="review-block">
+                                        <div className="review-content">
+                                            <div className="rating-strip">
+                                                <div className="time">2 days ago</div>
+                                                <span className="first-letter">D</span>
+                                                <div className="tp-rating position">
                                                     <img
                                                         src="/assets/images/trustpilot/stars-5.svg"
                                                         style={{ height: "20px" }}
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="clearfix"></div>
-                                            <div class="name">Darlene Moore</div>
+                                            <div className="clearfix"></div>
+                                            <div className="name">Darlene Moore</div>
                                             <input
                                                 type="hidden"
                                                 id="66c74c2d0abcdbabb7a4c9ba"
                                                 value="Wade assisted me with my itinerary for…"
                                             />
-                                            <p class="txt">
+                                            <p className="txt">
                                                 Wade assisted me with my itinerary for my trip, which I
                                                 was very pleased. Great customer attention was given to
                                                 me by this young man. He is a true asset to your
@@ -1792,36 +1792,36 @@ const DeltaAirlines = () => {
                 </div>
                 <div
                     id="tpmyModal66c335abd66575b90d1e23b6"
-                    class="modal fade tpmodelpopUp"
+                    className="modal fade tpmodelpopUp"
                     role="dialog"
                 >
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <button type="button" class="close" data-dismiss="modal">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <button type="button" className="close" data-dismiss="modal">
                                     x
                                 </button>
-                                <div class="trustpilot-wraper">
-                                    <div class="review-block">
-                                        <div class="review-content">
-                                            <div class="rating-strip">
-                                                <div class="time">6 days ago</div>
-                                                <span class="first-letter">R</span>
-                                                <div class="tp-rating position">
+                                <div className="trustpilot-wraper">
+                                    <div className="review-block">
+                                        <div className="review-content">
+                                            <div className="rating-strip">
+                                                <div className="time">6 days ago</div>
+                                                <span className="first-letter">R</span>
+                                                <div className="tp-rating position">
                                                     <img
                                                         src="/assets/images/trustpilot/stars-5.svg"
                                                         style={{ height: "20px" }}
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="clearfix"></div>
-                                            <div class="name">Rj Washington</div>
+                                            <div className="clearfix"></div>
+                                            <div className="name">Rj Washington</div>
                                             <input
                                                 type="hidden"
                                                 id="66c335abd66575b90d1e23b6"
                                                 value="Best prices!"
                                             />
-                                            <p class="txt">
+                                            <p className="txt">
                                                 The company was reliable and customer service is on top
                                                 of the game with handling misunderstandings!
                                             </p>
@@ -1834,36 +1834,36 @@ const DeltaAirlines = () => {
                 </div>
                 <div
                     id="tpmyModal66bfe502ea5401c0b99a6c98"
-                    class="modal fade tpmodelpopUp"
+                    className="modal fade tpmodelpopUp"
                     role="dialog"
                 >
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <button type="button" class="close" data-dismiss="modal">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <button type="button" className="close" data-dismiss="modal">
                                     x
                                 </button>
-                                <div class="trustpilot-wraper">
-                                    <div class="review-block">
-                                        <div class="review-content">
-                                            <div class="rating-strip">
-                                                <div class="time">8 days ago</div>
-                                                <span class="first-letter">S</span>
-                                                <div class="tp-rating position">
+                                <div className="trustpilot-wraper">
+                                    <div className="review-block">
+                                        <div className="review-content">
+                                            <div className="rating-strip">
+                                                <div className="time">8 days ago</div>
+                                                <span className="first-letter">S</span>
+                                                <div className="tp-rating position">
                                                     <img
                                                         src="/assets/images/trustpilot/stars-5.svg"
                                                         style={{ height: "20px" }}
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="clearfix"></div>
-                                            <div class="name">Samuel Gomez</div>
+                                            <div className="clearfix"></div>
+                                            <div className="name">Samuel Gomez</div>
                                             <input
                                                 type="hidden"
                                                 id="66bfe502ea5401c0b99a6c98"
                                                 value="What a great team."
                                             />
-                                            <p class="txt">
+                                            <p className="txt">
                                                 I was having problems booking with JetBlue Airlines
                                                 since last night in the their website. So I decided to
                                                 search on the web for the JetBlue customer service for
@@ -1904,36 +1904,36 @@ const DeltaAirlines = () => {
                 </div>
                 <div
                     id="tpmyModal66be88ccb375e7b3a4bd4a54"
-                    class="modal fade tpmodelpopUp"
+                    className="modal fade tpmodelpopUp"
                     role="dialog"
                 >
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <button type="button" class="close" data-dismiss="modal">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <button type="button" className="close" data-dismiss="modal">
                                     x
                                 </button>
-                                <div class="trustpilot-wraper">
-                                    <div class="review-block">
-                                        <div class="review-content">
-                                            <div class="rating-strip">
-                                                <div class="time">9 days ago</div>
-                                                <span class="first-letter">C</span>
-                                                <div class="tp-rating position">
+                                <div className="trustpilot-wraper">
+                                    <div className="review-block">
+                                        <div className="review-content">
+                                            <div className="rating-strip">
+                                                <div className="time">9 days ago</div>
+                                                <span className="first-letter">C</span>
+                                                <div className="tp-rating position">
                                                     <img
                                                         src="/assets/images/trustpilot/stars-4.svg"
                                                         style={{ height: "20px" }}
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="clearfix"></div>
-                                            <div class="name">Chirag Sharma</div>
+                                            <div className="clearfix"></div>
+                                            <div className="name">Chirag Sharma</div>
                                             <input
                                                 type="hidden"
                                                 id="66be88ccb375e7b3a4bd4a54"
                                                 value="The experience was quite good as i was…"
                                             />
-                                            <p class="txt">
+                                            <p className="txt">
                                                 The experience was quite good as i was easily able to
                                                 compare prizes for different dates, different airports
                                                 and also different airlines. Must have a look here
@@ -1948,36 +1948,36 @@ const DeltaAirlines = () => {
                 </div>
                 <div
                     id="tpmyModal66baa73709e776888a6d8952"
-                    class="modal fade tpmodelpopUp"
+                    className="modal fade tpmodelpopUp"
                     role="dialog"
                 >
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <button type="button" class="close" data-dismiss="modal">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <button type="button" className="close" data-dismiss="modal">
                                     x
                                 </button>
-                                <div class="trustpilot-wraper">
-                                    <div class="review-block">
-                                        <div class="review-content">
-                                            <div class="rating-strip">
-                                                <div class="time">12 days ago</div>
-                                                <span class="first-letter">F</span>
-                                                <div class="tp-rating position">
+                                <div className="trustpilot-wraper">
+                                    <div className="review-block">
+                                        <div className="review-content">
+                                            <div className="rating-strip">
+                                                <div className="time">12 days ago</div>
+                                                <span className="first-letter">F</span>
+                                                <div className="tp-rating position">
                                                     <img
                                                         src="/assets/images/trustpilot/stars-5.svg"
                                                         style={{ height: "20px" }}
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="clearfix"></div>
-                                            <div class="name">Fiona Loney</div>
+                                            <div className="clearfix"></div>
+                                            <div className="name">Fiona Loney</div>
                                             <input
                                                 type="hidden"
                                                 id="66baa73709e776888a6d8952"
                                                 value="Satisfied customer"
                                             />
-                                            <p class="txt">
+                                            <p className="txt">
                                                 I want to thank your Agent Selvin Brad for the excellent
                                                 customer service he displayed. He went above and beyond
                                                 to ensure that the mattter I queried was thorougly dealt
@@ -1994,36 +1994,36 @@ const DeltaAirlines = () => {
                 </div>
                 <div
                     id="tpmyModal66b97bb8331a3580d20a1152"
-                    class="modal fade tpmodelpopUp"
+                    className="modal fade tpmodelpopUp"
                     role="dialog"
                 >
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <button type="button" class="close" data-dismiss="modal">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <button type="button" className="close" data-dismiss="modal">
                                     x
                                 </button>
-                                <div class="trustpilot-wraper">
-                                    <div class="review-block">
-                                        <div class="review-content">
-                                            <div class="rating-strip">
-                                                <div class="time">13 days ago</div>
-                                                <span class="first-letter">J</span>
-                                                <div class="tp-rating position">
+                                <div className="trustpilot-wraper">
+                                    <div className="review-block">
+                                        <div className="review-content">
+                                            <div className="rating-strip">
+                                                <div className="time">13 days ago</div>
+                                                <span className="first-letter">J</span>
+                                                <div className="tp-rating position">
                                                     <img
                                                         src="/assets/images/trustpilot/stars-5.svg"
                                                         style={{ height: "20px" }}
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="clearfix"></div>
-                                            <div class="name">Jessica Diaz-Adara</div>
+                                            <div className="clearfix"></div>
+                                            <div className="name">Jessica Diaz-Adara</div>
                                             <input
                                                 type="hidden"
                                                 id="66b97bb8331a3580d20a1152"
                                                 value=" excellent customer service"
                                             />
-                                            <p class="txt">
+                                            <p className="txt">
                                                 I received excellent customer service from Scout! My
                                                 questions were answered promptly and I was left
                                                 satisfied. Definitely recommend booking with this
@@ -2038,36 +2038,36 @@ const DeltaAirlines = () => {
                 </div>
                 <div
                     id="tpmyModal66b7f398b1f9fd96605a93bb"
-                    class="modal fade tpmodelpopUp"
+                    className="modal fade tpmodelpopUp"
                     role="dialog"
                 >
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <button type="button" class="close" data-dismiss="modal">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <button type="button" className="close" data-dismiss="modal">
                                     x
                                 </button>
-                                <div class="trustpilot-wraper">
-                                    <div class="review-block">
-                                        <div class="review-content">
-                                            <div class="rating-strip">
-                                                <div class="time">14 days ago</div>
-                                                <span class="first-letter">T</span>
-                                                <div class="tp-rating position">
+                                <div className="trustpilot-wraper">
+                                    <div className="review-block">
+                                        <div className="review-content">
+                                            <div className="rating-strip">
+                                                <div className="time">14 days ago</div>
+                                                <span className="first-letter">T</span>
+                                                <div className="tp-rating position">
                                                     <img
                                                         src="/assets/images/trustpilot/stars-4.svg"
                                                         style={{ height: "20px" }}
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="clearfix"></div>
-                                            <div class="name">Trunkmonkey</div>
+                                            <div className="clearfix"></div>
+                                            <div className="name">Trunkmonkey</div>
                                             <input
                                                 type="hidden"
                                                 id="66b7f398b1f9fd96605a93bb"
                                                 value="Easy to use system"
                                             />
-                                            <p class="txt">
+                                            <p className="txt">
                                                 Easy to use system, found lower rates than all the other
                                                 cheap flight services.
                                             </p>
@@ -2081,8 +2081,8 @@ const DeltaAirlines = () => {
                 <Script
                     dangerouslySetInnerHTML={``}
                 />
-                <div class="contentBox">
-                    <div class="container">
+                <div className="contentBox">
+                    <div className="container">
                         <br />
                         <p>
                             A one-stop site for all your travel needs, TourTravelHub is an OTA
@@ -2102,7 +2102,7 @@ const DeltaAirlines = () => {
                             booking platform, through which travelers can scan hundreds of
                             flight deals and book the best-priced ticket in just a few clicks.
                             That is not all. When you book with us, you will also get to
-                            experience our world-class 24/7 customer service, who will assist
+                            experience our world-className 24/7 customer service, who will assist
                             you right from planning your travel to booking the lowest airfare
                             deals available online. What are you waiting for? Book online or
                             call us to fly with the cheapest flight tickets to your dream
