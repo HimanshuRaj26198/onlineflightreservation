@@ -183,17 +183,8 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
                                                 </span> */}
 
                                                     </div>
-
-
-
                                                     <div bis_skin_checked="1">
-
-
-
-
                                                     </div>
-
-
                                                 </span>
                                             </div>
 

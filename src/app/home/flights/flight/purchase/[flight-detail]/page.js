@@ -509,6 +509,15 @@ const PurchasePage = () => {
         // Add the new traveler to the array of travelers
         setTravellersDetails((prevState) => [...prevState, newTraveler]);
 
+
+        const allTravelerData = {
+            contactDetails,
+            travelers,
+            cardDetails,
+            billingInfo,
+        };
+        localStorage.setItem('travelerData', JSON.stringify(allTravelerData));
+
         await handleSubmit(newTraveler);  // Send email after traveler details are added
 
         // For Payment Gateway
@@ -523,7 +532,7 @@ const PurchasePage = () => {
             const result = await response.json();
             if (result.success) {
                 toast.success('Reservation Successful! Transaction ID: ' + result.transactionId);
-                router.push('/home/confirmationPage/book-flight-confirms')
+                router.push(`/home/confirmationPage/book-flight-confirms?transactionStatus=${result.success}`)
             } else {
                 toast.error('Error: ' + result.message);
             }

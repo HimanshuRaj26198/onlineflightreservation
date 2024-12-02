@@ -16,10 +16,9 @@ import 'rc-slider/assets/index.css';
 const FlightResultCompnent = () => {
 
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const origin = searchParams.get("origin");
-    const destination = searchParams.get("destination");
     const searchParam = useSearchParams();
+    const origin = searchParam.get("origin");
+    const destination = searchParam.get("destination");
     const searchRef = useRef(null);
 
     const [uniqueAirlines, setUniqueAirlines] = useState([]);
@@ -784,7 +783,7 @@ const FlightResultCompnent = () => {
                         {/* <!--<li role="presentation" class="pricetab"><a href="#" onclick="flightdetailAction(2)" aria-controls="price" role="tab" data-toggle="tab"><i class="fa fa-file-text" aria-hidden="true"></i> Fare Breakup</a></li>--> */}
                     </ul>
                 </div>
-                <FlightDetail selectedFlight={selectedFlight && selectedFlight} travellerDetails={{ adults: searchParam.get("adult"), child: searchParam.get("child"), infant: searchParam.get("infant"), cabin: searchParam.get("cabin") }} />
+                <FlightDetail selectedFlight={selectedFlight && selectedFlight} travellerDetails={{ adults: searchParam.get("adult"), child: searchParam.get("child"), infant: searchParam.get("infant"), cabin: searchParam.get("cabin"), tripType:searchParam.get("tripType") }} />
             </div>
         </motion.div>}
         <div className="body-content">

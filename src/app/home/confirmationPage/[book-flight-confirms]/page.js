@@ -1,7 +1,180 @@
 'use client';
+import { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+
 
 const confirmationPage = () => {
-    return (
+
+    const [selectedFlight, setSelectedFlight] = useState(null);
+    const [travellerDetails, setTravellerDetails] = useState({});
+    const [travelers, setTravelers] = useState([]);
+    const [contactDetails, setContactDetails] = useState({});
+    const [formattedDate, setFormattedDate] = useState('');
+    const [transactionId, setTransactionId] = useState(null);
+
+    const searchParam = useSearchParams();
+
+    const [cardDetails, setCardDetails] = useState({
+        cardHolderName: "",
+        cardNo: "",
+        expiry: { month: "", year: "", cvv: "" },
+    });
+
+    const [billingInfo, setBillingInfo] = useState({
+        country: "",
+        address: "",
+        state: "",
+        city: "",
+        postalCode: "",
+    });
+
+    useEffect(() => {
+        try {
+            console.log(JSON.parse(localStorage.getItem("selectedflight")), "selectedflight");
+            setSelectedFlight(JSON.parse(localStorage.getItem("selectedflight")));
+            setTravellerDetails(JSON.parse(localStorage.getItem("travellerDetails")));
+            const storedTravelerData = JSON.parse(localStorage.getItem('travelerData'));
+
+            if (storedTravelerData) {
+                // Set the retrieved data into the respective states
+                // console.log(storedTravelerData, "storedTravelerData");
+                // // Log each piece of stored traveler data
+                // console.log(storedTravelerData.travelers, "Stored Travelers");
+                // console.log(storedTravelerData.contactDetails, "Stored Contact Details");
+                // console.log(storedTravelerData.cardDetails, "Stored Card Details");
+                // console.log(storedTravelerData.billingInfo, "Stored Billing Info");
+
+                setTravelers(storedTravelerData.travelers || []);
+                setContactDetails(storedTravelerData.contactDetails || {});
+                setCardDetails(storedTravelerData.cardDetails || {
+                    cardHolderName: "",
+                    cardNo: "",
+                    expiry: { month: "", year: "", cvv: "" },
+                });
+                setBillingInfo(storedTravelerData.billingInfo || {
+                    country: "",
+                    address: "",
+                    state: "",
+                    city: "",
+                    postalCode: "",
+                });
+            }
+            console.log(summarizeTravelers(JSON.parse(localStorage.getItem("selectedflight")).travelerPricings), "SUMMARIZED")
+        } catch (e) {
+            console.log(e);
+        }
+    }, [])
+
+    useEffect(() => {
+        // Get the current date and time and format it
+        const currentDate = new Date();
+        const formatted = `${currentDate.toLocaleDateString()} | ${currentDate.toLocaleTimeString()} (EST)`;
+        setFormattedDate(formatted);
+    }, []);
+
+    if (!formattedDate) {
+        // If the formattedDate is not set yet, you can return a loading state or fallback
+        return <div>Loading...</div>;
+    }
+
+    function calculateLayoverTime(flightOffer) {
+        const itineraries = flightOffer.itineraries;
+        const layovers = [];
+
+        itineraries.forEach(itinerary => {
+            const segments = itinerary.segments;
+            for (let i = 0; i < segments.length - 1; i++) {
+                const arrivalTime = new Date(segments[i].arrival.at);
+                const departureTime = new Date(segments[i + 1].departure.at);
+
+                const layoverDuration = (departureTime - arrivalTime) / 60000; // Duration in minutes
+
+                layovers.push({
+                    layover_duration: layoverDuration, // in minutes
+                    layover: layoverDuration > 0,
+                    itineraries: {
+                        layover_time: `${Math.floor(layoverDuration / 60)}H ${layoverDuration % 60}M`
+                    }
+                });
+            }
+        });
+
+        return layovers;
+    }
+
+    const getFormattedDate = (date) => {
+        let newDate = new Date(date)
+        if (!isNaN(newDate)) {
+            const formattedDate = newDate.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+            return formattedDate;
+        } else {
+            console.log("Not a valid date");
+        }
+    };
+
+    const getTimeFromDate = (date, fullhours) => {
+        let newDate = new Date(date);
+
+        // Get hours and minutes
+        let hours = newDate.getHours();
+        let minutes = newDate.getMinutes();
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+
+        if (fullhours) {
+            // Add leading zero to minutes if needed
+            if (minutes < 10) {
+                minutes = '0' + minutes;
+            }
+
+            // Add leading zero to hours if needed
+            if (hours < 10) {
+                hours = '0' + hours;
+            }
+            return `${hours}:${minutes}`;
+        } else {
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            return `${hours}:${minutes} ${ampm}`
+        }
+
+    };
+
+    function extractDuration(ptString) {
+        // Define a regular expression to match hours and minutes
+        const regex = /PT(\d+H)?(\d+M)?/;
+
+        // Use the regex to extract hours and minutes
+        const matches = ptString.match(regex);
+
+        // Initialize hours and minutes
+        let hours = '';
+        let minutes = '';
+
+        if (matches) {
+            // Extract hours if present
+            if (matches[1]) {
+                hours = matches[1].replace('H', '') + 'H';
+            }
+
+            // Extract minutes if present
+            if (matches[2]) {
+                minutes = matches[2].replace('M', '') + 'M';
+            }
+        }
+
+        // Return the formatted duration as "XH YM"
+        return `${hours} ${minutes || '00M'}`.trim();
+    }
+
+
+
+
+    return <>
         <div style={{ background: "#fff", margin: 0, padding: 0 }}>
             <style
                 dangerouslySetInnerHTML={{
@@ -10,6 +183,8 @@ const confirmationPage = () => {
                 }}
             />
             <div className="container confirmation-body">
+
+
                 <table
                     align="center"
                     bgcolor="#fff"
@@ -62,12 +237,12 @@ const confirmationPage = () => {
                                                                                                 <b style={{ fontWeight: 600 }}>
                                                                                                     Booking Date:
                                                                                                 </b>{" "}
-                                                                                                30 Nov, 2024 | 06:56:55 (EST)
+                                                                                                {formattedDate}
                                                                                             </td>
                                                                                             <td />
                                                                                             <td align="right">
                                                                                                 <a
-                                                                                                    href="https://www.lookbyfare.com/us/profile/"
+                                                                                                    href="#"
                                                                                                     target="_blank"
                                                                                                     className="manage-booking"
                                                                                                 >
@@ -87,7 +262,7 @@ const confirmationPage = () => {
                                                                                         </tr>
                                                                                         <tr>
                                                                                             <td className="welcome-txt">
-                                                                                                Hello, Shubham Kumar
+                                                                                                Hello, {travelers[0]?.firstName} {travelers[0]?.lastName}
                                                                                             </td>
                                                                                         </tr>
                                                                                         <tr>
@@ -202,7 +377,7 @@ const confirmationPage = () => {
                                                                                     </tbody>
                                                                                 </table>
                                                                                 {/* <img src="https://cmsrepository.com/static/flights/common/confirmation/steps-payment-successful.png" />
-                                        <img src="https://cmsrepository.com/static/flights/common/confirmation/steps-payment-fail.png" /> */}
+                       <img src="https://cmsrepository.com/static/flights/common/confirmation/steps-payment-fail.png" /> */}
                                                                             </td>
                                                                             <td className="w20" />
                                                                         </tr>
@@ -232,15 +407,14 @@ const confirmationPage = () => {
                                                         <tr>
                                                             <td className="w20" />
                                                             <td>
-                                                                {/*Main Body Start*/}
-                                                                {/*Confirmation number*/}
-                                                                <table
+
+                                                                {/* <table
                                                                     width="100%"
                                                                     cellPadding={0}
                                                                     cellSpacing={0}
                                                                     border={0}
                                                                 >
-                                                                    {/* <tbody>
+                                                                    <tbody>
                                                                         <tr>
                                                                             <td
                                                                                 style={{
@@ -259,7 +433,7 @@ const confirmationPage = () => {
                                                                                         paddingBottom: 5
                                                                                     }}
                                                                                 >
-                                                                                    Thank you for choosing Lookbyfare
+                                                                                    Thank you for choosing OnlineFlightReservation
                                                                                 </div>
                                                                                 <b>Disclaimer:</b> We regret to inform you
                                                                                 that your booking failed due to some issue
@@ -280,2201 +454,1162 @@ const confirmationPage = () => {
                                                                                 at your convenience.
                                                                             </td>
                                                                         </tr>
-                                                                    </tbody> */}
-                                                                </table>
-                                                                <br />
-                                                                {/*Flight Itenerary Start*/}
-                                                                <table
-                                                                    className="w560"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#1b75bc",
-                                                                                    padding: 10,
-                                                                                    borderRadius: "5px 5px  0 0"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{ color: "#fff", fontSize: 14 }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td style={{ fontWeight: 600 }}>
-                                                                                                <img
-                                                                                                    src="https://cmsrepository.com/static/flights/common/eticket/plane.png"
-                                                                                                    style={{
-                                                                                                        verticalAlign: "middle",
-                                                                                                        marginRight: 5,
-                                                                                                        fontWeight: 600
-                                                                                                    }}
-                                                                                                />{" "}
-                                                                                                Departure Fri, 13 December, 2024
-                                                                                            </td>
-                                                                                            {/* <td className="flight-duration">
-                                                                                                Duration: <b>8hr 50min</b>
-                                                                                            </td> */}
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#E1ECFF",
-                                                                                    padding: 5,
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: 600,
-                                                                                    color: "#3B3B3B"
-                                                                                }}
-                                                                            >
-                                                                                <span style={{ color: "#1b75bc" }}>
-                                                                                    Leg 1 of 2{" "}
-                                                                                </span>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    padding: "10px 10px 20px 10px",
-                                                                                    background: "#F5F5F5",
-                                                                                    borderRadius: "0 0 5px 5px"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{
-                                                                                        borderColor: "#ccc",
-                                                                                        borderCollapse: "collapse",
-                                                                                        fontSize: 12,
-                                                                                        color: "#202020",
-                                                                                        borderRadius: "0 0 5px 5px"
-                                                                                    }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w160">
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        lineHeight: "1.8em",
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <img
-                                                                                                                    src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/kl.png"
-                                                                                                                    width={32}
-                                                                                                                />
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{ fontWeight: 600 }}
-                                                                                                            >
-                                                                                                                KLM
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td height={5} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    fontWeight: 600,
-                                                                                                                    fontSize: 14
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                Flight 628 |{" "}
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        fontWeight: 500
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    Aircraft 333
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td className="h20" />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    cellPadding={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    border={0}
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        lineHeight: "1.8em",
-                                                                                                                        color: "#202020"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    color: "#666666"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                Cabin
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr
-                                                                                                                            style={{
-                                                                                                                                fontWeight: 600
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            <td>Economy</td>
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td width={5} />
-                                                                                            <td
-                                                                                                width={1}
-                                                                                                style={{
-                                                                                                    borderLeft: "1px dotted #ccc"
-                                                                                                }}
-                                                                                            />
-                                                                                            <td width={10} />
-                                                                                            <td>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    MIA
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Miami(FL)
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    AMS
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Amsterdam
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Miami International{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                            <td className="stops">
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
-                                                                                                                <br />
-                                                                                                                Non Stop
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Schiphol Airport{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 130,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    04:25 PM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                ></div>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 180,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    07:15 AM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                ></div>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3}>
-                                                                                                                <br />
-                                                                                                                <b>Baggage:</b> Personal
-                                                                                                                Item, Carry-on, Checked Bag{" "}
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                {/*Layover table */}
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#ffe2cd",
-                                                                                    textAlign: "center",
-                                                                                    fontSize: 12,
-                                                                                    fontWeight: 600,
-                                                                                    padding: "7px 10px",
-                                                                                    borderRadius: 5,
-                                                                                    color: "#21356e"
-                                                                                }}
-                                                                            >
-                                                                                Layover in Schiphol Airport (AMS) : 5hr 5min
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td height={10} />
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <table
-                                                                    className="w560"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#d1e0f9",
-                                                                                    padding: "10px 0 5px 0"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w20" />
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    fontSize: 14,
-                                                                                                    fontWeight: 600,
-                                                                                                    color: "#3b3b3b"
-                                                                                                }}
-                                                                                            >
-                                                                                                Sat, 14 December, 2024
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    fontSize: 14,
-                                                                                                    fontWeight: 500,
-                                                                                                    color: "#3b3b3b",
-                                                                                                    textAlign: "right"
-                                                                                                }}
-                                                                                            >
-                                                                                                Duration: <b>8hr 20min</b>
-                                                                                            </td>
-                                                                                            <td className="w20" />
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#e1ecff",
-                                                                                    padding: "5px 5px 10px 20px",
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: 600,
-                                                                                    color: "#3b3b3b"
-                                                                                }}
-                                                                            >
-                                                                                <span style={{ color: "#1b75bc" }}>
-                                                                                    Leg 2 of 2{" "}
-                                                                                </span>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    padding: "10px 10px 20px 10px",
-                                                                                    background: "#F5F5F5",
-                                                                                    borderRadius: "0 0 5px 5px"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{
-                                                                                        borderColor: "#ccc",
-                                                                                        borderCollapse: "collapse",
-                                                                                        fontSize: 12,
-                                                                                        color: "#202020",
-                                                                                        borderRadius: "0 0 5px 5px"
-                                                                                    }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w160">
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        lineHeight: "1.8em",
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <img
-                                                                                                                    src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/kl.png"
-                                                                                                                    width={32}
-                                                                                                                />
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{ fontWeight: 600 }}
-                                                                                                            >
-                                                                                                                KLM
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td height={5} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    fontWeight: 600,
-                                                                                                                    fontSize: 14
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                Flight 871 |{" "}
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        fontWeight: 500
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    Aircraft 77W
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td className="h20" />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    cellPadding={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    border={0}
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        lineHeight: "1.8em",
-                                                                                                                        color: "#202020"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    color: "#666666"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                Cabin
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr
-                                                                                                                            style={{
-                                                                                                                                fontWeight: 600
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            <td>Economy</td>
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td width={5} />
-                                                                                            <td
-                                                                                                width={1}
-                                                                                                style={{
-                                                                                                    borderLeft: "1px dotted #ccc"
-                                                                                                }}
-                                                                                            />
-                                                                                            <td width={10} />
-                                                                                            <td>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    AMS
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Amsterdam
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    DEL
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Delhi
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Schiphol Airport{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                            <td className="stops">
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
-                                                                                                                <br />
-                                                                                                                Non Stop
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Indira Gandhi
-                                                                                                                    International New Delhi{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 130,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    12:20 PM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                ></div>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 180,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#4f8ffc",
-                                                                                                                        fontStyle: "italic",
-                                                                                                                        marginRight: 5
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    Next Day
-                                                                                                                </span>
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    01:10 AM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <span>Terminal 3</span>
-                                                                                                                </div>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3}>
-                                                                                                                <br />
-                                                                                                                <b>Baggage:</b> Personal
-                                                                                                                Item, Carry-on, Checked Bag{" "}
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                {/*Layover table */}
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td height={10} />
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <table
-                                                                    className="w560"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#1b75bc",
-                                                                                    padding: 10,
-                                                                                    borderRadius: "5px 5px  0 0"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{ color: "#fff", fontSize: 14 }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td style={{ fontWeight: 600 }}>
-                                                                                                <img
-                                                                                                    src="https://cmsrepository.com/static/flights/common/eticket/return-plane.png"
-                                                                                                    style={{
-                                                                                                        verticalAlign: "middle",
-                                                                                                        marginRight: 5,
-                                                                                                        fontWeight: 600
-                                                                                                    }}
-                                                                                                />{" "}
-                                                                                                Return Tue, 07 January, 2025
-                                                                                            </td>
-                                                                                            {/* <td className="flight-duration">
-                                                                                                Duration: <b>9hr 35min</b>
-                                                                                            </td> */}
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#E1ECFF",
-                                                                                    padding: 5,
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: 600,
-                                                                                    color: "#3B3B3B"
-                                                                                }}
-                                                                            >
-                                                                                <span style={{ color: "#1b75bc" }}>
-                                                                                    Leg 1 of 3{" "}
-                                                                                </span>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    padding: "10px 10px 20px 10px",
-                                                                                    background: "#F5F5F5",
-                                                                                    borderRadius: "0 0 5px 5px"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{
-                                                                                        borderColor: "#ccc",
-                                                                                        borderCollapse: "collapse",
-                                                                                        fontSize: 12,
-                                                                                        color: "#202020",
-                                                                                        borderRadius: "0 0 5px 5px"
-                                                                                    }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w160">
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        lineHeight: "1.8em",
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <img
-                                                                                                                    src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/kl.png"
-                                                                                                                    width={32}
-                                                                                                                />
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{ fontWeight: 600 }}
-                                                                                                            >
-                                                                                                                KLM
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td height={5} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    fontWeight: 600,
-                                                                                                                    fontSize: 14
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                Flight 872 |{" "}
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        fontWeight: 500
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    Aircraft 77W
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td className="h20" />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    cellPadding={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    border={0}
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        lineHeight: "1.8em",
-                                                                                                                        color: "#202020"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    color: "#666666"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                Cabin
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr
-                                                                                                                            style={{
-                                                                                                                                fontWeight: 600
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            <td>Economy</td>
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td width={5} />
-                                                                                            <td
-                                                                                                width={1}
-                                                                                                style={{
-                                                                                                    borderLeft: "1px dotted #ccc"
-                                                                                                }}
-                                                                                            />
-                                                                                            <td width={10} />
-                                                                                            <td>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    DEL
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Delhi
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    AMS{" "}
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Amsterdam
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Indira Gandhi
-                                                                                                                    International New Delhi{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                            <td className="stops">
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
-                                                                                                                <br />
-                                                                                                                Non Stop
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Schiphol Airport{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td style={{ width: 130 }}>
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    03:20 AM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <span>Terminal 3</span>
-                                                                                                                </div>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 180
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    08:25 AM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                ></div>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3}>
-                                                                                                                <br />
-                                                                                                                <b>Baggage:</b> Personal
-                                                                                                                Item, Carry-on, Checked Bag{" "}
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                {/*Layover table */}
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#ffe2cd",
-                                                                                    textAlign: "center",
-                                                                                    fontSize: 12,
-                                                                                    fontWeight: 600,
-                                                                                    padding: "7px 10px",
-                                                                                    borderRadius: 5,
-                                                                                    color: "#21356e"
-                                                                                }}
-                                                                            >
-                                                                                Layover in Schiphol Airport (AMS) : 1hr
-                                                                                55min
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td height={10} />
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <table
-                                                                    className="w560"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#d1e0f9",
-                                                                                    padding: "10px 0 5px 0"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w20" />
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    fontSize: 14,
-                                                                                                    fontWeight: 600,
-                                                                                                    color: "#3b3b3b"
-                                                                                                }}
-                                                                                            >
-                                                                                                Tue, 07 January, 2025
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    fontSize: 14,
-                                                                                                    fontWeight: 500,
-                                                                                                    color: "#3b3b3b",
-                                                                                                    textAlign: "right"
-                                                                                                }}
-                                                                                            >
-                                                                                                Duration: <b>1hr 25min</b>
-                                                                                            </td>
-                                                                                            <td className="w20" />
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#e1ecff",
-                                                                                    padding: "5px 5px 10px 20px",
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: 600,
-                                                                                    color: "#3b3b3b"
-                                                                                }}
-                                                                            >
-                                                                                <span style={{ color: "#1b75bc" }}>
-                                                                                    Leg 2 of 3{" "}
-                                                                                </span>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    padding: "10px 10px 20px 10px",
-                                                                                    background: "#F5F5F5",
-                                                                                    borderRadius: "0 0 5px 5px"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{
-                                                                                        borderColor: "#ccc",
-                                                                                        borderCollapse: "collapse",
-                                                                                        fontSize: 12,
-                                                                                        color: "#202020",
-                                                                                        borderRadius: "0 0 5px 5px"
-                                                                                    }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w160">
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        lineHeight: "1.8em",
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <img
-                                                                                                                    src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/kl.png"
-                                                                                                                    width={32}
-                                                                                                                />
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{ fontWeight: 600 }}
-                                                                                                            >
-                                                                                                                KLM
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td height={5} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    fontWeight: 600,
-                                                                                                                    fontSize: 14
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                Flight 1005 |{" "}
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        fontWeight: 500
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    Aircraft 73H
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td className="h20" />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    cellPadding={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    border={0}
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        lineHeight: "1.8em",
-                                                                                                                        color: "#202020"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    color: "#666666"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                Cabin
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr
-                                                                                                                            style={{
-                                                                                                                                fontWeight: 600
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            <td>Economy</td>
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td width={5} />
-                                                                                            <td
-                                                                                                width={1}
-                                                                                                style={{
-                                                                                                    borderLeft: "1px dotted #ccc"
-                                                                                                }}
-                                                                                            />
-                                                                                            <td width={10} />
-                                                                                            <td>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    AMS
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Amsterdam
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    LHR{" "}
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    London
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Schiphol Airport{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                            <td className="stops">
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
-                                                                                                                <br />
-                                                                                                                Non Stop
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Heathrow{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td style={{ width: 130 }}>
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    10:20 AM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                ></div>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 180
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    10:45 AM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <span>Terminal 4</span>
-                                                                                                                </div>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3}>
-                                                                                                                <br />
-                                                                                                                <b>Baggage:</b> Personal
-                                                                                                                Item, Carry-on, Checked Bag{" "}
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                {/*Layover table */}
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#ffe2cd",
-                                                                                    textAlign: "center",
-                                                                                    fontSize: 12,
-                                                                                    fontWeight: 600,
-                                                                                    padding: "7px 10px",
-                                                                                    borderRadius: 5,
-                                                                                    color: "#21356e"
-                                                                                }}
-                                                                            >
-                                                                                Layover in Heathrow (LHR) : 3hr 15min
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td height={10} />
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <table
-                                                                    className="w560"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#d1e0f9",
-                                                                                    padding: "10px 0 5px 0"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w20" />
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    fontSize: 14,
-                                                                                                    fontWeight: 600,
-                                                                                                    color: "#3b3b3b"
-                                                                                                }}
-                                                                                            >
-                                                                                                Tue, 07 January, 2025
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    fontSize: 14,
-                                                                                                    fontWeight: 500,
-                                                                                                    color: "#3b3b3b",
-                                                                                                    textAlign: "right"
-                                                                                                }}
-                                                                                            >
-                                                                                                Duration: <b>10hr 30min</b>
-                                                                                            </td>
-                                                                                            <td className="w20" />
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#e1ecff",
-                                                                                    padding: "5px 5px 10px 20px",
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: 600,
-                                                                                    color: "#3b3b3b"
-                                                                                }}
-                                                                            >
-                                                                                <span style={{ color: "#1b75bc" }}>
-                                                                                    Leg 3 of 3{" "}
-                                                                                </span>
-                                                                                | Operated By Virgin Atlantic{" "}
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    padding: "10px 10px 20px 10px",
-                                                                                    background: "#F5F5F5",
-                                                                                    borderRadius: "0 0 5px 5px"
-                                                                                }}
-                                                                            >
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    cellPadding={0}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{
-                                                                                        borderColor: "#ccc",
-                                                                                        borderCollapse: "collapse",
-                                                                                        fontSize: 12,
-                                                                                        color: "#202020",
-                                                                                        borderRadius: "0 0 5px 5px"
-                                                                                    }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td className="w160">
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        lineHeight: "1.8em",
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <img
-                                                                                                                    src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/kl.png"
-                                                                                                                    width={32}
-                                                                                                                />
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{ fontWeight: 600 }}
-                                                                                                            >
-                                                                                                                KLM
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td height={5} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    fontWeight: 600,
-                                                                                                                    fontSize: 14
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                Flight 2518 |{" "}
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        fontWeight: 500
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    Aircraft 339
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td className="h20" />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    cellPadding={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    border={0}
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        lineHeight: "1.8em",
-                                                                                                                        color: "#202020"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    color: "#666666"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                Cabin
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr
-                                                                                                                            style={{
-                                                                                                                                fontWeight: 600
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            <td>Economy</td>
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td width={5} />
-                                                                                            <td
-                                                                                                width={1}
-                                                                                                style={{
-                                                                                                    borderLeft: "1px dotted #ccc"
-                                                                                                }}
-                                                                                            />
-                                                                                            <td width={10} />
-                                                                                            <td>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    LHR
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    London
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 18 }}>
-                                                                                                                    {" "}
-                                                                                                                    MIA{" "}
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <b style={{ fontSize: 12 }}>
-                                                                                                                    Miami(FL)
-                                                                                                                </b>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Heathrow{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                            <td className="stops">
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
-                                                                                                                <br />
-                                                                                                                Non Stop
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 140,
-                                                                                                                    verticalAlign: "top"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <span
-                                                                                                                    style={{
-                                                                                                                        color: "#666666"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    {" "}
-                                                                                                                    Miami International{" "}
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3} height={10} />
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{
-                                                                                                        fontSize: 12,
-                                                                                                        color: "#202020"
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td style={{ width: 130 }}>
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    02:00 PM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <span>Terminal 3</span>
-                                                                                                                </div>
-                                                                                                            </td>
-                                                                                                            <td>&nbsp;</td>
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    textAlign: "right",
-                                                                                                                    width: 180
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    07:30 PM
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <div
-                                                                                                                    style={{
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#666",
-                                                                                                                        padding: "5px 0"
-                                                                                                                    }}
-                                                                                                                ></div>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                        <tr>
-                                                                                                            <td colSpan={3}>
-                                                                                                                <br />
-                                                                                                                <b>Baggage:</b> Personal
-                                                                                                                Item, Carry-on, Checked Bag{" "}
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                {/*Layover table */}
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td height={10} />
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                {/*Baggage Details Start*/}
-                                                                {/* <table
-                                                                    className="w560"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td
-                                                                                style={{
-                                                                                    background: "#1b75bc",
-                                                                                    padding: 10,
-                                                                                    borderRadius: "5px 5px  0 0",
-                                                                                    color: "#fff",
-                                                                                    fontSize: 14,
-                                                                                    fontWeight: 600
-                                                                                }}
-                                                                            >
-                                                                                <img
-                                                                                    src="https://cmsrepository.com/static/flights/common/eticket/baggage-icon.png"
-                                                                                    style={{
-                                                                                        verticalAlign: "middle",
-                                                                                        marginRight: 5
-                                                                                    }}
-                                                                                />{" "}
-                                                                                Baggage Details
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>
-                                                                                <table
-                                                                                    className="tabel-format"
-                                                                                    width="100%"
-                                                                                    cellPadding={10}
-                                                                                    cellSpacing={0}
-                                                                                    border={0}
-                                                                                    style={{
-                                                                                        background: "#F5F5F5",
-                                                                                        borderRadius: "0 0 5px 5px"
-                                                                                    }}
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    background: "#D4E1F7",
-                                                                                                    borderRightColor: "#8ea7d1",
-                                                                                                    borderRight: "1px solid #8ea7d1"
-                                                                                                }}
-                                                                                                width="50%"
-                                                                                            >
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img
-                                                                                                                    src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/kl.png"
-                                                                                                                    width={32}
-                                                                                                                />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 16 }}>
-                                                                                                                    Departure
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                Klm
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{ background: "#D4E1F7" }}
-                                                                                                width="50%"
-                                                                                            >
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img
-                                                                                                                    src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/kl.png"
-                                                                                                                    width={32}
-                                                                                                                />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 16 }}>
-                                                                                                                    Return
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                Klm
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderRight: "1px solid #ddd",
-                                                                                                    borderBottom: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/baggage1.png" />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    Personal Item
-                                                                                                                </b>
-                                                                                                                <br /> A laptop bag or purse
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderBottom: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/baggage1.png" />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    Personal Item
-                                                                                                                </b>
-                                                                                                                <br /> A laptop bag or purse
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderRight: "1px solid #ddd",
-                                                                                                    borderBottom: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/baggage2.png" />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    Carry-on Bag
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <span
-                                                                                                                    style={{ fontSize: 14 }}
-                                                                                                                >
-                                                                                                                    Included
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderBottom: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/baggage2.png" />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    Carry-on Bag
-                                                                                                                </b>{" "}
-                                                                                                                <br />
-                                                                                                                <span
-                                                                                                                    style={{ fontSize: 14 }}
-                                                                                                                >
-                                                                                                                    Included
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderRight: "1px solid #ddd",
-                                                                                                    paddingBottom: 30
-                                                                                                }}
-                                                                                            >
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/baggage3.png" />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    Checked Bag
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <span
-                                                                                                                    style={{ fontSize: 14 }}
-                                                                                                                >
-                                                                                                                    Included
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                            <td style={{ paddingBottom: 30 }}>
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    cellPadding={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    border={0}
-                                                                                                    style={{ fontSize: 12 }}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td width={60}>
-                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/baggage3.png" />
-                                                                                                            </td>
-                                                                                                            <td className="w10" />
-                                                                                                            <td
-                                                                                                                style={{
-                                                                                                                    lineHeight: "1.8em"
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                <b style={{ fontSize: 14 }}>
-                                                                                                                    Checked Bag
-                                                                                                                </b>
-                                                                                                                <br />
-                                                                                                                <span
-                                                                                                                    style={{ fontSize: 14 }}
-                                                                                                                >
-                                                                                                                    Included
-                                                                                                                </span>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            {" "}
-                                                                            <td className="h20" />
-                                                                        </tr>
                                                                     </tbody>
                                                                 </table> */}
+                                                                <br />
+
+                                                                {travellerDetails.tripType === 'One-Way' ? (
+                                                                    // For OneWay
+
+                                                                    selectedFlight.itineraries[0].segments.map((a, i) => (
+                                                                        <>
+                                                                            <table
+                                                                                className="w560"
+                                                                                cellPadding={0}
+                                                                                cellSpacing={0}
+                                                                                border={0}
+                                                                            >
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td
+                                                                                            style={{
+                                                                                                background: "#1b75bc",
+                                                                                                padding: 10,
+                                                                                                borderRadius: "5px 5px  0 0"
+                                                                                            }}
+                                                                                        >
+                                                                                            <table
+                                                                                                width="100%"
+                                                                                                cellPadding={0}
+                                                                                                cellSpacing={0}
+                                                                                                border={0}
+                                                                                                style={{ color: "#fff", fontSize: 14 }}
+                                                                                            >
+                                                                                                <tbody>
+                                                                                                    <tr>
+                                                                                                        <td style={{ fontWeight: 600 }}>
+                                                                                                            <img
+                                                                                                                src="https://cmsrepository.com/static/flights/common/eticket/plane.png"
+                                                                                                                style={{
+                                                                                                                    verticalAlign: "middle",
+                                                                                                                    marginRight: 5,
+                                                                                                                    fontWeight: 600
+                                                                                                                }}
+                                                                                                            />{" "}
+                                                                                                            Departure {getFormattedDate(a.departure.at)}
+                                                                                                        </td>
+                                                                                                        {/* <td className="flight-duration">
+                                                                                   Duration: <b>8hr 50min</b>
+                                                                               </td> */}
+                                                                                                    </tr>
+                                                                                                </tbody>
+                                                                                            </table>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    <tr>
+                                                                                        <td
+                                                                                            style={{
+                                                                                                background: "#E1ECFF",
+                                                                                                padding: 5,
+                                                                                                fontSize: 11,
+                                                                                                fontWeight: 600,
+                                                                                                color: "#3B3B3B"
+                                                                                            }}
+                                                                                        >
+                                                                                            <span style={{ color: "#1b75bc" }}>
+                                                                                                Leg {i + 1}
+                                                                                            </span>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    <tr>
+                                                                                        <td
+                                                                                            style={{
+                                                                                                padding: "10px 10px 20px 10px",
+                                                                                                background: "#F5F5F5",
+                                                                                                borderRadius: "0 0 5px 5px"
+                                                                                            }}
+                                                                                        >
+                                                                                            <table
+                                                                                                width="100%"
+                                                                                                cellPadding={0}
+                                                                                                cellSpacing={0}
+                                                                                                border={0}
+                                                                                                style={{
+                                                                                                    borderColor: "#ccc",
+                                                                                                    borderCollapse: "collapse",
+                                                                                                    fontSize: 12,
+                                                                                                    color: "#202020",
+                                                                                                    borderRadius: "0 0 5px 5px"
+                                                                                                }}
+                                                                                            >
+                                                                                                <tbody>
+                                                                                                    <tr>
+                                                                                                        <td className="w160">
+                                                                                                            <table
+                                                                                                                width="100%"
+                                                                                                                cellPadding={0}
+                                                                                                                cellSpacing={0}
+                                                                                                                border={0}
+                                                                                                                style={{
+                                                                                                                    fontSize: 12,
+                                                                                                                    lineHeight: "1.8em",
+                                                                                                                    color: "#202020"
+                                                                                                                }}
+                                                                                                            >
+                                                                                                                <tbody>
+                                                                                                                    <tr>
+                                                                                                                        <td>
+                                                                                                                            <img
+                                                                                                                                src={a.airline.logo}
+                                                                                                                                width={32}
+                                                                                                                            />
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td
+                                                                                                                            style={{ fontWeight: 600 }}
+                                                                                                                        >
+                                                                                                                            {a.departure.airport.iata}
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td height={5} />
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td
+                                                                                                                            style={{
+                                                                                                                                fontWeight: 600,
+                                                                                                                                fontSize: 14
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            Flight {a.number} |{" "}
+                                                                                                                            <span
+                                                                                                                                style={{
+                                                                                                                                    fontSize: 12,
+                                                                                                                                    fontWeight: 500
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                Aircraft {a.aircraft.code}
+                                                                                                                            </span>
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td className="h20" />
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td>
+                                                                                                                            <table
+                                                                                                                                width="100%"
+                                                                                                                                cellPadding={0}
+                                                                                                                                cellSpacing={0}
+                                                                                                                                border={0}
+                                                                                                                                style={{
+                                                                                                                                    fontSize: 12,
+                                                                                                                                    lineHeight: "1.8em",
+                                                                                                                                    color: "#202020"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <tbody>
+                                                                                                                                    <tr>
+                                                                                                                                        <td
+                                                                                                                                            style={{
+                                                                                                                                                color: "#666666"
+                                                                                                                                            }}
+                                                                                                                                        >
+                                                                                                                                            Cabin
+                                                                                                                                        </td>
+                                                                                                                                    </tr>
+                                                                                                                                    <tr
+                                                                                                                                        style={{
+                                                                                                                                            fontWeight: 600
+                                                                                                                                        }}
+                                                                                                                                    >
+                                                                                                                                        <td>{travellerDetails.cabin}</td>
+                                                                                                                                    </tr>
+                                                                                                                                </tbody>
+                                                                                                                            </table>
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                </tbody>
+                                                                                                            </table>
+                                                                                                        </td>
+                                                                                                        <td width={5} />
+                                                                                                        <td
+                                                                                                            width={1}
+                                                                                                            style={{
+                                                                                                                borderLeft: "1px dotted #ccc"
+                                                                                                            }}
+                                                                                                        />
+                                                                                                        <td width={10} />
+                                                                                                        <td>
+                                                                                                            <table
+                                                                                                                width="100%"
+                                                                                                                cellPadding={0}
+                                                                                                                cellSpacing={0}
+                                                                                                                border={0}
+                                                                                                                style={{
+                                                                                                                    fontSize: 12,
+                                                                                                                    color: "#202020"
+                                                                                                                }}
+                                                                                                            >
+                                                                                                                <tbody>
+                                                                                                                    <tr>
+                                                                                                                        <td
+                                                                                                                            style={{
+                                                                                                                                width: 140,
+                                                                                                                                verticalAlign: "top"
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            <b style={{ fontSize: 18 }}>
+                                                                                                                                {" "}
+                                                                                                                                {a.departure.airport.iata}
+                                                                                                                            </b>{" "}
+                                                                                                                            <br />
+                                                                                                                            <b style={{ fontSize: 12 }}>
+                                                                                                                                {a.departure.airport.city}
+                                                                                                                            </b>
+                                                                                                                        </td>
+                                                                                                                        <td>&nbsp;</td>
+                                                                                                                        <td
+                                                                                                                            style={{
+                                                                                                                                textAlign: "right",
+                                                                                                                                width: 140,
+                                                                                                                                verticalAlign: "top"
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            <b style={{ fontSize: 18 }}>
+                                                                                                                                {" "}
+                                                                                                                                {a.arrival.airport.iata}
+                                                                                                                            </b>{" "}
+                                                                                                                            <br />
+                                                                                                                            <b style={{ fontSize: 12 }}>
+                                                                                                                                {a.arrival.airport.city}
+                                                                                                                            </b>
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td colSpan={3} height={10} />
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td
+                                                                                                                            style={{
+                                                                                                                                width: 140,
+                                                                                                                                verticalAlign: "top"
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            <span
+                                                                                                                                style={{
+                                                                                                                                    color: "#666666"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                {" "}
+                                                                                                                                {a.departure.airport.name}
+                                                                                                                            </span>
+                                                                                                                        </td>
+                                                                                                                        <td className="stops">
+                                                                                                                            <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
+                                                                                                                            <br />
+                                                                                                                            Non Stop
+                                                                                                                        </td>
+                                                                                                                        <td
+                                                                                                                            style={{
+                                                                                                                                textAlign: "right",
+                                                                                                                                width: 140,
+                                                                                                                                verticalAlign: "top"
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            <span
+                                                                                                                                style={{
+                                                                                                                                    color: "#666666"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                {" "}
+                                                                                                                                {a.arrival.airport.name}
+                                                                                                                            </span>
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                    <tr>
+                                                                                                                        <td colSpan={3} height={10} />
+                                                                                                                    </tr>
+                                                                                                                </tbody>
+                                                                                                            </table>
+                                                                                                            <table
+                                                                                                                width="100%"
+                                                                                                                cellPadding={0}
+                                                                                                                cellSpacing={0}
+                                                                                                                border={0}
+                                                                                                                style={{
+                                                                                                                    fontSize: 12,
+                                                                                                                    color: "#202020"
+                                                                                                                }}
+                                                                                                            >
+                                                                                                                <tbody>
+                                                                                                                    <tr>
+                                                                                                                        <td
+                                                                                                                            style={{
+                                                                                                                                width: 130,
+                                                                                                                                verticalAlign: "top"
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            <b style={{ fontSize: 14 }}>
+                                                                                                                                {getTimeFromDate(a.departure.at, false)}
+                                                                                                                            </b>
+                                                                                                                            <br />
+                                                                                                                            <div
+                                                                                                                                style={{
+                                                                                                                                    fontSize: 12,
+                                                                                                                                    color: "#666",
+                                                                                                                                    padding: "5px 0"
+                                                                                                                                }}
+                                                                                                                            ></div>
+                                                                                                                        </td>
+                                                                                                                        <td>&nbsp;</td>
+                                                                                                                        <td
+                                                                                                                            style={{
+                                                                                                                                textAlign: "right",
+                                                                                                                                width: 180,
+                                                                                                                                verticalAlign: "top"
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            <b style={{ fontSize: 14 }}>
+                                                                                                                                {getTimeFromDate(a.arrival.at)}
+                                                                                                                            </b>
+                                                                                                                            <br />
+                                                                                                                            <div
+                                                                                                                                style={{
+                                                                                                                                    fontSize: 12,
+                                                                                                                                    color: "#666",
+                                                                                                                                    padding: "5px 0"
+                                                                                                                                }}
+                                                                                                                            ></div>
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                    {/* <tr>
+                                                                                                                        <td colSpan={3}>
+                                                                                                                            <br />
+                                                                                                                            <b>Baggage:</b> Personal
+                                                                                                                            Item, Carry-on, Checked Bag{" "}
+                                                                                                                        </td>
+                                                                                                                    </tr> */}
+                                                                                                                </tbody>
+                                                                                                            </table>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                </tbody>
+                                                                                            </table>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                            {/*Layover table */}
+                                                                            {i !== selectedFlight.itineraries[0].segments.length - 1 && <table
+                                                                                width="100%"
+                                                                                cellPadding={0}
+                                                                                cellSpacing={0}
+                                                                                border={0}
+                                                                            >
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td
+                                                                                            style={{
+                                                                                                background: "#ffe2cd",
+                                                                                                textAlign: "center",
+                                                                                                fontSize: 12,
+                                                                                                fontWeight: 600,
+                                                                                                padding: "7px 10px",
+                                                                                                borderRadius: 5,
+                                                                                                color: "#21356e"
+                                                                                            }}
+                                                                                        >
+                                                                                            Layover in Schiphol Airport {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>}
+                                                                            <table
+                                                                                width="100%"
+                                                                                cellPadding={0}
+                                                                                cellSpacing={0}
+                                                                                border={0}
+                                                                            >
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td height={10} />
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </>
+                                                                    ))
+
+                                                                ) : (
+                                                                    <>
+                                                                        {selectedFlight.itineraries[0].segments.map((a, i) => (
+                                                                            <>
+                                                                                <table
+                                                                                    className="w560"
+                                                                                    cellPadding={0}
+                                                                                    cellSpacing={0}
+                                                                                    border={0}
+                                                                                >
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    background: "#1b75bc",
+                                                                                                    padding: 10,
+                                                                                                    borderRadius: "5px 5px  0 0"
+                                                                                                }}
+                                                                                            >
+                                                                                                <table
+                                                                                                    width="100%"
+                                                                                                    cellPadding={0}
+                                                                                                    cellSpacing={0}
+                                                                                                    border={0}
+                                                                                                    style={{ color: "#fff", fontSize: 14 }}
+                                                                                                >
+                                                                                                    <tbody>
+                                                                                                        <tr>
+                                                                                                            <td style={{ fontWeight: 600 }}>
+                                                                                                                <img
+                                                                                                                    src="https://cmsrepository.com/static/flights/common/eticket/plane.png"
+                                                                                                                    style={{
+                                                                                                                        verticalAlign: "middle",
+                                                                                                                        marginRight: 5,
+                                                                                                                        fontWeight: 600
+                                                                                                                    }}
+                                                                                                                />{" "}
+                                                                                                                Departure {getFormattedDate(a.departure.at)}
+                                                                                                            </td>
+                                                                                                            {/* <td className="flight-duration">
+                                                                               Duration: <b>8hr 50min</b>
+                                                                           </td> */}
+                                                                                                        </tr>
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    background: "#E1ECFF",
+                                                                                                    padding: 5,
+                                                                                                    fontSize: 11,
+                                                                                                    fontWeight: 600,
+                                                                                                    color: "#3B3B3B"
+                                                                                                }}
+                                                                                            >
+                                                                                                <span style={{ color: "#1b75bc" }}>
+                                                                                                    Leg {i + 1}
+                                                                                                </span>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    padding: "10px 10px 20px 10px",
+                                                                                                    background: "#F5F5F5",
+                                                                                                    borderRadius: "0 0 5px 5px"
+                                                                                                }}
+                                                                                            >
+                                                                                                <table
+                                                                                                    width="100%"
+                                                                                                    cellPadding={0}
+                                                                                                    cellSpacing={0}
+                                                                                                    border={0}
+                                                                                                    style={{
+                                                                                                        borderColor: "#ccc",
+                                                                                                        borderCollapse: "collapse",
+                                                                                                        fontSize: 12,
+                                                                                                        color: "#202020",
+                                                                                                        borderRadius: "0 0 5px 5px"
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <tbody>
+                                                                                                        <tr>
+                                                                                                            <td className="w160">
+                                                                                                                <table
+                                                                                                                    width="100%"
+                                                                                                                    cellPadding={0}
+                                                                                                                    cellSpacing={0}
+                                                                                                                    border={0}
+                                                                                                                    style={{
+                                                                                                                        fontSize: 12,
+                                                                                                                        lineHeight: "1.8em",
+                                                                                                                        color: "#202020"
+                                                                                                                    }}
+                                                                                                                >
+                                                                                                                    <tbody>
+                                                                                                                        <tr>
+                                                                                                                            <td>
+                                                                                                                                <img
+                                                                                                                                    src={a.airline.logo}
+                                                                                                                                    width={32}
+                                                                                                                                />
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{ fontWeight: 600 }}
+                                                                                                                            >
+                                                                                                                                {a.departure.airport.iata}
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td height={5} />
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    fontWeight: 600,
+                                                                                                                                    fontSize: 14
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                Flight {a.number} |{" "}
+                                                                                                                                <span
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        fontWeight: 500
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    Aircraft {a.aircraft.code}
+                                                                                                                                </span>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td className="h20" />
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td>
+                                                                                                                                <table
+                                                                                                                                    width="100%"
+                                                                                                                                    cellPadding={0}
+                                                                                                                                    cellSpacing={0}
+                                                                                                                                    border={0}
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        lineHeight: "1.8em",
+                                                                                                                                        color: "#202020"
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    <tbody>
+                                                                                                                                        <tr>
+                                                                                                                                            <td
+                                                                                                                                                style={{
+                                                                                                                                                    color: "#666666"
+                                                                                                                                                }}
+                                                                                                                                            >
+                                                                                                                                                Cabin
+                                                                                                                                            </td>
+                                                                                                                                        </tr>
+                                                                                                                                        <tr
+                                                                                                                                            style={{
+                                                                                                                                                fontWeight: 600
+                                                                                                                                            }}
+                                                                                                                                        >
+                                                                                                                                            <td>{travellerDetails.cabin}</td>
+                                                                                                                                        </tr>
+                                                                                                                                    </tbody>
+                                                                                                                                </table>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                    </tbody>
+                                                                                                                </table>
+                                                                                                            </td>
+                                                                                                            <td width={5} />
+                                                                                                            <td
+                                                                                                                width={1}
+                                                                                                                style={{
+                                                                                                                    borderLeft: "1px dotted #ccc"
+                                                                                                                }}
+                                                                                                            />
+                                                                                                            <td width={10} />
+                                                                                                            <td>
+                                                                                                                <table
+                                                                                                                    width="100%"
+                                                                                                                    cellPadding={0}
+                                                                                                                    cellSpacing={0}
+                                                                                                                    border={0}
+                                                                                                                    style={{
+                                                                                                                        fontSize: 12,
+                                                                                                                        color: "#202020"
+                                                                                                                    }}
+                                                                                                                >
+                                                                                                                    <tbody>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 18 }}>
+                                                                                                                                    {" "}
+                                                                                                                                    {a.departure.airport.iata}
+                                                                                                                                </b>{" "}
+                                                                                                                                <br />
+                                                                                                                                <b style={{ fontSize: 12 }}>
+                                                                                                                                    {a.departure.airport.city}
+                                                                                                                                </b>
+                                                                                                                            </td>
+                                                                                                                            <td>&nbsp;</td>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    textAlign: "right",
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 18 }}>
+                                                                                                                                    {" "}
+                                                                                                                                    {a.arrival.airport.iata}
+                                                                                                                                </b>{" "}
+                                                                                                                                <br />
+                                                                                                                                <b style={{ fontSize: 12 }}>
+                                                                                                                                    {a.arrival.airport.city}
+                                                                                                                                </b>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td colSpan={3} height={10} />
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <span
+                                                                                                                                    style={{
+                                                                                                                                        color: "#666666"
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    {" "}
+                                                                                                                                    {a.departure.airport.name}
+                                                                                                                                </span>
+                                                                                                                            </td>
+                                                                                                                            <td className="stops">
+                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
+                                                                                                                                <br />
+                                                                                                                                Non Stop
+                                                                                                                            </td>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    textAlign: "right",
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <span
+                                                                                                                                    style={{
+                                                                                                                                        color: "#666666"
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    {" "}
+                                                                                                                                    {a.arrival.airport.name}
+                                                                                                                                </span>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td colSpan={3} height={10} />
+                                                                                                                        </tr>
+                                                                                                                    </tbody>
+                                                                                                                </table>
+                                                                                                                <table
+                                                                                                                    width="100%"
+                                                                                                                    cellPadding={0}
+                                                                                                                    cellSpacing={0}
+                                                                                                                    border={0}
+                                                                                                                    style={{
+                                                                                                                        fontSize: 12,
+                                                                                                                        color: "#202020"
+                                                                                                                    }}
+                                                                                                                >
+                                                                                                                    <tbody>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    width: 130,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 14 }}>
+                                                                                                                                    {getTimeFromDate(a.departure.at, false)}
+                                                                                                                                </b>
+                                                                                                                                <br />
+                                                                                                                                <div
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        color: "#666",
+                                                                                                                                        padding: "5px 0"
+                                                                                                                                    }}
+                                                                                                                                ></div>
+                                                                                                                            </td>
+                                                                                                                            <td>&nbsp;</td>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    textAlign: "right",
+                                                                                                                                    width: 180,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 14 }}>
+                                                                                                                                    {getTimeFromDate(a.arrival.at)}
+                                                                                                                                </b>
+                                                                                                                                <br />
+                                                                                                                                <div
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        color: "#666",
+                                                                                                                                        padding: "5px 0"
+                                                                                                                                    }}
+                                                                                                                                ></div>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        {/* <tr>
+                                                                                                                    <td colSpan={3}>
+                                                                                                                        <br />
+                                                                                                                        <b>Baggage:</b> Personal
+                                                                                                                        Item, Carry-on, Checked Bag{" "}
+                                                                                                                    </td>
+                                                                                                                </tr> */}
+                                                                                                                    </tbody>
+                                                                                                                </table>
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                                {/*Layover table */}
+                                                                                {i !== selectedFlight.itineraries[0].segments.length - 1 && <table
+                                                                                    width="100%"
+                                                                                    cellPadding={0}
+                                                                                    cellSpacing={0}
+                                                                                    border={0}
+                                                                                >
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    background: "#ffe2cd",
+                                                                                                    textAlign: "center",
+                                                                                                    fontSize: 12,
+                                                                                                    fontWeight: 600,
+                                                                                                    padding: "7px 10px",
+                                                                                                    borderRadius: 5,
+                                                                                                    color: "#21356e"
+                                                                                                }}
+                                                                                            >
+                                                                                                Layover in Schiphol Airport {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>}
+
+                                                                                <table
+                                                                                    width="100%"
+                                                                                    cellPadding={0}
+                                                                                    cellSpacing={0}
+                                                                                    border={0}
+                                                                                >
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td height={10} />
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </>
+
+                                                                        ))}
+
+                                                                        {selectedFlight.itineraries[1].segments.map((a, i) => (
+                                                                            <>
+                                                                                <table
+                                                                                    className="w560"
+                                                                                    cellPadding={0}
+                                                                                    cellSpacing={0}
+                                                                                    border={0}
+                                                                                >
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    background: "#1b75bc",
+                                                                                                    padding: 10,
+                                                                                                    borderRadius: "5px 5px  0 0"
+                                                                                                }}
+                                                                                            >
+                                                                                                <table
+                                                                                                    width="100%"
+                                                                                                    cellPadding={0}
+                                                                                                    cellSpacing={0}
+                                                                                                    border={0}
+                                                                                                    style={{ color: "#fff", fontSize: 14 }}
+                                                                                                >
+                                                                                                    <tbody>
+                                                                                                        <tr>
+                                                                                                            <tr>
+                                                                                                                <td style={{ fontWeight: 600 }}>
+                                                                                                                    <img
+                                                                                                                        src="https://cmsrepository.com/static/flights/common/eticket/return-plane.png"
+                                                                                                                        style={{
+                                                                                                                            verticalAlign: "middle",
+                                                                                                                            marginRight: 5,
+                                                                                                                            fontWeight: 600
+                                                                                                                        }}
+                                                                                                                    />{" "}
+                                                                                                                    Return {getFormattedDate(a.departure.at)}
+                                                                                                                </td>
+                                                                                                            </tr>
+                                                                                                            {/* <td className="flight-duration">
+                                                                               Duration: <b>8hr 50min</b>
+                                                                           </td> */}
+                                                                                                        </tr>
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    background: "#E1ECFF",
+                                                                                                    padding: 5,
+                                                                                                    fontSize: 11,
+                                                                                                    fontWeight: 600,
+                                                                                                    color: "#3B3B3B"
+                                                                                                }}
+                                                                                            >
+                                                                                                <span style={{ color: "#1b75bc" }}>
+                                                                                                    Leg {i + 1}
+                                                                                                </span>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    padding: "10px 10px 20px 10px",
+                                                                                                    background: "#F5F5F5",
+                                                                                                    borderRadius: "0 0 5px 5px"
+                                                                                                }}
+                                                                                            >
+                                                                                                <table
+                                                                                                    width="100%"
+                                                                                                    cellPadding={0}
+                                                                                                    cellSpacing={0}
+                                                                                                    border={0}
+                                                                                                    style={{
+                                                                                                        borderColor: "#ccc",
+                                                                                                        borderCollapse: "collapse",
+                                                                                                        fontSize: 12,
+                                                                                                        color: "#202020",
+                                                                                                        borderRadius: "0 0 5px 5px"
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <tbody>
+                                                                                                        <tr>
+                                                                                                            <td className="w160">
+                                                                                                                <table
+                                                                                                                    width="100%"
+                                                                                                                    cellPadding={0}
+                                                                                                                    cellSpacing={0}
+                                                                                                                    border={0}
+                                                                                                                    style={{
+                                                                                                                        fontSize: 12,
+                                                                                                                        lineHeight: "1.8em",
+                                                                                                                        color: "#202020"
+                                                                                                                    }}
+                                                                                                                >
+                                                                                                                    <tbody>
+                                                                                                                        <tr>
+                                                                                                                            <td>
+                                                                                                                                <img
+                                                                                                                                    src={a.airline.logo}
+                                                                                                                                    width={32}
+                                                                                                                                />
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{ fontWeight: 600 }}
+                                                                                                                            >
+                                                                                                                                {a.departure.airport.iata}
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td height={5} />
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    fontWeight: 600,
+                                                                                                                                    fontSize: 14
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                Flight {a.number} |{" "}
+                                                                                                                                <span
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        fontWeight: 500
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    Aircraft {a.aircraft.code}
+                                                                                                                                </span>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td className="h20" />
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td>
+                                                                                                                                <table
+                                                                                                                                    width="100%"
+                                                                                                                                    cellPadding={0}
+                                                                                                                                    cellSpacing={0}
+                                                                                                                                    border={0}
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        lineHeight: "1.8em",
+                                                                                                                                        color: "#202020"
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    <tbody>
+                                                                                                                                        <tr>
+                                                                                                                                            <td
+                                                                                                                                                style={{
+                                                                                                                                                    color: "#666666"
+                                                                                                                                                }}
+                                                                                                                                            >
+                                                                                                                                                Cabin
+                                                                                                                                            </td>
+                                                                                                                                        </tr>
+                                                                                                                                        <tr
+                                                                                                                                            style={{
+                                                                                                                                                fontWeight: 600
+                                                                                                                                            }}
+                                                                                                                                        >
+                                                                                                                                            <td>{travellerDetails.cabin}</td>
+                                                                                                                                        </tr>
+                                                                                                                                    </tbody>
+                                                                                                                                </table>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                    </tbody>
+                                                                                                                </table>
+                                                                                                            </td>
+                                                                                                            <td width={5} />
+                                                                                                            <td
+                                                                                                                width={1}
+                                                                                                                style={{
+                                                                                                                    borderLeft: "1px dotted #ccc"
+                                                                                                                }}
+                                                                                                            />
+                                                                                                            <td width={10} />
+                                                                                                            <td>
+                                                                                                                <table
+                                                                                                                    width="100%"
+                                                                                                                    cellPadding={0}
+                                                                                                                    cellSpacing={0}
+                                                                                                                    border={0}
+                                                                                                                    style={{
+                                                                                                                        fontSize: 12,
+                                                                                                                        color: "#202020"
+                                                                                                                    }}
+                                                                                                                >
+                                                                                                                    <tbody>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 18 }}>
+                                                                                                                                    {" "}
+                                                                                                                                    {a.departure.airport.iata}
+                                                                                                                                </b>{" "}
+                                                                                                                                <br />
+                                                                                                                                <b style={{ fontSize: 12 }}>
+                                                                                                                                    {a.departure.airport.city}
+                                                                                                                                </b>
+                                                                                                                            </td>
+                                                                                                                            <td>&nbsp;</td>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    textAlign: "right",
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 18 }}>
+                                                                                                                                    {" "}
+                                                                                                                                    {a.arrival.airport.iata}
+                                                                                                                                </b>{" "}
+                                                                                                                                <br />
+                                                                                                                                <b style={{ fontSize: 12 }}>
+                                                                                                                                    {a.arrival.airport.city}
+                                                                                                                                </b>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td colSpan={3} height={10} />
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <span
+                                                                                                                                    style={{
+                                                                                                                                        color: "#666666"
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    {" "}
+                                                                                                                                    {a.departure.airport.name}
+                                                                                                                                </span>
+                                                                                                                            </td>
+                                                                                                                            <td className="stops">
+                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />{" "}
+                                                                                                                                <br />
+                                                                                                                                Non Stop
+                                                                                                                            </td>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    textAlign: "right",
+                                                                                                                                    width: 140,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <span
+                                                                                                                                    style={{
+                                                                                                                                        color: "#666666"
+                                                                                                                                    }}
+                                                                                                                                >
+                                                                                                                                    {" "}
+                                                                                                                                    {a.arrival.airport.name}
+                                                                                                                                </span>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        <tr>
+                                                                                                                            <td colSpan={3} height={10} />
+                                                                                                                        </tr>
+                                                                                                                    </tbody>
+                                                                                                                </table>
+                                                                                                                <table
+                                                                                                                    width="100%"
+                                                                                                                    cellPadding={0}
+                                                                                                                    cellSpacing={0}
+                                                                                                                    border={0}
+                                                                                                                    style={{
+                                                                                                                        fontSize: 12,
+                                                                                                                        color: "#202020"
+                                                                                                                    }}
+                                                                                                                >
+                                                                                                                    <tbody>
+                                                                                                                        <tr>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    width: 130,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 14 }}>
+                                                                                                                                    {getTimeFromDate(a.departure.at, false)}
+                                                                                                                                </b>
+                                                                                                                                <br />
+                                                                                                                                <div
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        color: "#666",
+                                                                                                                                        padding: "5px 0"
+                                                                                                                                    }}
+                                                                                                                                ></div>
+                                                                                                                            </td>
+                                                                                                                            <td>&nbsp;</td>
+                                                                                                                            <td
+                                                                                                                                style={{
+                                                                                                                                    textAlign: "right",
+                                                                                                                                    width: 180,
+                                                                                                                                    verticalAlign: "top"
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                <b style={{ fontSize: 14 }}>
+                                                                                                                                    {getTimeFromDate(a.arrival.at)}
+                                                                                                                                </b>
+                                                                                                                                <br />
+                                                                                                                                <div
+                                                                                                                                    style={{
+                                                                                                                                        fontSize: 12,
+                                                                                                                                        color: "#666",
+                                                                                                                                        padding: "5px 0"
+                                                                                                                                    }}
+                                                                                                                                ></div>
+                                                                                                                            </td>
+                                                                                                                        </tr>
+                                                                                                                        {/* <tr>
+                                                                                                                    <td colSpan={3}>
+                                                                                                                        <br />
+                                                                                                                        <b>Baggage:</b> Personal
+                                                                                                                        Item, Carry-on, Checked Bag{" "}
+                                                                                                                    </td>
+                                                                                                                </tr> */}
+                                                                                                                    </tbody>
+                                                                                                                </table>
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                                {/*Layover table */}
+                                                                                {i !== selectedFlight.itineraries[1].segments.length - 1 && <table
+                                                                                    width="100%"
+                                                                                    cellPadding={0}
+                                                                                    cellSpacing={0}
+                                                                                    border={0}
+                                                                                >
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td
+                                                                                                style={{
+                                                                                                    background: "#ffe2cd",
+                                                                                                    textAlign: "center",
+                                                                                                    fontSize: 12,
+                                                                                                    fontWeight: 600,
+                                                                                                    padding: "7px 10px",
+                                                                                                    borderRadius: 5,
+                                                                                                    color: "#21356e"
+                                                                                                }}
+                                                                                            >
+                                                                                                Layover in Schiphol Airport {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>}
+
+                                                                                <table
+                                                                                    width="100%"
+                                                                                    cellPadding={0}
+                                                                                    cellSpacing={0}
+                                                                                    border={0}
+                                                                                >
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <td height={10} />
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </>
+                                                                        ))}
+                                                                    </>
+                                                                )}
+
                                                                 {/*Traveller Details*/}
                                                                 <table
                                                                     className="w560"
@@ -2552,49 +1687,34 @@ const confirmationPage = () => {
                                                                                                     fontWeight: 500
                                                                                                 }}
                                                                                             >
-                                                                                                DOB
+                                                                                                DOB(DD/MM/YYYY)
                                                                                             </th>
                                                                                         </tr>
-                                                                                        <tr>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderRight: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                1. Shubham Kumar
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderRight: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                Male,
-                                                                                                <span style={{ fontWeight: 500 }}>
-                                                                                                    Adult
-                                                                                                </span>
-                                                                                            </td>
-                                                                                            <td>03 February 1978</td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderRight: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                2. Saurav Kumar
-                                                                                            </td>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    borderRight: "1px solid #ddd"
-                                                                                                }}
-                                                                                            >
-                                                                                                Male,
-                                                                                                <span style={{ fontWeight: 500 }}>
-                                                                                                    Child
-                                                                                                </span>
-                                                                                            </td>
-                                                                                            <td>08 March 2015</td>
-                                                                                        </tr>
+
+                                                                                        {travelers.map((traveler, index) => (
+                                                                                            <tr key={traveler.id}>
+                                                                                                <td
+                                                                                                    style={{
+                                                                                                        borderRight: "1px solid #ddd"
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {index + 1}. {traveler.firstName} {traveler.lastName}
+                                                                                                </td>
+                                                                                                <td
+                                                                                                    style={{
+                                                                                                        borderRight: "1px solid #ddd"
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {traveler.gender},
+                                                                                                    <span style={{ fontWeight: 500 }}>
+                                                                                                        {traveler.travelerType}
+                                                                                                    </span>
+                                                                                                </td>
+                                                                                                <td> {traveler.dobDate < 10 ? `0${traveler.dobDate}` : traveler.dobDate}{"/"}
+                                                                                                    {traveler.dobMonth < 10 ? `0${traveler.dobMonth}` : traveler.dobMonth}{"/"}
+                                                                                                    {traveler.dobYear}</td>
+                                                                                            </tr>
+                                                                                        ))}
                                                                                     </tbody>
                                                                                 </table>
                                                                             </td>
@@ -2604,6 +1724,7 @@ const confirmationPage = () => {
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>
+
                                                                 {/*Price Detail Start*/}
                                                                 <table
                                                                     className="w560"
@@ -2655,7 +1776,7 @@ const confirmationPage = () => {
                                                                                         <tr>
                                                                                             <td>Flight Price</td>
                                                                                             <td style={{ textAlign: "right" }}>
-                                                                                                $4466.72
+                                                                                                {selectedFlight.travelerPricings[0].price.total}
                                                                                             </td>
                                                                                         </tr>
                                                                                         <tr>
@@ -2701,7 +1822,7 @@ const confirmationPage = () => {
                                                                                                     borderTop: "2px solid #ddd"
                                                                                                 }}
                                                                                             >
-                                                                                                $4466.72
+                                                                                                {selectedFlight.travelerPricings[0].price.total}
                                                                                             </td>
                                                                                         </tr>
                                                                                     </tbody>
@@ -2720,7 +1841,7 @@ const confirmationPage = () => {
                                                                                 }}
                                                                             >
                                                                                 The total travel cost in the amount of{" "}
-                                                                                <b>$4466.72</b> were charged to the (Visa)
+                                                                                <b>{selectedFlight.travelerPricings[0].price.total}</b> were charged to the (Visa)
                                                                                 ending in <b>1234 </b> of{" "}
                                                                                 <b>(Shubham Kumar)</b> Your Credit/Debit
                                                                                 card may be billed in multiple charges
@@ -2733,6 +1854,7 @@ const confirmationPage = () => {
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>
+
                                                                 {/*Note Start*/}
                                                                 <table
                                                                     width="100%"
@@ -2995,700 +2117,7 @@ const confirmationPage = () => {
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>{" "}
-                                                                {/*Reviews End*/}
-                                                                {/*webchcking Detail Start*/}
-                                                                {/*Hotel Deal Start*/}
-                                                                <table
-                                                                    width="100%"
-                                                                    cellPadding={0}
-                                                                    cellSpacing={0}
-                                                                    border={0}
-                                                                >
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td height={20} />
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>
-                                                                                <table
-                                                                                    width="100%"
-                                                                                    border={0}
-                                                                                    cellSpacing={0}
-                                                                                    cellPadding={0}
-                                                                                    className="hoteldeal-container"
-                                                                                >
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td height={10} />
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td style={{ textAlign: "center" }}>
-                                                                                                <img
-                                                                                                    src="https://cmsrepository.com/static/flights/common/confirmation/congrats.png"
-                                                                                                    className="congrats-img"
-                                                                                                />
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td height={20} />
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td
-                                                                                                style={{
-                                                                                                    textAlign: "center",
-                                                                                                    fontSize: 16,
-                                                                                                    lineHeight: 25,
-                                                                                                    color: "#fff"
-                                                                                                }}
-                                                                                            >
-                                                                                                You've unlocked Savings worth up to
-                                                                                                30% <br />
-                                                                                                on Hotels. Add a Hotel &amp; Save.
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td height={25} />
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td className="dealboox-pad">
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    border={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    cellPadding={0}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td className="hoteldeal-box">
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    border={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    cellPadding={0}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td colSpan={2}>
-                                                                                                                                <img
-                                                                                                                                    src="//i.travelapi.com/hotels/1000000/50000/43300/43240/f1242ae5_z.jpg"
-                                                                                                                                    className="thumb-himages"
-                                                                                                                                    onerror="this.src='https://cmsrepository.com/static/HotelImages/HotelDefaultImages/no-hotel-photo-1.jpg'"
-                                                                                                                                    style={{
-                                                                                                                                        borderTopLeftRadius: 10,
-                                                                                                                                        borderTopRightRadius: 10
-                                                                                                                                    }}
-                                                                                                                                />
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                className="hoteldeal-names"
-                                                                                                                            >
-                                                                                                                                Quality Inn &amp;
-                                                                                                                                Suites
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td className="starrating-deal">
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10,
-                                                                                                                                    textAlign: "right"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    style={{
-                                                                                                                                        fontSize: 12,
-                                                                                                                                        textDecoration:
-                                                                                                                                            "underline",
-                                                                                                                                        color:
-                                                                                                                                            "#3B3B3B",
-                                                                                                                                        fontWeight: 600
-                                                                                                                                    }}
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=59946"
-                                                                                                                                >
-                                                                                                                                    36 Reviews
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                style={{
-                                                                                                                                    fontSize: 12,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    paddingLeft: 10,
-                                                                                                                                    lineHeight: 17
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                {" "}
-                                                                                                                                3616 Veterans Blvd.,
-                                                                                                                                Del Rio, TX-Texas,
-                                                                                                                                US, 78840
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingLeft: 8,
-                                                                                                                                    width: "50%",
-                                                                                                                                    fontSize: 13,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    letterSpacing:
-                                                                                                                                        "0.5"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <b
-                                                                                                                                    style={{
-                                                                                                                                        color:
-                                                                                                                                            "#3AB54A",
-                                                                                                                                        fontSize: 19,
-                                                                                                                                        fontWeight: 600,
-                                                                                                                                        lineHeight: 22,
-                                                                                                                                        letterSpacing: 0
-                                                                                                                                    }}
-                                                                                                                                >
-                                                                                                                                    $61.18
-                                                                                                                                </b>
-                                                                                                                                <br />
-                                                                                                                                Avg/ night
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=59946"
-                                                                                                                                    target="_blank"
-                                                                                                                                    className="dealview-btn"
-                                                                                                                                >
-                                                                                                                                    View
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={10}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{ width: "2%" }}
-                                                                                                            ></td>
-                                                                                                            <td className="hoteldeal-box">
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    border={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    cellPadding={0}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td colSpan={2}>
-                                                                                                                                <img
-                                                                                                                                    src="https://cmsrepository.com/static/HotelImages/HotelDefaultImages/no-hotel-photo-1.jpg"
-                                                                                                                                    className="thumb-himages"
-                                                                                                                                    onerror="this.src='https://cmsrepository.com/static/HotelImages/HotelDefaultImages/no-hotel-photo-1.jpg'"
-                                                                                                                                    style={{
-                                                                                                                                        borderTopLeftRadius: 10,
-                                                                                                                                        borderTopRightRadius: 10
-                                                                                                                                    }}
-                                                                                                                                />
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                className="hoteldeal-names"
-                                                                                                                            >
-                                                                                                                                Ramada Del Rio
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td className="starrating-deal">
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10,
-                                                                                                                                    textAlign: "right"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    style={{
-                                                                                                                                        fontSize: 12,
-                                                                                                                                        textDecoration:
-                                                                                                                                            "underline",
-                                                                                                                                        color:
-                                                                                                                                            "#3B3B3B",
-                                                                                                                                        fontWeight: 600
-                                                                                                                                    }}
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=126954"
-                                                                                                                                >
-                                                                                                                                    584 Reviews
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                style={{
-                                                                                                                                    fontSize: 12,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    paddingLeft: 10,
-                                                                                                                                    lineHeight: 17
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                {" "}
-                                                                                                                                2101 Veterans Blvd,
-                                                                                                                                Del Rio, TX-Texas,
-                                                                                                                                US, 78840
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingLeft: 8,
-                                                                                                                                    width: "50%",
-                                                                                                                                    fontSize: 13,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    letterSpacing:
-                                                                                                                                        "0.5"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <b
-                                                                                                                                    style={{
-                                                                                                                                        color:
-                                                                                                                                            "#3AB54A",
-                                                                                                                                        fontSize: 19,
-                                                                                                                                        fontWeight: 600,
-                                                                                                                                        lineHeight: 22,
-                                                                                                                                        letterSpacing: 0
-                                                                                                                                    }}
-                                                                                                                                >
-                                                                                                                                    $108.90
-                                                                                                                                </b>
-                                                                                                                                <br />
-                                                                                                                                Avg/ night
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=126954"
-                                                                                                                                    target="_blank"
-                                                                                                                                    className="dealview-btn"
-                                                                                                                                >
-                                                                                                                                    View
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={10}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{ width: "2%" }}
-                                                                                                            ></td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td height={5} />
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td className="dealboox-pad">
-                                                                                                <table
-                                                                                                    width="100%"
-                                                                                                    border={0}
-                                                                                                    cellSpacing={0}
-                                                                                                    cellPadding={0}
-                                                                                                >
-                                                                                                    <tbody>
-                                                                                                        <tr>
-                                                                                                            <td className="hoteldeal-box">
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    border={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    cellPadding={0}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td colSpan={2}>
-                                                                                                                                <img
-                                                                                                                                    src="https://cmsrepository.com/static/HotelImages/MainImages/67/66695.jpg"
-                                                                                                                                    className="thumb-himages"
-                                                                                                                                    onerror="this.src='https://cmsrepository.com/static/HotelImages/HotelDefaultImages/no-hotel-photo-1.jpg'"
-                                                                                                                                    style={{
-                                                                                                                                        borderTopLeftRadius: 10,
-                                                                                                                                        borderTopRightRadius: 10
-                                                                                                                                    }}
-                                                                                                                                />
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                className="hoteldeal-names"
-                                                                                                                            >
-                                                                                                                                Holiday Inn Express
-                                                                                                                                Hotel And Suites Del
-                                                                                                                                Rio
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td className="starrating-deal">
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10,
-                                                                                                                                    textAlign: "right"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    style={{
-                                                                                                                                        fontSize: 12,
-                                                                                                                                        textDecoration:
-                                                                                                                                            "underline",
-                                                                                                                                        color:
-                                                                                                                                            "#3B3B3B",
-                                                                                                                                        fontWeight: 600
-                                                                                                                                    }}
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=66695"
-                                                                                                                                >
-                                                                                                                                    89 Reviews
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                style={{
-                                                                                                                                    fontSize: 12,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    paddingLeft: 10,
-                                                                                                                                    lineHeight: 17
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                {" "}
-                                                                                                                                2410 N Bedell Ave,
-                                                                                                                                Del Rio, TX-Texas,
-                                                                                                                                US, 78840
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingLeft: 8,
-                                                                                                                                    width: "50%",
-                                                                                                                                    fontSize: 13,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    letterSpacing:
-                                                                                                                                        "0.5"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <b
-                                                                                                                                    style={{
-                                                                                                                                        color:
-                                                                                                                                            "#3AB54A",
-                                                                                                                                        fontSize: 19,
-                                                                                                                                        fontWeight: 600,
-                                                                                                                                        lineHeight: 22,
-                                                                                                                                        letterSpacing: 0
-                                                                                                                                    }}
-                                                                                                                                >
-                                                                                                                                    $108.96
-                                                                                                                                </b>
-                                                                                                                                <br />
-                                                                                                                                Avg/ night
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=66695"
-                                                                                                                                    target="_blank"
-                                                                                                                                    className="dealview-btn"
-                                                                                                                                >
-                                                                                                                                    View
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={10}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{ width: "2%" }}
-                                                                                                            ></td>
-                                                                                                            <td className="hoteldeal-box">
-                                                                                                                <table
-                                                                                                                    width="100%"
-                                                                                                                    border={0}
-                                                                                                                    cellSpacing={0}
-                                                                                                                    cellPadding={0}
-                                                                                                                >
-                                                                                                                    <tbody>
-                                                                                                                        <tr>
-                                                                                                                            <td colSpan={2}>
-                                                                                                                                <img
-                                                                                                                                    src="https://cmsrepository.com/static/HotelImages/MainImages/97/96380.jpg"
-                                                                                                                                    className="thumb-himages"
-                                                                                                                                    onerror="this.src='https://cmsrepository.com/static/HotelImages/HotelDefaultImages/no-hotel-photo-1.jpg'"
-                                                                                                                                    style={{
-                                                                                                                                        borderTopLeftRadius: 10,
-                                                                                                                                        borderTopRightRadius: 10
-                                                                                                                                    }}
-                                                                                                                                />
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                className="hoteldeal-names"
-                                                                                                                            >
-                                                                                                                                Best Western Inn Of
-                                                                                                                                Del Rio
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td className="starrating-deal">
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/rate-star.png" />
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10,
-                                                                                                                                    textAlign: "right"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    style={{
-                                                                                                                                        fontSize: 12,
-                                                                                                                                        textDecoration:
-                                                                                                                                            "underline",
-                                                                                                                                        color:
-                                                                                                                                            "#3B3B3B",
-                                                                                                                                        fontWeight: 600
-                                                                                                                                    }}
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=96380"
-                                                                                                                                >
-                                                                                                                                    176 Reviews
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                style={{
-                                                                                                                                    fontSize: 12,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    paddingLeft: 10,
-                                                                                                                                    lineHeight: 17
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                {" "}
-                                                                                                                                810 Veterans Blvd,
-                                                                                                                                Del Rio, TX-Texas,
-                                                                                                                                US, 78840
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={5}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingLeft: 8,
-                                                                                                                                    width: "50%",
-                                                                                                                                    fontSize: 13,
-                                                                                                                                    color: "#3B3B3B",
-                                                                                                                                    letterSpacing:
-                                                                                                                                        "0.5"
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <b
-                                                                                                                                    style={{
-                                                                                                                                        color:
-                                                                                                                                            "#3AB54A",
-                                                                                                                                        fontSize: 19,
-                                                                                                                                        fontWeight: 600,
-                                                                                                                                        lineHeight: 22,
-                                                                                                                                        letterSpacing: 0
-                                                                                                                                    }}
-                                                                                                                                >
-                                                                                                                                    $137.74
-                                                                                                                                </b>
-                                                                                                                                <br />
-                                                                                                                                Avg/ night
-                                                                                                                            </td>
-                                                                                                                            <td
-                                                                                                                                style={{
-                                                                                                                                    paddingRight: 10
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                <a
-                                                                                                                                    href="https://www.lookbyfare.com/us/hotel/hotel/hotelsearch?ls=Del Rio, United States&lid=5409&hs=lst&tr=1&cin=2024-12-14&cout=2024-12-16&rc=a1c1-0&pos=37&pbid=2227984&hid=96380"
-                                                                                                                                    target="_blank"
-                                                                                                                                    className="dealview-btn"
-                                                                                                                                >
-                                                                                                                                    View
-                                                                                                                                </a>
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                        <tr>
-                                                                                                                            <td
-                                                                                                                                colSpan={2}
-                                                                                                                                height={10}
-                                                                                                                            />
-                                                                                                                        </tr>
-                                                                                                                    </tbody>
-                                                                                                                </table>
-                                                                                                            </td>
-                                                                                                            <td
-                                                                                                                style={{ width: "2%" }}
-                                                                                                            ></td>
-                                                                                                        </tr>
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td height={5} />
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                {/*Hotel Deal End*/}
-                                                                {/*main body end*/}
+
                                                             </td>
                                                             <td className="w20" />
                                                         </tr>
@@ -3738,7 +2167,7 @@ const confirmationPage = () => {
                                                                                         color: "#1F1F1F"
                                                                                     }}
                                                                                 >
-                                                                                    Lookbyfare Ticket Policies, Rules and
+                                                                                    OnlineFlightReservation Ticket Policies, Rules and
                                                                                     Restrictions
                                                                                 </b>
                                                                                 Please note that most airline tickets, along
@@ -3757,7 +2186,7 @@ const confirmationPage = () => {
                                                                                 travel to your destination is complete and
                                                                                 valid. Visit our{" "}
                                                                                 <a
-                                                                                    href="https://www.lookbyfare.com/us/terms-conditions"
+                                                                                    href="https://www.onlineflightreservation.com/terms-conditions"
                                                                                     target="_blank"
                                                                                     style={{ color: "#4863db" }}
                                                                                 >
@@ -3843,7 +2272,7 @@ const confirmationPage = () => {
                                                                                     Voluntary Itinerary Changes
                                                                                 </b>
                                                                                 While most itineraries ticketed by
-                                                                                Lookbyfare allow for changes and
+                                                                                OnlineFlightReservation allow for changes and
                                                                                 modifications, most of these changes in
                                                                                 itinerary require issuing a new ticket,
                                                                                 according to airline policy. Please note
@@ -3930,7 +2359,7 @@ const confirmationPage = () => {
                                                                                     </ul>
                                                                                     To review full plan details online, go to:{" "}
                                                                                     <a
-                                                                                        href="https://www.lookbyfare.com/us/travel-insurance"
+                                                                                        href="#"
                                                                                         target="_blank"
                                                                                         style={{
                                                                                             color: "#4F8FFC",
@@ -3938,7 +2367,7 @@ const confirmationPage = () => {
                                                                                             fontWeight: "bold"
                                                                                         }}
                                                                                     >
-                                                                                        https://www.lookbyfare.com/us/travel-insurance
+                                                                                        https://www.onlineflightreservation.com/us/travel-insurance
                                                                                     </a>
                                                                                     <br /> <br />
                                                                                 </div>
@@ -3959,7 +2388,7 @@ const confirmationPage = () => {
                                                                                     <br />
                                                                                     Visit:
                                                                                     <a
-                                                                                        href="https://www.lookbyfare.com/us/airlines/web-check-in/online-check-in"
+                                                                                        href="https://www.onlineflightreservation.com/web-checkin"
                                                                                         style={{
                                                                                             color: "#4F8FFC",
                                                                                             textDecoration: "none",
@@ -3967,7 +2396,7 @@ const confirmationPage = () => {
                                                                                         }}
                                                                                         target="_blank"
                                                                                     >
-                                                                                        https://www.lookbyfare.com/us/airlines/web-check-in/online-check-in
+                                                                                        https://www.onlineflightreservation.com/web-checkin
                                                                                     </a>
                                                                                     <br />
                                                                                     <br />
@@ -3993,11 +2422,11 @@ const confirmationPage = () => {
                         </tr>
                     </tbody>
                 </table>
+
+
             </div>
         </div>
-
-
-    )
+    </>
 }
 
 export default confirmationPage;

@@ -82,7 +82,6 @@ export default async function handler(req, res) {
                     success: true,
                     message: 'Transaction Successful!',
                     transactionId: transactionId,
-                    // receiptUrl: `https://sandbox.authorize.net/receipt/transactionReceipt?transId=${transactionId}`
                 });
 
             } else {
