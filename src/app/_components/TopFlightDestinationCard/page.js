@@ -40,7 +40,8 @@ const TopFlightDestinationCard = ({ destination }) => {
 
     const handleClick = () => {
         if (destination?.source?.iataCode && destination?.source?.name) {
-            router.push(`/FlightListing/${sanitizedDestinationName}?name=${encodeURIComponent(destination.source.name)}&name1=${encodeURIComponent(destination.destination.name)}&destination=${destination.source.iataCode}&origin=${destination.destination.iataCode}&depDate=${destination.depDate}&returnD=${destination.returnDate}&adult=1&child=0&infant=0&cabin=ECONOMY&airline=all&tripType=Round-trip&dateRange=${encodeURIComponent(destination.dateRange)}&token=${token}`);
+            router.push(`/home/flights/flight?name=${encodeURIComponent(destination.source.name)}&name1=${encodeURIComponent(destination.destination.name)}&origin=${destination.destination.iataCode}&destination=${destination.source.iataCode}&depDate=${destination.depDate}&returnD=${destination.returnDate}&adult=1&child=0&infant=0&cabin=ECONOMY&airline=all&tripType=One-Way&dateRange=${encodeURIComponent(destination.dateRange)}&tk=${token}`);
+            // router.push(`/FlightListing/${sanitizedDestinationName}?name=${encodeURIComponent(destination.source.name)}&name1=${encodeURIComponent(destination.destination.name)}&destination=${destination.source.iataCode}&origin=${destination.destination.iataCode}&depDate=${destination.depDate}&returnD=${destination.returnDate}&adult=1&child=0&infant=0&cabin=ECONOMY&airline=all&tripType=Round-trip&dateRange=${encodeURIComponent(destination.dateRange)}&token=${token}`);
         }
     };
 
@@ -49,7 +50,6 @@ const TopFlightDestinationCard = ({ destination }) => {
             <li onClick={handleClick} destination={destination}>
                 <figure>
                     <img
-                        // src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png"
                         src={destination.image}
                         className="deal__logo"
                         alt={destination.source.name}
