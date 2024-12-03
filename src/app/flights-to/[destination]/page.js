@@ -49,18 +49,31 @@ const DestinationPage = () => {
 
     const searchParams = useSearchParams();
     const name = searchParams.get("name");
+    // console.log(name, "RandomImages");
+
 
     const [photos, setPhotos] = useState([]);
 
     useEffect(() => {
         const fetchPhotos = async () => {
-            const response = await fetch(`https://api.unsplash.com/search/photos?query=${name}&per_page=10&page=1&client_id=_-08EnQEYpar-C7rgJZV_ZSS74a46hdw6C_exxUO41Y`);
-            const data = await response.json();
-            setPhotos(data.results); 
+            if (name) {
+                const response = await fetch(`https://api.unsplash.com/search/photos?query=${name}&per_page=10&page=1&client_id=_-08EnQEYpar-C7rgJZV_ZSS74a46hdw6C_exxUO41Y`);
+                const data = await response.json();
+                setPhotos(data.results);
+            }
         };
 
         fetchPhotos();
-    }, []);
+    }, [name]);
+
+    // console.log(photos, "All Photos");
+
+
+    // Randomly select a background image from the fetched photos
+    const randomBackgroundImage = photos.length > 0 ? photos[Math.floor(Math.random() * photos.length)].urls.full : '';
+
+    console.log(randomBackgroundImage, "RandomPhotos");
+
 
     return (
         <>
@@ -130,7 +143,14 @@ const DestinationPage = () => {
               `}
                 />
 
-                <div className="main-engine-wrapper ">
+                <div className="main-engine-wrapper " style={{
+                    backgroundImage: `url(${randomBackgroundImage})`,
+                    width: '100%',
+                    minHeight: '600px', 
+                    position: 'relative',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}>
                     <div className="container hidden-xs">
                         <div
                             className="engine-label"

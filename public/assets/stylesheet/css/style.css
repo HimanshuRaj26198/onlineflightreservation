@@ -14617,16 +14617,16 @@ select {
     appearance: none
 }
 
-/* .main-engine-wrapper {
+.main-engine-wrapper {
     background: url(../../images/home/heroimage.jpg?v=05) no-repeat center;
     background-size: cover;
     width: 100%;
     min-height: 600px;
     position: relative
-} */
+}
 
 
-.main-engine-wrapper {
+/* .main-engine-wrapper {
     width: 100%;
     min-height: 600px;
     position: relative;
@@ -14634,10 +14634,10 @@ select {
     background-position: center;
     animation: changeBackground 25s infinite;
     transition: background-image 2s ease-in-out;
-    /* Adds smooth transition */
-}
+   
+} */
 
-@keyframes changeBackground {
+/* @keyframes changeBackground {
     0% {
         background-image: url(../../images/home/heroimage-1.jpg);
     }
@@ -14665,7 +14665,7 @@ select {
     100% {
         background-image: url(../../images/home/heroimage-1.jpg);
     }
-}
+} */
 
 
 @media(max-width:1169px) {

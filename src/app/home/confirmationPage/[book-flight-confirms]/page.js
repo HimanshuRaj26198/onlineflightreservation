@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from "react";
+import React from 'react';
 import { useSearchParams } from "next/navigation";
 
 
@@ -11,6 +12,7 @@ const confirmationPage = () => {
     const [contactDetails, setContactDetails] = useState({});
     const [formattedDate, setFormattedDate] = useState('');
     const [transactionId, setTransactionId] = useState(null);
+
 
     const searchParam = useSearchParams();
 
@@ -171,8 +173,50 @@ const confirmationPage = () => {
         return `${hours} ${minutes || '00M'}`.trim();
     }
 
+    // Get the transactionStatus from searchParams (assumed it's coming from URL)
+    const transactionStatusStr = searchParam.get("transactionStatus");
+
+    // Convert transactionStatusStr to boolean
+    const transactionStatus = transactionStatusStr === 'true';  // Converts 'true' string to boolean true
+
+    // Set status and color based on the transactionStatus
+    let statusColor = '#FF1920'; // Default red for Failed
+    let statusText = 'Failed';
+
+    // Set status and color based on the boolean value of transactionStatus
+    if (transactionStatus) {
+        statusColor = '#4CAF50'; // Green for Success
+        statusText = 'Success';
+    } else {
+        statusColor = '#FF1920'; // Red for Failed
+        statusText = 'Failed';
+    }
 
 
+    const steps = [
+        { name: "Booking Received", icon: "check-icon.png", completed: true },
+        { name: "Payment Verification", icon: "processing-icon.png", completed: false },
+        { name: "Payment Successful", icon: "blank-circle.png", completed: transactionStatus }, // Assuming transactionStatus is either true or false
+        { name: "e-Ticket", icon: "blank-circle.png", completed: false }
+    ]
+
+    // Handle step rendering logic
+    const renderStep = (step, index) => {
+        const iconSrc = step.completed
+            ? `https://cmsrepository.com/static/flights/common/confirmation/payment-steps/${step.icon}`
+            : `https://cmsrepository.com/static/flights/common/confirmation/payment-steps/blank-circle.png`;
+        const statusClass = step.completed ? 'status-line-completed' : 'status-line-pending';
+        const statusText = step.completed ? 'Completed' : 'Pending';
+
+        return (
+            <td className="status-block" key={step.name}>
+                <img src={iconSrc} />
+                <span className={`${statusClass} status-line-center`}>
+                    {step.name}
+                </span>
+            </td>
+        );
+    };
 
     return <>
         <div style={{ background: "#fff", margin: 0, padding: 0 }}>
@@ -292,13 +336,8 @@ const confirmationPage = () => {
                                                                             <td>&nbsp;</td>
                                                                             <td align="right">
                                                                                 <div className="status">
-                                                                                    {" "}
-                                                                                    <span
-                                                                                        className="circle"
-                                                                                        style={{ background: "#FF1920" }}
-                                                                                    />{" "}
-                                                                                    Status:{" "}
-                                                                                    <b style={{ color: "#FF1920" }}>Failed</b>
+                                                                                    <span className="circle" style={{ background: statusColor }} />
+                                                                                    Status: <b style={{ color: statusColor }}>{statusText}</b>
                                                                                 </div>
                                                                             </td>
                                                                             <td className="w20" />
@@ -327,57 +366,31 @@ const confirmationPage = () => {
                                                                                     <tbody>
                                                                                         <tr>
                                                                                             <td width="5%" />
-                                                                                            <td
-                                                                                                width="5%"
-                                                                                                className="status-block"
-                                                                                            >
-                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/payment-steps/check-icon.png" />
-                                                                                                <span className="status-line-center">
-                                                                                                    Booking Received
-                                                                                                </span>
-                                                                                            </td>
-                                                                                            <td width={1}>
-                                                                                                <img
-                                                                                                    src="https://cmsrepository.com/static/flights/common/confirmation/payment-steps/lg/solid-line.png"
-                                                                                                    width="100%"
-                                                                                                />
-                                                                                            </td>
-                                                                                            <td className="status-iconalign status-block">
-                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/payment-steps/processing-icon.png" />
-                                                                                                <span className="status-line-center">
-                                                                                                    Payment Verification
-                                                                                                </span>
-                                                                                            </td>
-                                                                                            <td width={1}>
-                                                                                                <img
-                                                                                                    src="https://cmsrepository.com/static/flights/common/confirmation/payment-steps/lg/dotted-line.png"
-                                                                                                    width="100%"
-                                                                                                />
-                                                                                            </td>
-                                                                                            <td className="status-iconalign status-block">
-                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/payment-steps/blank-circle.png" />
-                                                                                                <span className="status-line-center">
-                                                                                                    Payment Successful
-                                                                                                </span>
-                                                                                            </td>
-                                                                                            <td width={1}>
-                                                                                                <img
-                                                                                                    src="https://cmsrepository.com/static/flights/common/confirmation/payment-steps/lg/dotted-line.png"
-                                                                                                    width="100%"
-                                                                                                />
-                                                                                            </td>
-                                                                                            <td className="status-iconalign status-block">
-                                                                                                <img src="https://cmsrepository.com/static/flights/common/confirmation/payment-steps/blank-circle.png" />
-                                                                                                <span className="status-line-center status-line-right">
-                                                                                                    e-Ticket
-                                                                                                </span>
-                                                                                            </td>
+                                                                                            {steps.map((step, index) => {
+                                                                                                const isLastStep = index === steps.length - 1;
+                                                                                                const lineStyle = isLastStep
+                                                                                                    ? '' // No line after the last step
+                                                                                                    : `https://cmsrepository.com/static/flights/common/confirmation/payment-steps/lg/${index % 2 === 0 ? 'solid-line.png' : 'dotted-line.png'}`;
+
+                                                                                                return (
+                                                                                                    <React.Fragment key={step.name}>
+                                                                                                        {renderStep(step, index)}
+                                                                                                        {!isLastStep && (
+                                                                                                            <td width={1}>
+                                                                                                                <img
+                                                                                                                    src={lineStyle}
+                                                                                                                    width="100%"
+                                                                                                                />
+                                                                                                            </td>
+                                                                                                        )}
+                                                                                                    </React.Fragment>
+                                                                                                );
+                                                                                            })}
                                                                                             <td width="5%" />
+
                                                                                         </tr>
                                                                                     </tbody>
                                                                                 </table>
-                                                                                {/* <img src="https://cmsrepository.com/static/flights/common/confirmation/steps-payment-successful.png" />
-                       <img src="https://cmsrepository.com/static/flights/common/confirmation/steps-payment-fail.png" /> */}
                                                                             </td>
                                                                             <td className="w20" />
                                                                         </tr>
@@ -821,7 +834,7 @@ const confirmationPage = () => {
                                                                                                 color: "#21356e"
                                                                                             }}
                                                                                         >
-                                                                                            Layover in Schiphol Airport {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
+                                                                                            Layover in {a.arrival.airport.name} {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
                                                                                         </td>
                                                                                     </tr>
                                                                                 </tbody>
@@ -1203,7 +1216,7 @@ const confirmationPage = () => {
                                                                                                     color: "#21356e"
                                                                                                 }}
                                                                                             >
-                                                                                                Layover in Schiphol Airport {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
+                                                                                                Layover in {a.arrival.airport.name} {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
                                                                                             </td>
                                                                                         </tr>
                                                                                     </tbody>
@@ -1587,7 +1600,7 @@ const confirmationPage = () => {
                                                                                                     color: "#21356e"
                                                                                                 }}
                                                                                             >
-                                                                                                Layover in Schiphol Airport {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
+                                                                                                Layover in {a.arrival.airport.name} {a.arrival.airport.city} : {calculateLayoverTime(selectedFlight)[1].itineraries.layover_time}
                                                                                             </td>
                                                                                         </tr>
                                                                                     </tbody>
