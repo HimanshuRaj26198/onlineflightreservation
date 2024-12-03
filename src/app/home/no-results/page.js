@@ -37,55 +37,55 @@ const NoResults = () => {
     };
 
 
-    return <div classNameName="body-content" bis_skin_checked={1}>
+    return <div className="body-content" bis_skin_checked={1}>
         <div
             id="_flight-details"
-            classNameName="flight-details collapse"
+            className="flight-details collapse"
             style={{ height: "100%!important" }}
             bis_skin_checked={1}
         ></div>
         <div
             id="overlay_detail"
-            classNameName="midum-overlay"
+            className="midum-overlay"
             style={{ display: "none" }}
             bis_skin_checked={1}
         />
-        <div classNameName="modify-engine-wrapper" bis_skin_checked={1}>
-            <a href="javascript:void(0);" classNameName="close-sidebar fa fa-close" />
-            <div classNameName="holder" bis_skin_checked={1}>
-                <div classNameName="modify-engine" bis_skin_checked={1}>
-                    <div classNameName="container">
-                        <div classNameName="search_detail edit-listing-searchdetails hand">
+        <div className="modify-engine-wrapper" bis_skin_checked={1}>
+            <a href="javascript:void(0);" className="close-sidebar fa fa-close" />
+            <div className="holder" bis_skin_checked={1}>
+                <div className="modify-engine" bis_skin_checked={1}>
+                    <div className="container">
+                        <div className="search_detail edit-listing-searchdetails hand">
                             {!isSearchVisible ? (
-                                <div classNameName="row" onClick={handleEditSearchClick} style={{ cursor: 'pointer' }}>
-                                    <div classNameName="">
-                                        <div classNameName="search_detail edit-listing-searchdetails hand">
-                                            <div classNameName="col-sm-8">
+                                <div className="row" onClick={handleEditSearchClick} style={{ cursor: 'pointer' }}>
+                                    <div className="">
+                                        <div className="search_detail edit-listing-searchdetails hand">
+                                            <div className="col-sm-8">
                                                 {searchParam.get("tripType") === 'Round-Trip' ? (
                                                     <>
                                                         {searchParam.get("origin")} &nbsp;
                                                         <b>
-                                                            <i classNameName="fa fa-exchange" />
+                                                            <i className="fa fa-exchange" />
                                                         </b>
                                                         &nbsp; {searchParam.get("destination")}
                                                         <br />
-                                                        {searchParam.get("depDate")}, {searchParam.get("returnD")}, 1 Travelers {searchParam.get("cabin")}
+                                                        {searchParam.get("depDate")}, {searchParam.get("returnD")}, 1 Travelers, {searchParam.get("cabin")}
                                                     </>
                                                 ) : (
                                                     <>
                                                         {searchParam.get("origin")} &nbsp;
                                                         <b>
-                                                            <i classNameName="fa fa-arrow-right" />
+                                                            <i className="fa fa-arrow-right" />
                                                         </b>
                                                         &nbsp; {searchParam.get("destination")}
                                                         <br />
-                                                        {searchParam.get("depDate")}, 1 Travelers {searchParam.get("cabin")}
+                                                        {searchParam.get("depDate")}, 1 Travelers, {searchParam.get("cabin")}
                                                     </>
                                                 )}
                                             </div>
                                             <button
                                                 type="button"
-                                                classNameName="modify_search pull-right edit-listing-search"
+                                                className="modify_search pull-right edit-listing-search"
                                                 onClick={handleEditSearchClick}
                                             >
                                                 Edit Search
@@ -94,30 +94,31 @@ const NoResults = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <>
-                                    <a classNameName="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
-                                        Close {/* */} [x]
-                                    </a>
-                                    <div ref={searchRef}
-                                    >
-                                        <FlightSearch />
-                                    </div>
-                                </>
+                                <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
+                                    Close {/* */} [x]
+                                </a>
                             )}
 
                         </div>
-
+                        <div ref={searchRef}
+                            style={{
+                                maxHeight: maxHeight,
+                                overflow: "hidden",
+                                transition: "max-height 0.5s ease-in-out",
+                            }}>
+                            <FlightSearch />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div classNameName="mobile-header-fixed" bis_skin_checked={1}>
-            <div classNameName="mobile-itenery modifySearchMobile" bis_skin_checked={1}>
-                <div classNameName="result-itenery" bis_skin_checked={1}>
-                    <div classNameName="row">
-                        <div classNameName="col-xs-12">
+        <div className="mobile-header-fixed" bis_skin_checked={1}>
+            <div className="mobile-itenery modifySearchMobile" bis_skin_checked={1}>
+                <div className="result-itenery" bis_skin_checked={1}>
+                    <div className="row">
+                        <div className="col-xs-12">
                             <a href="javascript:void(0);" onClick={openFlightSearch}>
-                                <div classNameName="modify-src-btn">
+                                <div className="modify-src-btn">
                                     <img
                                         src="https://www.lookbyfare.com/us/images/svg/edit-icon.svg"
                                         alt="Edit Icon"
@@ -125,22 +126,22 @@ const NoResults = () => {
                                 </div>
                             </a>
                             {isFlightSearchVisible && (
-                                <div classNameName="modify-engine-wrapper open">
+                                <div className="modify-engine-wrapper open">
                                     <a
                                         href="javascript:void(0);"
-                                        classNameName="close-sidebar fa fa-close"
+                                        className="close-sidebar fa fa-close"
                                         onClick={() => setFlightSearchVisible(false)}
                                     />
 
-                                    <div classNameName="holder">
-                                        <div classNameName="modify-engine">
-                                            <div classNameName="container">
-                                                <div classNameName="search_detail edit-listing-searchdetails hand">
+                                    <div className="holder">
+                                        <div className="modify-engine">
+                                            <div className="container">
+                                                <div className="search_detail edit-listing-searchdetails hand">
                                                     {!isSearchVisible ? (
                                                         <FlightSearch />
                                                     ) : (
                                                         <a
-                                                            classNameName="close-listing-search visible-lg visible-md"
+                                                            className="close-listing-search visible-lg visible-md"
                                                             onClick={() => setIsSearchVisible(false)}
                                                         >
                                                             Close {/* [x] */}
@@ -152,23 +153,23 @@ const NoResults = () => {
                                     </div>
                                 </div>
                             )}
-                            <div classNameName="city-itenery">
-                                <div classNameName="column">
-                                    <p classNameName="airportCode">{searchParam.get("origin")}</p>
+                            <div className="city-itenery">
+                                <div className="column">
+                                    <p className="airportCode">{searchParam.get("origin")}</p>
                                 </div>
-                                <div classNameName="column">
-                                    <div classNameName="airporticon">
+                                <div className="column">
+                                    <div className="airporticon">
                                         <b>
-                                            <i classNameName="fa fa-long-arrow-right" aria-hidden="true" />
+                                            <i className="fa fa-long-arrow-right" aria-hidden="true" />
                                         </b>
                                     </div>
                                 </div>
-                                <div classNameName="column">
-                                    <p classNameName="airportCode">{searchParam.get("destination")}</p>
+                                <div className="column">
+                                    <p className="airportCode">{searchParam.get("destination")}</p>
                                 </div>
-                                <div classNameName="clearfix" />
+                                <div className="clearfix" />
 
-                                <div classNameName="itenery-date">
+                                <div className="itenery-date">
 
                                     {searchParam.get("tripType") === 'Round-Trip' ? (
                                         <>
@@ -192,7 +193,7 @@ const NoResults = () => {
         </div>
         <loading>
             <div
-                classNameName="loader"
+                className="loader"
                 style={{ position: "absolute", display: "none" }}
                 bis_skin_checked={1}
             />
@@ -219,40 +220,40 @@ const NoResults = () => {
                     style={{ fontSize: 12, color: "rgb(255, 127, 0)", display: "none" }}
                 />
             </div>
-            <div classNameName="midum-overlay" id="fadebackground" bis_skin_checked={1} />
+            <div className="midum-overlay" id="fadebackground" bis_skin_checked={1} />
         </div>
-        <div classNameName="listing-wrapper" bis_skin_checked={1}>
-            <div classNameName="container" bis_skin_checked={1}>
+        <div className="listing-wrapper" bis_skin_checked={1}>
+            <div className="container" bis_skin_checked={1}>
                 <input type="hidden" id="tabvalue" name="tabvalue" defaultValue="all" />
-                <div classNameName="row" bis_skin_checked={1}>
-                    <div classNameName="col-sm-12 col-md-12 col-xs-12" bis_skin_checked={1}>
-                        <div classNameName="row" bis_skin_checked={1}>
-                            <div classNameName="col-md-12" bis_skin_checked={1}>
-                                <div classNameName="no-result" bis_skin_checked={1}>
+                <div className="row" bis_skin_checked={1}>
+                    <div className="col-sm-12 col-md-12 col-xs-12" bis_skin_checked={1}>
+                        <div className="row" bis_skin_checked={1}>
+                            <div className="col-md-12" bis_skin_checked={1}>
+                                <div className="no-result" bis_skin_checked={1}>
                                     <img src="/us/images/session-expire-icon.png" alt="" />
-                                    <div classNameName="oops" bis_skin_checked={1} />
-                                    <div classNameName="head" bis_skin_checked={1}>
+                                    <div className="oops" bis_skin_checked={1} />
+                                    <div className="head" bis_skin_checked={1}>
                                         No result found
                                     </div>
-                                    <p classNameName="text">
+                                    <p className="text">
                                         We’ve searched more than 400 airlines that we sell,
                                         <br /> and couldn't find any flights from <strong>
                                             {searchParam.get("origin")}
                                         </strong>{" "}
                                         to <strong>{searchParam.get("destination")}</strong>
                                     </p>
-                                    <div classNameName="bottom" bis_skin_checked={1}>
+                                    <div className="bottom" bis_skin_checked={1}>
                                         <p>Call us at (24x7)</p>
                                         <a
-                                            classNameName="call_number"
+                                            className="call_number"
                                             id="noresult_contact"
                                             href="tel:+1-844-774-6584"
                                         >
                                             +1-844-774-6584
                                         </a>
                                         <br />
-                                        <a href="/" classNameName="home_button">
-                                            <i classNameName="fa fa-angle-left" aria-hidden="true" /> Go
+                                        <a href="/" className="home_button">
+                                            <i className="fa fa-angle-left" aria-hidden="true" /> Go
                                             Home
                                         </a>
                                     </div>
@@ -270,27 +271,27 @@ const NoResults = () => {
             target="_blank"
         ></form>
         <div
-            classNameName="trigger-wrapper"
+            className="trigger-wrapper"
             style={{ display: "none" }}
             bis_skin_checked={1}
         >
-            <div classNameName="trigger-searching" bis_skin_checked={1}>
-                <span classNameName="close-btn" id="tiggerclose">
+            <div className="trigger-searching" bis_skin_checked={1}>
+                <span className="close-btn" id="tiggerclose">
                     <img src="/us/images/trigger-mobile/close-icon.svg" />
                 </span>
                 <img
                     src="/us/images/trigger-mobile/user-icon.svg"
-                    classNameName="user-icon"
+                    className="user-icon"
                 />
-                <div classNameName="head" bis_skin_checked={1}>
+                <div className="head" bis_skin_checked={1}>
                     Book before fare goes up!
                 </div>
-                <p classNameName="con-txt">
+                <p className="con-txt">
                     <b>3588</b> people are currently searching for flights to <br />
                     Los Angeles
                 </p>
             </div>
-            <div classNameName="mobile-laover" bis_skin_checked={1} />
+            <div className="mobile-laover" bis_skin_checked={1} />
         </div>
         <style
             dangerouslySetInnerHTML={{
@@ -299,19 +300,19 @@ const NoResults = () => {
             }}
         />
         <div
-            classNameName="list-count"
+            className="list-count"
             id="session-expire-warning-modal"
             style={{ display: "none" }}
             bis_skin_checked={1}
         >
-            <div classNameName="list-count-banner" bis_skin_checked={1}>
-                <div classNameName="top-head" bis_skin_checked={1}>
-                    <div classNameName="timer-icon" align="center" bis_skin_checked={1}>
-                        <i classNameName="fa fa-clock-o" style={{ fontSize: 42 }} />
+            <div className="list-count-banner" bis_skin_checked={1}>
+                <div className="top-head" bis_skin_checked={1}>
+                    <div className="timer-icon" align="center" bis_skin_checked={1}>
+                        <i className="fa fa-clock-o" style={{ fontSize: 42 }} />
                     </div>
                 </div>
                 <br />
-                <div classNameName="btm-txt txt2" bis_skin_checked={1}>
+                <div className="btm-txt txt2" bis_skin_checked={1}>
                     <p>
                         Flight Prices may change frequently owing to demand and availability.
                         Start a <b>New Search</b> / <b>Refresh Result</b> to view the latest
@@ -319,20 +320,20 @@ const NoResults = () => {
                     </p>
                 </div>
                 <br />
-                <div classNameName="call-btn" bis_skin_checked={1}>
+                <div className="call-btn" bis_skin_checked={1}>
                     <a
                         href="javascript:searchAgain('flight');"
                         id="refResult"
-                        classNameName="w200"
+                        className="w200"
                     >
                         Refresh Result
                     </a>
-                    <a href="/us" id="sess_startagain" classNameName="w200">
+                    <a href="/us" id="sess_startagain" className="w200">
                         Start Again
                     </a>
                 </div>
             </div>
-            <div classNameName="midum-overlay" id="fadebackground" bis_skin_checked={1} />
+            <div className="midum-overlay" id="fadebackground" bis_skin_checked={1} />
         </div>
     </div>
 }
