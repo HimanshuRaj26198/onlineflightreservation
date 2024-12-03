@@ -49,10 +49,10 @@ const TopFlightDestinationCard = ({ destination }) => {
             <li onClick={handleClick} destination={destination}>
                 <figure>
                     <img
-                        src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png"
-                        // src={destination.image}
+                        // src="https://cmsrepository.com/static/flights/flight/airlinelogo-png/nk.png"
+                        src={destination.image}
                         className="deal__logo"
-                        alt="nk"
+                        alt={destination.source.name}
                     />
                 </figure>
                 <div className="deal__detail">

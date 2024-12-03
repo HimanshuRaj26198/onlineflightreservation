@@ -49,7 +49,7 @@ const DestinationPage = () => {
 
     const searchParams = useSearchParams();
     const name = searchParams.get("name");
-    // console.log(name, "RandomImages");
+    console.log(name, "RandomImages");
 
 
     const [photos, setPhotos] = useState([]);
@@ -66,7 +66,7 @@ const DestinationPage = () => {
         fetchPhotos();
     }, [name]);
 
-    // console.log(photos, "All Photos");
+    console.log(photos, "All Photos");
 
 
     // Randomly select a background image from the fetched photos
@@ -144,12 +144,10 @@ const DestinationPage = () => {
                 />
 
                 <div className="main-engine-wrapper " style={{
-                    backgroundImage: `url(${randomBackgroundImage})`,
-                    width: '100%',
-                    minHeight: '600px', 
-                    position: 'relative',
+                    backgroundImage: `url(${randomBackgroundImage})`, 
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
+                    minHeight: '600px', 
                 }}>
                     <div className="container hidden-xs">
                         <div

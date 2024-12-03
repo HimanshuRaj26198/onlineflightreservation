@@ -374,8 +374,6 @@ const PurchasePage = () => {
         }
     }, [])
 
-    // console.log(selectedFlight, "SELECTED FLIGHT");
-
     const printEvent = (e) => {
         console.log(e.target)
     };
@@ -509,7 +507,6 @@ const PurchasePage = () => {
         // Add the new traveler to the array of travelers
         setTravellersDetails((prevState) => [...prevState, newTraveler]);
 
-
         const allTravelerData = {
             contactDetails,
             travelers,
@@ -518,7 +515,7 @@ const PurchasePage = () => {
         };
         localStorage.setItem('travelerData', JSON.stringify(allTravelerData));
 
-        await handleSubmit(newTraveler);  // Send email after traveler details are added
+        await handleSubmit(newTraveler);  
 
         // For Payment Gateway
         try {
@@ -558,7 +555,6 @@ const PurchasePage = () => {
             city: "",
             postalCode: "",
         });
-        // alert("Traveler details have been successfully added!");
     };
 
     // Function to send email with the traveler details

@@ -14617,13 +14617,13 @@ select {
     appearance: none
 }
 
-.main-engine-wrapper {
+/* .main-engine-wrapper {
     background: url(../../images/home/heroimage.jpg?v=05) no-repeat center;
     background-size: cover;
     width: 100%;
     min-height: 600px;
     position: relative
-}
+} */
 
 
 /* .main-engine-wrapper {
@@ -14632,9 +14632,8 @@ select {
     position: relative;
     background-size: cover;
     background-position: center;
-    animation: changeBackground 25s infinite;
-    transition: background-image 2s ease-in-out;
-   
+    animation: changeBackground 25s infinite; 
+    transition: background-image 2250s ease-in-out; 
 } */
 
 /* @keyframes changeBackground {
