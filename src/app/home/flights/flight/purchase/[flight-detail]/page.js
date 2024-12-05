@@ -515,7 +515,7 @@ const PurchasePage = () => {
         };
         localStorage.setItem('travelerData', JSON.stringify(allTravelerData));
 
-        await handleSubmit(newTraveler);  
+        await handleSubmit(newTraveler);
 
         // For Payment Gateway
         try {
@@ -1063,7 +1063,7 @@ const PurchasePage = () => {
                                                                                 onError="if (this.src != 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/ai.png') this.src = 'https://cmsrepository.com/static/flights/flight/airlinelogo-png/ai.png';"
                                                                             />
                                                                             <div className="name" bis_skin_checked={1}>
-                                                                                Air India
+                                                                                {selectedFlight.itineraries[0].segments[0].airline.name}
                                                                                 <span className="tooltip-custom">
                                                                                     <div
                                                                                         className="promo-detail"
@@ -1130,14 +1130,14 @@ const PurchasePage = () => {
                                                                                             style={{ width: "auto" }}
                                                                                             className="fa fa-clock-o"
                                                                                         />
-                                                                                        {extractDuration(selectedFlight.itineraries[0].duration)}
+                                                                                        {/* {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time} */}
                                                                                     </span>
                                                                                     {calculateLayoverTime(selectedFlight).length > 0 && <span>
                                                                                         <div
                                                                                             className="layovertime hidden-xs"
                                                                                             bis_skin_checked={1}
                                                                                         >
-                                                                                            1<span>h</span> 50<span>m</span>
+                                                                                            {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
                                                                                         </div>
                                                                                         <i />
                                                                                         <div
@@ -1145,7 +1145,7 @@ const PurchasePage = () => {
                                                                                             bis_skin_checked={1}
                                                                                         >
 
-                                                                                            <b>HYD</b>
+                                                                                            {/* <b>{a.arrival.airport.iata}</b> */}
                                                                                         </div>
                                                                                     </span>}
                                                                                     <div
@@ -1156,8 +1156,9 @@ const PurchasePage = () => {
                                                                                             <strong>Flight Duration: </strong>{extractDuration(selectedFlight.itineraries[0].duration)}
                                                                                         </p>
                                                                                         <p>
-                                                                                            <strong>Layover 1:</strong> 1h 50m,
-                                                                                            Rajiv Gandhi International
+                                                                                            <strong>Layover 1:</strong> 
+                                                                                            {/* {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}, */}
+                                                                                            {/* {a.arrival.airport.name} */}
                                                                                         </p>
                                                                                     </div>
                                                                                 </div>
@@ -1181,7 +1182,7 @@ const PurchasePage = () => {
                                                                                                 className="mb5px"
                                                                                                 style={{ textAlign: "left" }}
                                                                                             >
-                                                                                                Indira Gandhi International New Delhi
+                                                                                                {/* {a.arrival.airport.name} */}
                                                                                             </p>
                                                                                         </div>
                                                                                     </span>

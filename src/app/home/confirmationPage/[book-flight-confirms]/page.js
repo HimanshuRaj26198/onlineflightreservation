@@ -9,13 +9,11 @@ const confirmationPage = () => {
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
     const [travelers, setTravelers] = useState([]);
-    const [contactDetails, setContactDetails] = useState({});
     const [formattedDate, setFormattedDate] = useState('');
-    const [transactionId, setTransactionId] = useState(null);
-
-
+    const [contactDetails, setContactDetails] = useState({});
+    
     const searchParam = useSearchParams();
-
+    
     const [cardDetails, setCardDetails] = useState({
         cardHolderName: "",
         cardNo: "",
@@ -173,22 +171,18 @@ const confirmationPage = () => {
         return `${hours} ${minutes || '00M'}`.trim();
     }
 
-    // Get the transactionStatus from searchParams (assumed it's coming from URL)
     const transactionStatusStr = searchParam.get("transactionStatus");
 
-    // Convert transactionStatusStr to boolean
-    const transactionStatus = transactionStatusStr === 'true';  // Converts 'true' string to boolean true
+    const transactionStatus = transactionStatusStr === 'true'; 
 
-    // Set status and color based on the transactionStatus
-    let statusColor = '#FF1920'; // Default red for Failed
+    let statusColor = '#FF1920'; 
     let statusText = 'Failed';
 
-    // Set status and color based on the boolean value of transactionStatus
     if (transactionStatus) {
-        statusColor = '#4CAF50'; // Green for Success
+        statusColor = '#4CAF50';
         statusText = 'Success';
     } else {
-        statusColor = '#FF1920'; // Red for Failed
+        statusColor = '#FF1920';
         statusText = 'Failed';
     }
 
@@ -196,7 +190,7 @@ const confirmationPage = () => {
     const steps = [
         { name: "Booking Received", icon: "check-icon.png", completed: true },
         { name: "Payment Verification", icon: "processing-icon.png", completed: false },
-        { name: "Payment Successful", icon: "blank-circle.png", completed: transactionStatus }, // Assuming transactionStatus is either true or false
+        { name: "Payment Successful", icon: "blank-circle.png", completed: transactionStatus },
         { name: "e-Ticket", icon: "blank-circle.png", completed: false }
     ]
 

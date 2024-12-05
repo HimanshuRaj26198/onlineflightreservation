@@ -1,4 +1,5 @@
 const TopDestinationCard = ({ destination }) => {
+  
   const sanitizedDestinationName = destination.iataCode
     .replace(/[^\w\s]/g, '')
     .replace(/\d+/g, '')

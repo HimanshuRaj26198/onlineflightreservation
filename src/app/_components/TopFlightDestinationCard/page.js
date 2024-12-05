@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 
 const TopFlightDestinationCard = ({ destination }) => {
     const router = useRouter();
-
     const [token, setToken] = useState("");
 
     const fetchToken = async () => {
