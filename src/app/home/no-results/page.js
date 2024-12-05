@@ -12,7 +12,6 @@ const NoResults = () => {
 
     const searchParam = useSearchParams();
 
-
     const handleEditSearchClick = () => {
         setIsSearchVisible(!isSearchVisible);
     };
@@ -60,54 +59,57 @@ const NoResults = () => {
                                 <div className="row" onClick={handleEditSearchClick} style={{ cursor: 'pointer' }}>
                                     <div className="">
                                         <div className="search_detail edit-listing-searchdetails hand">
-                                            <div className="col-sm-8">
-                                                {searchParam.get("tripType") === 'Round-Trip' ? (
-                                                    <>
-                                                        {searchParam.get("origin")} &nbsp;
-                                                        <b>
-                                                            <i className="fa fa-exchange" />
-                                                        </b>
-                                                        &nbsp; {searchParam.get("destination")}
-                                                        <br />
-                                                        {searchParam.get("depDate")}, {searchParam.get("returnD")}, 1 Travelers, {searchParam.get("cabin")}
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        {searchParam.get("origin")} &nbsp;
-                                                        <b>
-                                                            <i className="fa fa-arrow-right" />
-                                                        </b>
-                                                        &nbsp; {searchParam.get("destination")}
-                                                        <br />
-                                                        {searchParam.get("depDate")}, 1 Travelers, {searchParam.get("cabin")}
-                                                    </>
-                                                )}
+                                            <div className="">
+                                                <button
+                                                    type="button"
+                                                    className="modify_search pull-right edit-listing-search"
+                                                    onClick={handleEditSearchClick}
+                                                >
+                                                    Edit Search
+                                                </button>
+                                                <div className="col-sm-8 ">
+                                                    {searchParam.get("tripType") === 'Round-Trip' ? (
+                                                        <>
+                                                           {searchParam.get("origin")} &nbsp;
+                                                            <b>
+                                                                <i className="fa fa-exchange" />
+                                                            </b>
+                                                            &nbsp; {searchParam.get("destination")}
+                                                            <br />
+                                                            {searchParam.get("depDate")}, {searchParam.get("returnD")}, 1 Travelers, Economy
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            {searchParam.get("origin")} &nbsp;
+                                                            <b>
+                                                                <i className="fa fa-arrow-right" />
+                                                            </b>
+                                                            &nbsp; {searchParam.get("destination")}
+                                                            <br />
+                                                            {searchParam.get("depDate")}, 1 Travelers, Economy
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <button
-                                                type="button"
-                                                className="modify_search pull-right edit-listing-search"
-                                                onClick={handleEditSearchClick}
-                                            >
-                                                Edit Search
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             ) : (
-                                <a className="close-listing-search visible-lg visible-md" onClick={handleEditSearchClick}>
-                                    Close {/* */} [x]
-                                </a>
+                                <>
+                                    <a className="close-listing-search visible-lg visible-md visible-sm" onClick={handleEditSearchClick}>
+                                        Close {/* */} [x]
+                                    </a>
+                                    <div ref={searchRef}>
+                                        <section id="flightEngineId">
+                                            <FlightSearch />
+                                        </section>
+                                    </div>
+                                </>
+
                             )}
 
                         </div>
-                        <div ref={searchRef}
-                            style={{
-                                maxHeight: maxHeight,
-                                overflow: "hidden",
-                                transition: "max-height 0.5s ease-in-out",
-                            }}>
-                            <FlightSearch />
-                        </div>
+
                     </div>
                 </div>
             </div>
