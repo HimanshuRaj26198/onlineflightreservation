@@ -14,6 +14,7 @@ const PurchasePage = () => {
     const [travellerDetails, setTravellerDetails] = useState({});
     const [isAffirmPayment, setIsAffirmPayment] = useState(false);
     const [flightDetailVisible, setFlightDetailVisible] = useState(false);
+    const [isRefundSectionVisible, setRefundSectionVisible] = useState(true);
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [formedFilled, setFormFilled] = useState(false);
@@ -490,7 +491,7 @@ const PurchasePage = () => {
         }
 
         setTravelers(updatedTravelers);
-    }, [travellerDetails]);
+    }, [travellerDetails,setTravelers]);
 
     console.log(contactDetails, "ContactDetails");
 
@@ -636,42 +637,49 @@ const PurchasePage = () => {
         });
     };
 
-    // Handle gender change for each traveler
+    const genderOptions = [
+        { value: 1, label: 'Male' },
+        { value: 2, label: 'Female' }
+    ];
+
+    // State to manage the selected gender
+    const [selectedGender, setSelectedGender] = useState(1); // Default to 'Male'
+
+    // Function to handle the gender selection
     const handleGenderChange = (id, gender) => {
-        const updatedTravelers = [...travelers];
+        setTravelers((prevTravelers) => {
+            const updatedTravelers = [...prevTravelers];
 
-        // Find the traveler with the matching id
-        const travelerIndex = updatedTravelers.findIndex(traveler => traveler.id === id);
+            // Find the traveler by ID and update gender and title
+            const travelerIndex = updatedTravelers.findIndex((traveler) => traveler.id === id);
+            if (travelerIndex !== -1) {
+                updatedTravelers[travelerIndex] = {
+                    ...updatedTravelers[travelerIndex],
+                    gender,
+                    title: gender === '1' ? 'Mr' : gender === '2' ? 'Mrs' : '', // Adjust title for adults
+                };
+            }
 
-        // If the traveler is found, update their gender and title
-        if (travelerIndex !== -1) {
-            updatedTravelers[travelerIndex] = {
-                ...updatedTravelers[travelerIndex],
-                gender,
-                title: gender === '1' ? 'Mr' : gender === '2' ? 'Mrs' : '',
-            };
-
-            // Update the state with the new travelers array
-            setTravelers(updatedTravelers);
-        }
+            return updatedTravelers;
+        });
     };
 
-    const handleTitleChange = (id, event) => {
-        const updatedTravelers = [...travelers];
+    // Handle title change
+    const handleTitleChange = (id, title) => {
+        setTravelers((prevTravelers) => {
+            const updatedTravelers = [...prevTravelers];
 
-        // Find the traveler with the matching id
-        const travelerIndex = updatedTravelers.findIndex(traveler => traveler.id === id);
+            // Find the traveler by ID and update the title
+            const travelerIndex = updatedTravelers.findIndex((traveler) => traveler.id === id);
+            if (travelerIndex !== -1) {
+                updatedTravelers[travelerIndex] = {
+                    ...updatedTravelers[travelerIndex],
+                    title,
+                };
+            }
 
-        // If the traveler is found, update their title
-        if (travelerIndex !== -1) {
-            updatedTravelers[travelerIndex] = {
-                ...updatedTravelers[travelerIndex],
-                title: event.target.value, // Update the title based on the selected value
-            };
-
-            // Update the state with the new travelers array
-            setTravelers(updatedTravelers);
-        }
+            return updatedTravelers;
+        });
     };
 
     // Handle country selection from dropdown
@@ -764,6 +772,11 @@ const PurchasePage = () => {
     // Function to toggle the flight detail visibility
     const handleToggleFilterspdtl = () => {
         setFlightDetailVisible(!flightDetailVisible); // Toggle visibility
+    };
+
+    const handleRemoveRefund = () => {
+        // Set the state to false to hide the refund section
+        setRefundSectionVisible(false);
     };
 
     return <>
@@ -1125,13 +1138,13 @@ const PurchasePage = () => {
                                                                                     className="tooltip-custom"
                                                                                     bis_skin_checked={1}
                                                                                 >
-                                                                                    <span className="visible-xs layovertimemob">
+                                                                                    {calculateLayoverTime(selectedFlight).length > 0 && <span className="visible-xs layovertimemob">
                                                                                         <span
                                                                                             style={{ width: "auto" }}
                                                                                             className="fa fa-clock-o"
                                                                                         />
-                                                                                        {/* {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time} */}
-                                                                                    </span>
+                                                                                        {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}
+                                                                                    </span>}
                                                                                     {calculateLayoverTime(selectedFlight).length > 0 && <span>
                                                                                         <div
                                                                                             className="layovertime hidden-xs"
@@ -1145,7 +1158,7 @@ const PurchasePage = () => {
                                                                                             bis_skin_checked={1}
                                                                                         >
 
-                                                                                            {/* <b>{a.arrival.airport.iata}</b> */}
+                                                                                            <b>{selectedFlight.itineraries[0].segments[0].arrival.airport.iata}</b>
                                                                                         </div>
                                                                                     </span>}
                                                                                     <div
@@ -1155,11 +1168,10 @@ const PurchasePage = () => {
                                                                                         <p>
                                                                                             <strong>Flight Duration: </strong>{extractDuration(selectedFlight.itineraries[0].duration)}
                                                                                         </p>
-                                                                                        <p>
-                                                                                            <strong>Layover 1:</strong> 
-                                                                                            {/* {calculateLayoverTime(selectedFlight)[0].itineraries.layover_time}, */}
-                                                                                            {/* {a.arrival.airport.name} */}
-                                                                                        </p>
+                                                                                        {calculateLayoverTime(selectedFlight).length > 0 && <p>
+                                                                                            <strong>Layover 1:</strong>{calculateLayoverTime(selectedFlight)[0].itineraries.layover_time},
+                                                                                            {selectedFlight.itineraries[0].segments[0].arrival.airport.iata}
+                                                                                        </p>}
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1182,7 +1194,7 @@ const PurchasePage = () => {
                                                                                                 className="mb5px"
                                                                                                 style={{ textAlign: "left" }}
                                                                                             >
-                                                                                                {/* {a.arrival.airport.name} */}
+                                                                                                {selectedFlight.itineraries[0].segments[0].arrival.airport.name}
                                                                                             </p>
                                                                                         </div>
                                                                                     </span>
@@ -1738,48 +1750,27 @@ const PurchasePage = () => {
                                                             {adult.travelerType} {index + 1}
                                                             <p>Passenger details must match your passport or photo ID</p>
                                                         </div>
-                                                        <div className="gender-type" bis_skin_checked={1}>
+
+                                                        <div className="gender-type">
                                                             <ul>
-                                                                <li>
-                                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                                        <label>
-                                                                            <input
-                                                                                defaultChecked="checked"
-                                                                                data-val="true"
-                                                                                data-val-number="The field Gender must be a number."
-                                                                                data-val-required="The Gender field is required."
-                                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                                onclick="selectTitle(0, 1 )"
-                                                                                type="radio"
-                                                                                defaultValue={1}
-                                                                                value="1"
-                                                                                checked={adult.gender === '1'}
-                                                                                onChange={() => handleGenderChange(adult.id, '1')}
-                                                                            />
-                                                                            <span>Male</span>
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
-                                                                <li>
-                                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                                        <label>
-                                                                            <input
-                                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                                onclick="selectTitle(0, 2 )"
-                                                                                type="radio"
-                                                                                defaultValue={2}
-                                                                                value="2"
-                                                                                checked={adult.gender === '2'}
-                                                                                onChange={() => handleGenderChange(adult.id, '2')}
-                                                                            />
-                                                                            <span>Female</span>
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
+                                                                {genderOptions.map((gender, index) => (
+                                                                    <li key={index}>
+                                                                        <div className="inputSet">
+                                                                            <label>
+                                                                                <input
+                                                                                    type="radio"
+                                                                                    name={`gender-${adult.id}`}
+                                                                                    value={gender.value}
+                                                                                    checked={adult.gender === gender.value}
+                                                                                    onChange={(e) => handleGenderChange(adult.id, e.target.value)}
+                                                                                />
+                                                                                <span>{gender.label}</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </li>
+                                                                ))}
                                                             </ul>
-                                                            <div className="clearfix" bis_skin_checked={1} />
+                                                            <div className="clearfix"></div>
                                                         </div>
 
                                                         <div className="row" bis_skin_checked={1}>
@@ -1791,19 +1782,12 @@ const PurchasePage = () => {
                                                                 </label>
                                                                 <div className="form-righterrow">
                                                                     <select
-                                                                        className=""
-                                                                        id="flightBookingRequest_PassengerList_0__Title"
-                                                                        name="flightBookingRequest.PassengerList[0].Title"
-                                                                        onChange={(e) => handleTitleChange(adult.id, e)}
+                                                                        name={`title-${adult.id}`}
                                                                         value={adult.title}
+                                                                        onChange={(e) => handleTitleChange(adult.id, e.target.value)}
                                                                     >
-                                                                        <option value="">Title</option>
-                                                                        {adult.gender === '1' && (
-                                                                            <option value="Mr">Mr</option>
-                                                                        )}
-                                                                        {adult.gender === '2' && (
-                                                                            <option value="Mrs">Mrs</option>
-                                                                        )}
+                                                                        <option value="Mr">Mr</option>
+                                                                        <option value="Mrs">Mrs</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -2045,50 +2029,30 @@ const PurchasePage = () => {
                                                             {child.travelerType} {index + 1}
                                                             <p>Passenger details must match your passport or photo ID</p>
                                                         </div>
-                                                        <div className="gender-type" bis_skin_checked={1}>
+
+                                                        <div className="gender-type">
                                                             <ul>
-                                                                <li>
-                                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                                        <label>
-                                                                            <input
-                                                                                defaultChecked="checked"
-                                                                                data-val="true"
-                                                                                data-val-number="The field Gender must be a number."
-                                                                                data-val-required="The Gender field is required."
-                                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                                onclick="selectTitle(0, 1 )"
-                                                                                type="radio"
-                                                                                defaultValue={1}
-                                                                                value="1"
-                                                                                checked={child.gender === '1'}
-                                                                                onChange={() => handleGenderChange(child.id, '1')}
-                                                                            />
-                                                                            <span>Male</span>
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
-                                                                <li>
-                                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                                        <label>
-                                                                            <input
-                                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                                onclick="selectTitle(0, 2 )"
-                                                                                type="radio"
-                                                                                defaultValue={2}
-                                                                                value="2"
-                                                                                checked={child.gender === '2'}
-                                                                                onChange={() => handleGenderChange(child.id, '2')}
-                                                                            />
-                                                                            <span>Female</span>
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
+                                                                {genderOptions.map((gender, index) => (
+                                                                    <li key={index}>
+                                                                        <div className="inputSet">
+                                                                            <label>
+                                                                                <input
+                                                                                    type="radio"
+                                                                                    name={`gender-${child.id}`}
+                                                                                    value={gender.value}
+                                                                                    checked={child.gender === gender.value}
+                                                                                    onChange={(e) => handleGenderChange(child.id, e.target.value)}
+                                                                                />
+                                                                                <span>{gender.label}</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </li>
+                                                                ))}
                                                             </ul>
-                                                            <div className="clearfix" bis_skin_checked={1} />
+                                                            <div className="clearfix"></div>
                                                         </div>
                                                         <div className="row" bis_skin_checked={1}>
+
                                                             <div className="col-sm-2 col-xs-12">
                                                                 <label>
                                                                     Title
@@ -2096,19 +2060,12 @@ const PurchasePage = () => {
                                                                 </label>
                                                                 <div className="form-righterrow">
                                                                     <select
-                                                                        className=""
-                                                                        id="flightBookingRequest_PassengerList_0__Title"
-                                                                        name="flightBookingRequest.PassengerList[0].Title"
-                                                                        onChange={(e) => handleTitleChange(child.id, e)}
+                                                                        name={`title-${child.id}`}
                                                                         value={child.title}
+                                                                        onChange={(e) => handleTitleChange(child.id, e.target.value)}
                                                                     >
-                                                                        <option value="">Title</option>
-                                                                        {child.gender === '1' && (
-                                                                            <option value="Mr">Mr</option>
-                                                                        )}
-                                                                        {child.gender === '2' && (
-                                                                            <option value="Mrs">Mrs</option>
-                                                                        )}
+                                                                        <option value="Mr">Mr</option>
+                                                                        <option value="Mrs">Mrs</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -2349,50 +2306,30 @@ const PurchasePage = () => {
                                                             {Infant.travelerType} {index + 1}
                                                             <p>Passenger details must match your passport or photo ID</p>
                                                         </div>
-                                                        <div className="gender-type" bis_skin_checked={1}>
+
+                                                        <div className="gender-type">
                                                             <ul>
-                                                                <li>
-                                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                                        <label>
-                                                                            <input
-                                                                                defaultChecked="checked"
-                                                                                data-val="true"
-                                                                                data-val-number="The field Gender must be a number."
-                                                                                data-val-required="The Gender field is required."
-                                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                                onclick="selectTitle(0, 1 )"
-                                                                                type="radio"
-                                                                                defaultValue={1}
-                                                                                value="1"
-                                                                                checked={Infant.gender === '1'}
-                                                                                onChange={() => handleGenderChange(Infant.id, '1')}
-                                                                            />
-                                                                            <span>Male</span>
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
-                                                                <li>
-                                                                    <div className="inputSet" bis_skin_checked={1}>
-                                                                        <label>
-                                                                            <input
-                                                                                id="flightBookingRequest_PassengerList_0__Gender"
-                                                                                name="flightBookingRequest.PassengerList[0].Gender"
-                                                                                onclick="selectTitle(0, 2 )"
-                                                                                type="radio"
-                                                                                defaultValue={2}
-                                                                                value="2"
-                                                                                checked={Infant.gender === '2'}
-                                                                                onChange={() => handleGenderChange(Infant.id, '2')}
-                                                                            />
-                                                                            <span>Female</span>
-                                                                        </label>
-                                                                    </div>
-                                                                </li>
+                                                                {genderOptions.map((gender, index) => (
+                                                                    <li key={index}>
+                                                                        <div className="inputSet">
+                                                                            <label>
+                                                                                <input
+                                                                                    type="radio"
+                                                                                    name={`gender-${Infant.id}`}
+                                                                                    value={gender.value}
+                                                                                    checked={Infant.gender === gender.value}
+                                                                                    onChange={(e) => handleGenderChange(Infant.id, e.target.value)}
+                                                                                />
+                                                                                <span>{gender.label}</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </li>
+                                                                ))}
                                                             </ul>
-                                                            <div className="clearfix" bis_skin_checked={1} />
+                                                            <div className="clearfix"></div>
                                                         </div>
                                                         <div className="row" bis_skin_checked={1}>
+
                                                             <div className="col-sm-2 col-xs-12">
                                                                 <label>
                                                                     Title
@@ -2400,19 +2337,12 @@ const PurchasePage = () => {
                                                                 </label>
                                                                 <div className="form-righterrow">
                                                                     <select
-                                                                        className=""
-                                                                        id="flightBookingRequest_PassengerList_0__Title"
-                                                                        name="flightBookingRequest.PassengerList[0].Title"
-                                                                        onChange={(e) => handleTitleChange(Infant.id, e)}
+                                                                        name={`title-${Infant.id}`}
                                                                         value={Infant.title}
+                                                                        onChange={(e) => handleTitleChange(Infant.id, e.target.value)}
                                                                     >
-                                                                        <option value="">Title</option>
-                                                                        {Infant.gender === '1' && (
-                                                                            <option value="Mr">Mr</option>
-                                                                        )}
-                                                                        {Infant.gender === '2' && (
-                                                                            <option value="Mrs">Mrs</option>
-                                                                        )}
+                                                                        <option value="Mr">Mr</option>
+                                                                        <option value="Mrs">Mrs</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -2643,6 +2573,7 @@ const PurchasePage = () => {
                                                 )} */}
                                                     </div>
                                                 ))}
+
                                             </>
                                         )}
 
@@ -3644,29 +3575,33 @@ const PurchasePage = () => {
                                                         Travel Insurance
                                                     </div>
                                                 </div>
-                                                <div
-                                                    className="fare-section rfndtxt"
-                                                    style={{ display: "none" }}
-                                                    bis_skin_checked={1}
-                                                >
+                                                {/* Fare Section - Refund Assurance */}
+                                                {isRefundSectionVisible && (
                                                     <div
-                                                        className="main"
-                                                        style={{ lineHeight: 16 }}
-                                                        bis_skin_checked={1}
+                                                        className="fare-section rfndtxt"
+                                                        bis_skin_checked="1"
                                                     >
-                                                        <span>
-                                                            $<span id="spnrfntamt">0</span>
-                                                        </span>
-                                                        Flight Refund <br />
-                                                        Assurance
-                                                        <a
-                                                            className="remove-btn cursor-pointer"
-                                                            onclick="RRfnd();"
+                                                        <div
+                                                            className="main"
+                                                            bis_skin_checked="1"
                                                         >
-                                                            <img src="/assets/images/payment/trash-icon.svg?v=1.0" />
-                                                        </a>
+                                                            <span>
+                                                                $<span id="spnrfntamt">79.80</span> {/* Refund amount */}
+                                                            </span>
+                                                            Flight Refund <br />
+                                                            Assurance
+                                                            <a
+                                                                className="remove-btn cursor-pointer"
+                                                                onClick={handleRemoveRefund} // Call handleRemoveRefund when clicked
+                                                            >
+                                                                <img
+                                                                    src="https://www.lookbyfare.com/us/images/payment/trash-icon.svg?v=1.0"
+                                                                    alt="Remove"
+                                                                />
+                                                            </a>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                )}
                                                 <div
                                                     className="fare-section Refundtxt"
                                                     style={{ display: "none" }}

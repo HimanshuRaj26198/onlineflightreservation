@@ -11,6 +11,8 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
     const [user] = useAuthState(auth);
     const [showSignIn, setShowSignIn] = useState(false);
     const [showSignUp, setShowSignUp] = useState(false);
+    const [refundAmount, setRefundAmount] = useState(0)
+    const [isRefundable, setIsRefundable] = useState(null);
 
     const hideSignIn = () => {
         setShowSignIn(false);
@@ -34,9 +36,13 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
         // if (!user) {
         //     setShowSignIn(true);
         // } else {
+        let currentRefundAmount = 0;
+        if (isRefundable) {
+            currentRefundAmount = 79.80; // Set refund amount for refundable booking
+        }
         localStorage.setItem("selectedflight", JSON.stringify(selectedFlight));
         localStorage.setItem("travellerDetails", JSON.stringify(travellerDetails));
-        router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}`)
+        router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}?refundAmount=${currentRefundAmount}`)
         // }
 
     }
@@ -133,6 +139,7 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
         // Return the formatted duration as "XH YM"
         return `${hours} ${minutes || '00M'}`.trim();
     }
+
     return <>
         {showSignIn && <SignInComponent hideLoginPopup={hideSignIn} showSignUp={showSignUpForm} />}
         {showSignUp && <SignUpComponent hideSignUp={hideSignUp} showSignIn={showSignInFor} />}
@@ -288,15 +295,15 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
 
                     {/* <!--<div className="refund-subtital">Choose Refundable Booking and receive a flight refund <b>($79.80)</b> even <b>up to 60 days</b> after you missed the flight and can <b>provide evidence</b> for one of the many reasons including:</div>--> */}
 
-                    <div className="refund-subtital" bis_skin_checked="1">Upgrade your booking and receive a <b>100% refund</b> if you cannot attend and can evidence one of the many reasons in our <a onclick="window.open('https://www.refundable.me/extended/en/', 'info', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=no,width=800,height=600, screenX=50,screenY=50')" href="javascript: void(0);" className="text-link" style={{ color: "#1a58c4" }}>Terms &amp; Conditions</a>, which you accept when you select a Refundable Booking.</div>
+                    <div className="refund-subtital" bis_skin_checked="1">Upgrade your booking and receive a <b>100% refund</b> if you cannot attend and can evidence one of the many reasons in our <a onClick="window.open('https://www.refundable.me/extended/en/', 'info', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=no,width=800,height=600, screenX=50,screenY=50')" href="javascript: void(0);" className="text-link" style={{ color: "#1a58c4" }}>Terms &amp; Conditions</a>, which you accept when you select a Refundable Booking.</div>
 
 
-                    <div className="covid-txt" bis_skin_checked="1">COVID-19 Infection and Isolation, <a onclick="window.open('https://www.refundable.me/covid/', 'info', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=no,width=800,height=600, screenX=50,screenY=50')" href="javascript: void(0);" className="text-link">see details</a></div>
+                    <div className="covid-txt" bis_skin_checked="1">COVID-19 Infection and Isolation, <a onClick="window.open('https://www.refundable.me/covid/', 'info', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=no,width=800,height=600, screenX=50,screenY=50')" href="javascript: void(0);" className="text-link">see details</a></div>
 
                     <div className="check-list" bis_skin_checked="1">
                         <img src="/assets/images/listing/shild.png" alt="shild" className="icon_image" />
                         <ul>
-                            <li>Flight refund: <b>($79.80)</b></li>
+                            <li>Flight refund: <b>{refundAmount}</b></li>
                             <li>Home Emergency</li>
                             <li>Illness / Injury (including Covid-19)</li>
                             <li>Adverse Weather</li>
@@ -330,7 +337,10 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
                     </div>
 
                     <div className="text-center" bis_skin_checked="1">
-                        <button id="btnSelectfra_sss901" className="continue_btn" onclick="$('#div_gotopayment').show();Filter.submitbut('sss901',1)" onClick={handleCotnueViewDetail}>Continue with Refundable Booking</button>
+                        <button id="btnSelectfra_sss901" className="continue_btn" onClick={() => {
+                            setIsRefundable(true);
+                            handleCotnueViewDetail()
+                        }}>Continue with Refundable Booking</button>
                     </div>
                 </div>
             </div>
@@ -416,7 +426,10 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
             <div className="row" bis_skin_checked="1">
                 <div className="col-xs-12" bis_skin_checked="1">
                     <div className="price-section pull-right" bis_skin_checked="1">
-                        <button id="btnSelect_sss901" onClick={handleCotnueViewDetail}>Continue</button>
+                        <button id="btnSelect_sss901" onClick={() => {
+                            setIsRefundable(false);
+                            handleCotnueViewDetail()
+                        }}>Continue</button>
                     </div>
                     <div className="price-section pull-left txt-left" bis_skin_checked="1">
                         <price style={{ cursor: "default" }}>
@@ -449,8 +462,8 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
                         </price>
                         {/* <div className="usp-tabs">
                                     <ul>
-                                        <li className="hidden-sm hidden-xs" style="cursor:pointer; border-right:0;"><a aria-hidden="true" onclick="window.open('/assets/baggage-fees-info?airline=AI','_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=500,width=500,height=300');">Baggage Fees <i className="fa fa-suitcase"></i></a></li>
-                                        <li className="visible-xs visible-sm" style="cursor:pointer; border-right:0;"><a onclick="Filter.getflightbaggage('AI')" data-toggle="modal" data-target="#baggage-fees-popup">Baggage Fees <i className="fa fa-suitcase"></i></a></li>
+                                        <li className="hidden-sm hidden-xs" style="cursor:pointer; border-right:0;"><a aria-hidden="true" onClick="window.open('/assets/baggage-fees-info?airline=AI','_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=200,left=500,width=500,height=300');">Baggage Fees <i className="fa fa-suitcase"></i></a></li>
+                                        <li className="visible-xs visible-sm" style="cursor:pointer; border-right:0;"><a onClick="Filter.getflightbaggage('AI')" data-toggle="modal" data-target="#baggage-fees-popup">Baggage Fees <i className="fa fa-suitcase"></i></a></li>
                                     </ul>
                                 </div>
                                 */}
