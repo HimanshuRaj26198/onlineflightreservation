@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const Loading = ({ cabin, total, depDate }) => {
+const Loading = ({ cabin, total, depDate, origin, destination, originName, destName }) => {
     const [selectedFlight, setSelectedFlight] = useState(null);
 
     useEffect(() => {
@@ -30,7 +30,7 @@ const Loading = ({ cabin, total, depDate }) => {
     };
 
     return <div id="div_gotopayment" bis_skin_checked="1">
-        <div style={{ padding: "7px",width:"100%", height:"100%", position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: "10007", background: "#fff", textAlign: "center" }} bis_skin_checked="1">
+        <div style={{ padding: "7px", width: "100%", height: "100%", position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: "10007", background: "#fff", textAlign: "center" }} bis_skin_checked="1">
             {selectedFlight && (
                 <div className="box-space">
                     <div className="loading_block">
@@ -42,11 +42,11 @@ const Loading = ({ cabin, total, depDate }) => {
                         </div>
                         <div className="loadingBox">
                             <div className="searched_route">
-                                <strong>{selectedFlight.itineraries[0].segments[0].departure.airport.city}</strong> ({selectedFlight.itineraries[0].segments[0].departure.airport.iata})
+                                <strong>{originName}</strong> ({origin})
                                 <span className="trip-arrow">
                                     <img src="/us/images/listing/oneway.png" />
                                 </span>
-                                <strong>{selectedFlight.itineraries[0].segments[0].arrival.airport.city}</strong> ({selectedFlight.itineraries[0].segments[0].arrival.airport.iata})
+                                <strong>{destName}</strong> ({destination})
                             </div>
                             <div>
                                 <strong>{getFormattedDate(depDate)}</strong>

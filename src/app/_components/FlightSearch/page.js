@@ -30,6 +30,8 @@ const FlightSearch = ({ airline, selectedDes }) => {
     const [infanctCount, setInfantCount] = useState(0);
     const [infantOnSeatCount, setInfantOnSeatCount] = useState(0);
     const [cabinType, setCabinType] = useState("ECONOMY");
+    const [originCityName, setOriginCityName] = useState('');
+    const [destCityName, setDestCityName] = useState('');
 
     const [showPax, setShowPax] = useState(false);
     const paxRef = useRef(null);
@@ -45,7 +47,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
         } else if (tripType === "Round-Trip" && !returnD) {
             toast.error("Select a return date");
         } else {
-            router.push(`/home/flights/flight?origin=${origin.value}&destination=${destination.value}&depDate=${depDate && depDate.toISOString().substring(0, 10)}&returnD=${returnD && returnD.toISOString(0, 10).substring(0, 10)}&adult=${travellerDetail.adultCount}&child=${travellerDetail.childrenCount}&infant=${travellerDetail.infanctCount}&cabin=${travellerDetail.cabinType}&tripType=${tripType.toString()}&airline=${airline || "all"}&tk=${token}`);
+            router.push(`/home/flights/flight?originName=${originCityName}&destName=${destCityName}&origin=${origin.value}&destination=${destination.value}&depDate=${depDate && depDate.toISOString().substring(0, 10)}&returnD=${returnD && returnD.toISOString(0, 10).substring(0, 10)}&adult=${travellerDetail.adultCount}&child=${travellerDetail.childrenCount}&infant=${travellerDetail.infanctCount}&cabin=${travellerDetail.cabinType}&tripType=${tripType.toString()}&airline=${airline || "all"}&tk=${token}`);
 
         }
     };
@@ -123,6 +125,9 @@ const FlightSearch = ({ airline, selectedDes }) => {
 
                 if (Array.isArray(result.data)) {
 
+                    const cityName = result.data[0]?.address?.cityName || '';
+                    setOriginCityName(cityName);
+
                     let options = result.data.map(a => ({
                         label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`,
                         value: a.iataCode
@@ -160,6 +165,9 @@ const FlightSearch = ({ airline, selectedDes }) => {
             let result = await response.json()
             // let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
             const seenIATA = new Set();
+
+            const cityName = result.data[0]?.address?.cityName || '';
+            setOriginCityName(cityName);
 
             let options = result.data.filter(a => {
                 if (seenIATA.has(a.iataCode)) {
@@ -225,6 +233,9 @@ const FlightSearch = ({ airline, selectedDes }) => {
             let result = await response.json()
             // let options = result.data.map(a => { return { label: `${a.iataCode} - ${a.name}, ${a.address.cityName}, ${a.address.countryCode}`, value: a.iataCode } })
             const seenIATA = new Set();
+
+            const cityName = result.data[0]?.address?.cityName || '';
+            setDestCityName(cityName);
 
             let options = result.data.filter(a => {
                 if (seenIATA.has(a.iataCode)) {
@@ -544,7 +555,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                         onClick={(e) => {
                                             e.preventDefault(); // Prevent the page from reloading
                                             setShowPax(false);  // Close the popup by updating state
-                                          }}
+                                        }}
                                     >
                                         <img src="/assets/images/uc/cancel.svg" alt />
                                     </a>
@@ -732,7 +743,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                 />
             </div>
         </form>
-        </>
+    </>
 }
 
 

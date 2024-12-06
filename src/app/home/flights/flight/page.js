@@ -762,7 +762,7 @@ const FlightResultCompnent = () => {
             </div>
         </div>}
         {offerPopupVisible && <OfferPopup hideOfferPopup={hideOfferPopup} flight={flightList[0]} />}
-        {loading && <Loading cabin={searchParam.get("cabin")} total={total} depDate={searchParam.get("depDate")}/>}
+        {loading && <Loading cabin={searchParam.get("cabin")} total={total} depDate={searchParam.get("depDate")} origin={searchParam.get("origin")} destination={searchParam.get("destination")} originName={searchParam.get("originName")} destName={searchParam.get("destName")} />}
         {flightDetail && <motion.div
             id="_flight-details"
             class="flight-details collapse"
