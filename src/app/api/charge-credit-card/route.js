@@ -4,52 +4,21 @@ import { APIContracts, APIControllers } from 'authorizenet';
 //import * as AuthorizeNet from 'authorizenet';
 import configs from '../../../../constant';
 
-export async function POST(request){
+export async function POST(request) {
     try {
-        // Log the request body for debugging
-        console.log("start me");
 
-        console.log("start me 2nd tradetai ke pahle");
+        const { travelers, cardDetails, billingInfo, contactDetails } = await request.json();
+        console.log({ travelers, cardDetails, billingInfo, contactDetails }, "JSON DATA BACKEND");
 
-        // req.body = JSON.parse(req.body);  // Now convert string to object
-        // console.log("Converted Request Body:", req.body);
-
-        const { travelers, cardDetails, billingInfo } = await request.json();
-        console.log({travelers, cardDetails, billingInfo}, "JSON DATA BACKEND");
-
-        console.log("start me 3nd tradetai ke baad");
-
-        console.log("Traveler Data:", travelers);
-        console.log("Card Details:", cardDetails);
-        console.log("Billing Info:", billingInfo);
-
-
-        // // Validate inputs
-        // if (!traveler || !cardDetails || !billingInfo) {
-        //     return res.status(400).json({ success: false, message: 'Missing required information.' });
-        // }
-
-        // if (!cardDetails.cardNo || !cardDetails.expiry || !cardDetails.cvv) {
-        //     return res.status(400).json({ success: false, message: 'Incomplete payment details.' });
-        // }
-
-        // if (!billingInfo.address || !billingInfo.city || !billingInfo.country) {
-        //     return res.status(400).json({ success: false, message: 'Incomplete billing information.' });
-        // }
-
-        // Extract traveler info (assuming one traveler for simplicity)
-        // const firstTraveler = travelers.firstName;  // Assuming one traveler for simplicity
-        // console.log(AuthorizeNet,"APIContracts");
-        // Payment Processing with Authorize.Net
         const merchantAuthenticationType = new APIContracts.MerchantAuthenticationType();
         merchantAuthenticationType.setName(configs.apiLoginKey);
         merchantAuthenticationType.setTransactionKey(configs.transactionKey);
 
         // Credit Card information
         const creditCard = new APIContracts.CreditCardType();
-        creditCard.setCardNumber(cardDetails.cardNo);
-        creditCard.setExpirationDate(cardDetails.expiry.month + cardDetails.expiry.year); // MMYYYY format
-        creditCard.setCardCode(`${cardDetails.expiry}`);
+        creditCard.setCardNumber(`${cardDetails.cardNo}`);
+        creditCard.setExpirationDate(`${cardDetails.expiry.month}${cardDetails.expiry.year.slice(-2)}`);
+        creditCard.setCardCode(`${cardDetails.expiry.cvv}`);
 
         const paymentType = new APIContracts.PaymentType();
         paymentType.setCreditCard(creditCard);
@@ -65,6 +34,10 @@ export async function POST(request){
         billTo.setZip(`${billingInfo.postalCode}`);
         billTo.setCountry(`${billingInfo.country}`);
 
+        // Customer Request
+        var customer = new APIContracts.CustomerDataType();
+        customer.setEmail(`${contactDetails.Email}`);
+
         // Order details (dynamic invoice number)
         const orderDetails = new APIContracts.OrderType();
         orderDetails.setInvoiceNumber('INV-' + new Date().getTime());  // Dynamic Invoice Number
@@ -77,6 +50,7 @@ export async function POST(request){
         transactionRequestType.setAmount(100); // Example amount, replace with actual flight amount
         transactionRequestType.setOrder(orderDetails);
         transactionRequestType.setBillTo(billTo);
+        transactionRequestType.setCustomer(customer); // Attach customer email for receipt
 
         // Create transaction request
         const createRequest = new APIContracts.CreateTransactionRequest();
@@ -86,36 +60,65 @@ export async function POST(request){
         const ctrl = new APIControllers.CreateTransactionController(createRequest.getJSON());
 
         // Execute transaction
-        ctrl.execute(function () {
-            const apiResponse = ctrl.getResponse();
-
-            // Log the API response for debugging
-            console.log("API Response:", apiResponse);
-
-            if (apiResponse != null) {
-                const response = new APIContracts.CreateTransactionResponse(apiResponse);
-
-                if (response.getMessages().getResultCode() === APIContracts.MessageTypeEnum.OK) {
-                    // Transaction successful
-                    return new Response(JSON.stringify({
-                        success: true,
-                        message: 'Transaction Successful',
-                        transactionId: response.getTransactionResponse().getTransId(),
-                    }), {status: 200})
+        const apiResponse = await new Promise((resolve, reject) => {
+            ctrl.execute(function () {
+                const apiResponse = ctrl.getResponse();
+                if (apiResponse != null) {
+                    resolve(apiResponse);
                 } else {
-                    // Handle transaction failure
-                    return new Response(JSON.stringify({
-                        success: false,
-                        message: 'Transaction Failed',
-                    }), {status: 400})
+                    reject(new Error("No response from payment gateway"));
                 }
-            } else {
-                return new Response(JSON.stringify({ success: false, message: 'No Response from Payment Gateway' }), {status: 500})
-            }
+            });
         });
+
+        const response = new APIContracts.CreateTransactionResponse(apiResponse);
+
+        if (
+            response.getMessages().getResultCode() === APIContracts.MessageTypeEnum.OK
+        ) {
+            // Transaction successful
+            return new Response(
+                JSON.stringify({
+                    success: true,
+                    message: "Transaction Successful",
+                    transactionId: response.getTransactionResponse().getTransId(),
+                }),
+                { status: 200 }
+            );
+        } else {
+            // Log detailed error messages from Authorize.Net response
+            const messages = response.getMessages();
+            let errorMessages = [];
+
+            if (messages && messages.getMessage()) {
+                const messageArray = messages.getMessage();
+                messageArray.forEach((message) => {
+                    errorMessages.push(
+                        `Code: ${message.getCode()}, Text: ${message.getText()}`
+                    );
+                });
+            }
+
+            // Return detailed error messages
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: "Transaction Failed",
+                    errorDetails: errorMessages, // Detailed error information
+                }),
+                { status: 400 }
+            );
+        }
     } catch (error) {
         // Log detailed error for debugging
-        console.error('Error processing flight reservation:', error);
-        return new Response({ success: false, message: 'Internal Server Error', error: error.message }, {status: 500})
+        console.error("Error processing flight reservation:", error);
+        return new Response(
+            JSON.stringify({
+                success: false,
+                message: "Internal Server Error",
+                error: error.message,
+            }),
+            { status: 500 }
+        );
     }
 }

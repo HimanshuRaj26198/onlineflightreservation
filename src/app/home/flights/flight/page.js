@@ -526,7 +526,7 @@ const FlightResultCompnent = () => {
                         if (!offerPopupVisible) {
                             setOfferPopupVisible(true);
                         }
-                    }, 500000);
+                    }, 50000);
                 }
             } catch (err) {
                 router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
@@ -762,7 +762,7 @@ const FlightResultCompnent = () => {
             </div>
         </div>}
         {offerPopupVisible && <OfferPopup hideOfferPopup={hideOfferPopup} flight={flightList[0]} />}
-        {loading && <Loading />}
+        {loading && <Loading cabin={searchParam.get("cabin")} total={total} depDate={searchParam.get("depDate")}/>}
         {flightDetail && <motion.div
             id="_flight-details"
             class="flight-details collapse"
@@ -783,7 +783,7 @@ const FlightResultCompnent = () => {
                         {/* <!--<li role="presentation" class="pricetab"><a href="#" onclick="flightdetailAction(2)" aria-controls="price" role="tab" data-toggle="tab"><i class="fa fa-file-text" aria-hidden="true"></i> Fare Breakup</a></li>--> */}
                     </ul>
                 </div>
-                <FlightDetail selectedFlight={selectedFlight && selectedFlight} travellerDetails={{ adults: searchParam.get("adult"), child: searchParam.get("child"), infant: searchParam.get("infant"), cabin: searchParam.get("cabin"), tripType:searchParam.get("tripType") }} />
+                <FlightDetail selectedFlight={selectedFlight && selectedFlight} travellerDetails={{ adults: searchParam.get("adult"), child: searchParam.get("child"), infant: searchParam.get("infant"), cabin: searchParam.get("cabin"), tripType: searchParam.get("tripType") }} />
             </div>
         </motion.div>}
         <div className="body-content">

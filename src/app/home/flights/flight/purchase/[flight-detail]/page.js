@@ -4,12 +4,15 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/app/_components/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import countryCodeArr from "@/assets/Country_Code.json"
 import PassengerForm from "@/app/_components/PassengerForm/page";
 import BillingInfo from "@/app/_components/billingInfo/page";
+import SignInComponent from "@/app/_components/SignIn/page";
+import SignUpComponent from "@/app/_components/SignUp/page"
 
 const PurchasePage = () => {
+
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
     const [isAffirmPayment, setIsAffirmPayment] = useState(false);
@@ -21,6 +24,7 @@ const PurchasePage = () => {
     const emailRef = useRef("");
     const phoneRef = useRef("");
 
+
     const alternateNumRef = useRef("");
     const [selectedCountry, setSelectedCountry] = useState(countryCodeArr[0]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -31,6 +35,9 @@ const PurchasePage = () => {
     const currentYear = new Date().getFullYear();
     const [mobileVisible, setMobileVisible] = useState(false);
     const router = useRouter();
+    const searchParam = useSearchParams();
+
+    const refundAmount = searchParam.get("refundAmount")
 
     // For All Details of TripDetails
     const [travellersDetails, setTravellersDetails] = useState([]);
@@ -491,9 +498,31 @@ const PurchasePage = () => {
         }
 
         setTravelers(updatedTravelers);
-    }, [travellerDetails,setTravelers]);
+    }, [travellerDetails, setTravelers]);
 
     console.log(contactDetails, "ContactDetails");
+
+    const [user] = useAuthState(auth);
+    const [showSignIn, setShowSignIn] = useState(false);
+    const [showSignUp, setShowSignUp] = useState(false);
+
+    const hideSignIn = () => {
+        setShowSignIn(false);
+    }
+
+    const hideSignUp = () => {
+        setShowSignUp(false);
+    }
+
+    const showSignUpForm = () => {
+        setShowSignIn(false);
+        setShowSignUp(true);
+    }
+
+    const showSignInFor = () => {
+        setShowSignUp(false);
+        setShowSignIn(true);
+    }
 
     const handleSubmitTravellersDetails = async () => {
 
@@ -516,26 +545,29 @@ const PurchasePage = () => {
         };
         localStorage.setItem('travelerData', JSON.stringify(allTravelerData));
 
-        await handleSubmit(newTraveler);
 
         // For Payment Gateway
-        try {
-            // Send the travelers' details to the backend API for flight reservation
-            const response = await fetch('/api/paymentGateway', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newTraveler),
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                toast.success('Reservation Successful! Transaction ID: ' + result.transactionId);
-                router.push(`/home/confirmationPage/book-flight-confirms?transactionStatus=${result.success}`)
-            } else {
-                toast.error('Error: ' + result.message);
+        if (!user) {
+            setShowSignIn(true);
+        } else {
+            await handleSubmit(newTraveler);
+            try {
+                // Send the travelers' details to the backend API for flight reservation
+                const response = await fetch('/api/charge-credit-card', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newTraveler),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    toast.success('Reservation Successful! Transaction ID: ' + result.transactionId);
+                    router.push(`/home/confirmationPage/book-flight-confirms?transactionStatus=${result.success}`)
+                } else {
+                    toast.error('Error: ' + result.message);
+                }
+            } catch (error) {
+                toast.error('Error: ' + error.message);
             }
-        } catch (error) {
-            toast.error('Error: ' + error.message);
         }
 
         // Clear individual fields after adding to the array
@@ -823,6 +855,9 @@ const PurchasePage = () => {
                         </div>
                     </div>
                     <input type="hidden" defaultValue={1} id="totalPax" />
+
+                    {showSignIn && <SignInComponent hideLoginPopup={hideSignIn} showSignUp={showSignUpForm} />}
+                    {showSignUp && <SignUpComponent hideSignUp={hideSignUp} showSignIn={showSignInFor} />}
 
                     {/* MAIN-FORM */}
                     <form
@@ -3010,8 +3045,7 @@ const PurchasePage = () => {
                                                                                         <span>
                                                                                             <b>No,</b> I would risk my entire trip
                                                                                             <b>
-                                                                                                ($<span id="grndTotalIns">91.40</span>
-                                                                                                )
+                                                                                                ($<span id="grndTotalIns">91.40</span>)
                                                                                             </b>
                                                                                         </span>
                                                                                     </label>
@@ -3576,7 +3610,7 @@ const PurchasePage = () => {
                                                     </div>
                                                 </div>
                                                 {/* Fare Section - Refund Assurance */}
-                                                {isRefundSectionVisible && (
+                                                {isRefundSectionVisible && refundAmount && (
                                                     <div
                                                         className="fare-section rfndtxt"
                                                         bis_skin_checked="1"
@@ -3586,7 +3620,7 @@ const PurchasePage = () => {
                                                             bis_skin_checked="1"
                                                         >
                                                             <span>
-                                                                $<span id="spnrfntamt">79.80</span> {/* Refund amount */}
+                                                                <span id="spnrfntamt"> ${(Math.round(parseFloat(refundAmount) * 100) / 100).toFixed(2)}</span> {/* Refund amount */}
                                                             </span>
                                                             Flight Refund <br />
                                                             Assurance

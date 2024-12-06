@@ -248,7 +248,7 @@ const Navbar = () => {
                         </ul>
                     </div>
 
-                    {/* <ul className="profile_menu">
+                    <ul className="profile_menu">
                         <li>
                             <div className="topmenuBox">
                                 <ul id="divlogin" style={{ display: "block" }}>
@@ -288,7 +288,7 @@ const Navbar = () => {
                                 </ul>
                             </div>
                         </li>
-                    </ul> */}
+                    </ul>
                 </div>
             </nav>
 

@@ -14,6 +14,9 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
     const [refundAmount, setRefundAmount] = useState(0)
     const [isRefundable, setIsRefundable] = useState(null);
 
+    console.log("isRefundable", isRefundable);
+
+
     const hideSignIn = () => {
         setShowSignIn(false);
     }
@@ -36,13 +39,9 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
         // if (!user) {
         //     setShowSignIn(true);
         // } else {
-        let currentRefundAmount = 0;
-        if (isRefundable) {
-            currentRefundAmount = 79.80; // Set refund amount for refundable booking
-        }
-        localStorage.setItem("selectedflight", JSON.stringify(selectedFlight));
-        localStorage.setItem("travellerDetails", JSON.stringify(travellerDetails));
-        router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}?refundAmount=${currentRefundAmount}`)
+            localStorage.setItem("selectedflight", JSON.stringify(selectedFlight));
+            localStorage.setItem("travellerDetails", JSON.stringify(travellerDetails));
+            router.push(`/home/flights/flight/purchase/${selectedFlight.itineraries[0].segments[0].departure.iataCode}-${selectedFlight.itineraries[0].segments[0].arrival.iataCode}`)
         // }
 
     }
@@ -141,8 +140,8 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
     }
 
     return <>
-        {showSignIn && <SignInComponent hideLoginPopup={hideSignIn} showSignUp={showSignUpForm} />}
-        {showSignUp && <SignUpComponent hideSignUp={hideSignUp} showSignIn={showSignInFor} />}
+        {/* {showSignIn && <SignInComponent hideLoginPopup={hideSignIn} showSignUp={showSignUpForm} />}
+        {showSignUp && <SignUpComponent hideSignUp={hideSignUp} showSignIn={showSignInFor} />} */}
         {/* <!-- flight leg Start here  --> */}
         <div className="flight-leg-info" bis_skin_checked="1">
 
@@ -247,7 +246,7 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
                 {/* <!--Repeat block Start here --> */}
 
                 <div className="total-trip-time" bis_skin_checked="1">
-                    <i className="fa fa-clock-o"></i> Return Trip Time: <b>3h 0m</b>
+                    <i className="fa fa-clock-o"></i> Return Trip Time: <b>{extractDuration(selectedFlight.itineraries[0].duration)}</b>
                 </div>
 
 

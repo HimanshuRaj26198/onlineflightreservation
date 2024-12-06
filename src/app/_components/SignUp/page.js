@@ -4,6 +4,7 @@ import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { doc, setDoc } from "firebase/firestore";
 import { auth, googleAuth, fireStore } from "../firebase/config";
 import { signInWithPopup, updateProfile } from "firebase/auth";
+import { toast } from "react-toastify";
 
 const SignUpComponent = ({ hideSignUp, showSignIn }) => {
     const firstNameRef = useRef("");
@@ -20,6 +21,7 @@ const SignUpComponent = ({ hideSignUp, showSignIn }) => {
 
         if (password !== confirmPassword) {
             console.log("Passwords do not match");
+            toast.error("Passwords do not match")
             return;
         }
 
@@ -44,7 +46,7 @@ const SignUpComponent = ({ hideSignUp, showSignIn }) => {
 
 
             //  MONGODB CONNECTION
-            // Connect to MongoDB and insert user data
+            // // Connect to MongoDB and insert user data
             // const client = await clientPromise;
             // const db = client.db();
             // const usersCollection = db.collection('users');
