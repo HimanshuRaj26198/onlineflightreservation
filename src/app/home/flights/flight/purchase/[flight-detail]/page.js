@@ -542,6 +542,7 @@ const PurchasePage = () => {
             travelers,
             cardDetails,
             billingInfo,
+            selectedFlight,
         };
         localStorage.setItem('travelerData', JSON.stringify(allTravelerData));
 
@@ -556,7 +557,7 @@ const PurchasePage = () => {
                 const response = await fetch('/api/charge-credit-card', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newTraveler),
+                    body: JSON.stringify(allTravelerData),
                 });
                 const result = await response.json();
                 if (result.success) {

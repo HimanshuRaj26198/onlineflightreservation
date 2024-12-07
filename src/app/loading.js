@@ -44,7 +44,7 @@ const Loading = ({ cabin, total, depDate, origin, destination, originName, destN
                             <div className="searched_route">
                                 <strong>{originName}</strong> ({origin})
                                 <span className="trip-arrow">
-                                    <img src="/us/images/listing/oneway.png" />
+                                    <img src="https://cmsrepository.com/static/flights/common/eticket/plane-stop.png" />
                                 </span>
                                 <strong>{destName}</strong> ({destination})
                             </div>
