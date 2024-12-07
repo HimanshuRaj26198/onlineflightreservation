@@ -16,10 +16,9 @@ import 'rc-slider/assets/index.css';
 const FlightResultCompnent = () => {
 
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const origin = searchParams.get("origin");
-    const destination = searchParams.get("destination");
     const searchParam = useSearchParams();
+    const origin = searchParam.get("origin");
+    const destination = searchParam.get("destination");
     const searchRef = useRef(null);
 
     const [uniqueAirlines, setUniqueAirlines] = useState([]);
@@ -527,7 +526,7 @@ const FlightResultCompnent = () => {
                         if (!offerPopupVisible) {
                             setOfferPopupVisible(true);
                         }
-                    }, 500000);
+                    }, 50000);
                 }
             } catch (err) {
                 router.push(`/home/no-results?origin=${searchParam.get("origin")}&destination=${searchParam.get("destination")}&depDate=${searchParam.get("depDate")}&returnD=${searchParam.get("returnD")}`);
@@ -763,7 +762,7 @@ const FlightResultCompnent = () => {
             </div>
         </div>}
         {offerPopupVisible && <OfferPopup hideOfferPopup={hideOfferPopup} flight={flightList[0]} />}
-        {loading && <Loading />}
+        {loading && <Loading cabin={searchParam.get("cabin")} total={total} depDate={searchParam.get("depDate")} origin={searchParam.get("origin")} destination={searchParam.get("destination")} originName={searchParam.get("originName")} destName={searchParam.get("destName")} />}
         {flightDetail && <motion.div
             id="_flight-details"
             class="flight-details collapse"
@@ -784,7 +783,7 @@ const FlightResultCompnent = () => {
                         {/* <!--<li role="presentation" class="pricetab"><a href="#" onclick="flightdetailAction(2)" aria-controls="price" role="tab" data-toggle="tab"><i class="fa fa-file-text" aria-hidden="true"></i> Fare Breakup</a></li>--> */}
                     </ul>
                 </div>
-                <FlightDetail selectedFlight={selectedFlight && selectedFlight} travellerDetails={{ adults: searchParam.get("adult"), child: searchParam.get("child"), infant: searchParam.get("infant"), cabin: searchParam.get("cabin") }} />
+                <FlightDetail selectedFlight={selectedFlight && selectedFlight} travellerDetails={{ adults: searchParam.get("adult"), child: searchParam.get("child"), infant: searchParam.get("infant"), cabin: searchParam.get("cabin"), tripType: searchParam.get("tripType") }} />
             </div>
         </motion.div>}
         <div className="body-content">
