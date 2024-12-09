@@ -3,12 +3,12 @@ import { useRef } from "react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth, googleAuth } from "../firebase/config";
 import { signInWithPopup } from "firebase/auth";
+import { toast } from "react-toastify";
 
 const SignInComponent = ({ hideLoginPopup, showSignUp }) => {
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -16,8 +16,10 @@ const SignInComponent = ({ hideLoginPopup, showSignUp }) => {
             const res = await signInWithEmailAndPassword(emailRef.current.value, passwordRef.current.value);
             sessionStorage.setItem('user', true);
             hideLoginPopup();
+            toast.success("Successfully logged in!");
         } catch (err) {
             console.error(err);
+            toast.error("Login failed! Please check your credentials.");
         }
         console.log({ email: emailRef.current.value, password: passwordRef.current.value });
     };
@@ -29,8 +31,10 @@ const SignInComponent = ({ hideLoginPopup, showSignUp }) => {
             console.log("Google sign-in successful", user);
             sessionStorage.setItem('user', true);
             hideLoginPopup();
+            toast.success("Google sign-in successful");
         } catch (error) {
             console.error("Google sign-in error", error);
+            toast.error("Google sign-in error");
         }
     };
     return <div id="someDivId" bis_skin_checked={1}>

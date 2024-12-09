@@ -11,7 +11,26 @@ import BillingInfo from "@/app/_components/billingInfo/page";
 import SignInComponent from "@/app/_components/SignIn/page";
 import SignUpComponent from "@/app/_components/SignUp/page"
 
+import { getFirestore, collection, addDoc, db } from "firebase/firestore";
+import { app } from '../../../../../_components/firebase/config';
+
+
 const PurchasePage = () => {
+
+
+    const firestore = getFirestore(app)
+
+    const writeDoc = async () => {
+        const res = await addDoc(collection(firestore, 'bookingDetails'), {
+            name: "Shubham Kumar",
+            city: "Hajipur"
+        })
+        console.log(res, "FireBase Data");
+
+    }
+    useEffect(() => {
+        // writeDoc();
+    })
 
     const [selectedFlight, setSelectedFlight] = useState(null);
     const [travellerDetails, setTravellerDetails] = useState({});
@@ -23,7 +42,6 @@ const PurchasePage = () => {
     const [formedFilled, setFormFilled] = useState(false);
     const emailRef = useRef("");
     const phoneRef = useRef("");
-
 
     const alternateNumRef = useRef("");
     const [selectedCountry, setSelectedCountry] = useState(countryCodeArr[0]);
@@ -506,6 +524,8 @@ const PurchasePage = () => {
     const [showSignIn, setShowSignIn] = useState(false);
     const [showSignUp, setShowSignUp] = useState(false);
 
+    console.log(user, "UserAuthentication");
+
     const hideSignIn = () => {
         setShowSignIn(false);
     }
@@ -543,7 +563,11 @@ const PurchasePage = () => {
             cardDetails,
             billingInfo,
             selectedFlight,
+            userId: user?.uid,
+            userEmailId: user?.email,
+            userDisplayName: user?.displayName
         };
+
         localStorage.setItem('travelerData', JSON.stringify(allTravelerData));
 
 
@@ -562,6 +586,13 @@ const PurchasePage = () => {
                 const result = await response.json();
                 if (result.success) {
                     toast.success('Reservation Successful! Transaction ID: ' + result.transactionId);
+
+                    // Store traveler data in Firebase
+                    const travelerDataRef = collection(firestore, "travelers");
+                    await addDoc(travelerDataRef, {
+                        ...allTravelerData,
+                        createdAt: new Date(),
+                    });
                     router.push(`/home/confirmationPage/book-flight-confirms?transactionStatus=${result.success}`)
                 } else {
                     toast.error('Error: ' + result.message);
@@ -811,6 +842,8 @@ const PurchasePage = () => {
         // Set the state to false to hide the refund section
         setRefundSectionVisible(false);
     };
+
+
 
     return <>
         {selectedFlight && <div className="body-content" bis_skin_checked="1">

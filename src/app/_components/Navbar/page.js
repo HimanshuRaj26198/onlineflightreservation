@@ -6,6 +6,8 @@ import SignInComponent from "../SignIn/page";
 import SignUpComponent from "../SignUp/page";
 import { auth } from "../firebase/config";
 import { signOut } from "firebase/auth";
+import { toast } from "react-toastify";
+
 const Navbar = () => {
     const [mobMenuOpen, setMobMenuOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -253,9 +255,38 @@ const Navbar = () => {
                             <div className="topmenuBox">
                                 <ul id="divlogin" style={{ display: "block" }}>
                                     <li style={{ cursor: "pointer" }} className="dropdown loginDropdown">
-                                        {!user || !sessionStorage.getItem('user') ? <a onClick={() => setLoginPopupVisible(true)}
-                                            className="login">&nbsp;<span className="hidden-xs">Sign in</span></a> : <a onClick={() => { signOut(auth); sessionStorage.removeItem("user") }}
-                                                className="login">&nbsp;<span className="hidden-xs">Sign out</span></a>}
+                                        {
+                                            // Check if the user is logged in
+                                            !user || !sessionStorage.getItem('user') ? (
+                                                // If not logged in, show Sign In option
+                                                <a onClick={() => setLoginPopupVisible(true)} className="login">
+                                                    &nbsp;<span className="hidden-xs">Sign in</span>
+                                                </a>
+                                            ) : (
+                                                // If logged in, show Sign Out option
+                                                <a
+                                                    onClick={() => {
+                                                        // Sign out user from Firebase
+                                                        signOut(auth)
+                                                            .then(() => {
+                                                                // Remove user session info from sessionStorage
+                                                                sessionStorage.removeItem("user");
+
+                                                                // Show toast message after successful sign out
+                                                                toast.success("You have successfully signed out.");
+                                                            })
+                                                            .catch((error) => {
+                                                                // Show error message if sign-out fails
+                                                                console.error("Sign-out error: ", error);
+                                                                toast.error("An error occurred while signing out. Please try again.");
+                                                            });
+                                                    }}
+                                                    className="login"
+                                                >
+                                                    &nbsp;<span className="hidden-xs">Sign out</span>
+                                                </a>
+                                            )
+                                        }
                                     </li>
                                 </ul>
                                 <ul id="divwelcome" style={{ display: "none" }}>

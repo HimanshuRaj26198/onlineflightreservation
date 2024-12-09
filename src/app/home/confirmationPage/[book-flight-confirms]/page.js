@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from "react";
 import React from 'react';
 import { useSearchParams } from "next/navigation";
 
-
 const confirmationPage = () => {
 
     const [selectedFlight, setSelectedFlight] = useState(null);
@@ -27,6 +26,7 @@ const confirmationPage = () => {
         city: "",
         postalCode: "",
     });
+
 
     useEffect(() => {
         try {
