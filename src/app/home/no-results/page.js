@@ -216,7 +216,7 @@ const NoResults = () => {
                 }}
                 bis_skin_checked={1}
             >
-                <img src="/images/loading.gif" style={{ width: 80 }} />
+                <img src="/assets/images/loading.gif" style={{ width: 80 }} />
                 <span
                     id="loadermsg"
                     style={{ fontSize: 12, color: "rgb(255, 127, 0)", display: "none" }}

@@ -9,8 +9,8 @@ export async function POST(request) {
         console.log({ travelers, cardDetails, billingInfo, contactDetails, selectedFlight }, "JSON DATA BACKEND");
 
         const merchantAuthenticationType = new APIContracts.MerchantAuthenticationType();
-        merchantAuthenticationType.setName(configs.apiLoginKey);
-        merchantAuthenticationType.setTransactionKey(configs.transactionKey);
+        merchantAuthenticationType.setName(process.env.APILOGINID);
+        merchantAuthenticationType.setTransactionKey(process.env.TRANSACTIONKEY);
 
         // Credit Card information
         const creditCard = new APIContracts.CreditCardType();

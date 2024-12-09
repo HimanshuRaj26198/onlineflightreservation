@@ -11142,7 +11142,7 @@ header .my-history li .fa-angle-right {
 }
 
 .footer_block {
-    background: url(../../images/footer/pattern.png) #103360;
+    /* background: url(../../images/footer/pattern.png) #103360; */
     padding: 0 0 28px 0;
     overflow: hidden
 }
@@ -17944,14 +17944,14 @@ select {
     position: absolute;
     left: -20px;
     top: -12px;
-    background: url(/images/connect-flight.png) no-repeat left center #fff
+    /* background: url(/images/connect-flight.png) no-repeat left center #fff */
 }
 
 .result-block .depart-flight .connnecting-block .leg-points:after {
     content: "";
     left: auto;
     right: -5px;
-    background: url(/images/connect-location.png) no-repeat right center #fff;
+    /* background: url(/images/connect-location.png) no-repeat right center #fff; */
     width: 17px
 }
 

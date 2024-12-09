@@ -1778,7 +1778,7 @@ const confirmationPage = () => {
                                                                                         <tr>
                                                                                             <td>Flight Price</td>
                                                                                             <td style={{ textAlign: "right" }}>
-                                                                                                {selectedFlight.travelerPricings[0].price.total}
+                                                                                                ${selectedFlight.travelerPricings[0].price.total}
                                                                                             </td>
                                                                                         </tr>
                                                                                         <tr>
@@ -1824,7 +1824,7 @@ const confirmationPage = () => {
                                                                                                     borderTop: "2px solid #ddd"
                                                                                                 }}
                                                                                             >
-                                                                                                {selectedFlight.travelerPricings[0].price.total}
+                                                                                                ${selectedFlight.travelerPricings[0].price.total}
                                                                                             </td>
                                                                                         </tr>
                                                                                     </tbody>

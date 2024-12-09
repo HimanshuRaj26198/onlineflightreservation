@@ -735,7 +735,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                                 id="Four"
                                 bis_skin_checked={1}
                             >
-                                <img src="/assets/images/payment/cvv.png" />
+                                <img src="https://www.lookbyfare.com/us/images/payment/cvv.png" />
                                 <span> 4 Digit number from your card</span>
                                 <span className="cardImg hidden-xs" />
                             </div>

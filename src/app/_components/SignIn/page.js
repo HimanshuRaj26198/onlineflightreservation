@@ -14,6 +14,8 @@ const SignInComponent = ({ hideLoginPopup, showSignUp }) => {
         e.preventDefault();
         try {
             const res = await signInWithEmailAndPassword(emailRef.current.value, passwordRef.current.value);
+            console.log(res,"ROLE BASED");
+            
             sessionStorage.setItem('user', true);
             hideLoginPopup();
             toast.success("Successfully logged in!");
@@ -27,6 +29,7 @@ const SignInComponent = ({ hideLoginPopup, showSignUp }) => {
     const handleGoogleSignIn = async () => {
         try {
             const result = await signInWithPopup(auth, googleAuth);
+            console.log(result,"ROLE BASED");
             const user = result.user;
             console.log("Google sign-in successful", user);
             sessionStorage.setItem('user', true);

@@ -124,7 +124,7 @@ const Footer = () => {
                                                 <div className="clearfix"></div>
                                             </div>
                                             <div className="sucessfullMsg" style={{ display: "none" }}>
-                                                <div className="thanks"><img src="/assets/images/sucess-full-image7839.svg?v=1.2"
+                                                <div className="thanks"><img src="/assets/images/sucess-full-image.svg"
                                                     className="pull-left" /> Thanks</div>
                                                 <div className="msg">Your email ID <br /> <span id="email2"></span> <br /><span
                                                     id="submitSuccess2"> has been added successfully</span></div>

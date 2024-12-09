@@ -448,7 +448,7 @@ const FlightDetail = ({ selectedFlight, travellerDetails }) => {
                                     <i className="fa fa-info hand"></i>
                                     <div className="promo-detail right_tooltip bottom_tooltip" bis_skin_checked="1">
                                         <div className="mb5px text-center" bis_skin_checked="1">
-                                            <img className="easy-payment-logo" src="/us/images/card-icon/affirm-logo.png?v=1.2" />
+                                            <img className="easy-payment-logo" src="/assets/images/card-icon/affirm-logo.png" />
                                             <div className="textaffirm" bis_skin_checked="1"><strong>Buy now, pay over time</strong></div>
                                         </div>
 
