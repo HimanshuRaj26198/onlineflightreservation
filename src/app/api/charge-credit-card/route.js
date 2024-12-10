@@ -13,9 +13,21 @@ export async function POST(request) {
         merchantAuthenticationType.setTransactionKey(process.env.TRANSACTIONKEY);
 
         // Credit Card information
+        const expiryMonth = cardDetails.expiry.month; // e.g., 7 for July
+        const expiryYear = cardDetails.expiry.year; // e.g., 2027
+
+        // Ensure month is two digits (e.g., '07' instead of '7')
+        const formattedMonth = String(expiryMonth).padStart(2, '0');
+
+        console.log(formattedMonth, "FORMATTEDMONTH");
+
+        // Format expiration date as 'YYYY-MM'
+        const expirationDate = `${expiryYear}-${formattedMonth}`;
         const creditCard = new APIContracts.CreditCardType();
         creditCard.setCardNumber(`${cardDetails.cardNo}`);
-        creditCard.setExpirationDate(`${cardDetails.expiry.month}${cardDetails.expiry.year.slice(-2)}`);
+
+        // creditCard.setExpirationDate(`${cardDetails.expiry.month}${cardDetails.expiry.year.slice(-2)}`);
+        creditCard.setExpirationDate(expirationDate);
         creditCard.setCardCode(`${cardDetails.expiry.cvv}`);
 
         const paymentType = new APIContracts.PaymentType();

@@ -14,7 +14,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
     const currentYear = new Date().getFullYear();
     const addressRef = useRef("");;
     const cityRef = useRef("");
-    
+
     const postalCodeRef = useRef("");
     const cardRef = useRef("");
     const cvcRef = useRef("");
@@ -628,7 +628,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                                         bis_skin_checked={1}
                                     >
                                         <select
-                                            className="Payment "
+                                            className="Payment"
                                             data-val="true"
                                             data-val-required="The ExpiryMonth field is required."
                                             id="flightBookingRequest_Payment_ExpiryMonth"
@@ -638,18 +638,11 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                                             onChange={handleInputChanges}
                                         >
                                             <option value="">Select</option>
-                                            <option value={1}>01-Jan</option>
-                                            <option value={2}>02-Feb</option>
-                                            <option value={3}>03-Mar</option>
-                                            <option value={4}>04-Apr</option>
-                                            <option value={5}>05-May</option>
-                                            <option value={6}>06-Jun</option>
-                                            <option value={7}>07-Jul</option>
-                                            <option value={8}>08-Aug</option>
-                                            <option value={9}>09-Sep</option>
-                                            <option value={10}>10-Oct</option>
-                                            <option value={11}>11-Nov</option>
-                                            <option value={12}>12-Dec</option>
+                                            {Array.from({ length: 12 }, (_, i) => (
+                                                <option key={i + 1} value={i + 1}>
+                                                    {String(i + 1).padStart(2, '0')}-{new Date(0, i).toLocaleString('default', { month: 'short' })}
+                                                </option>
+                                            ))}
                                         </select>
                                         <span
                                             className="field-validation-valid"

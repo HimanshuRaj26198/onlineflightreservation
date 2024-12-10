@@ -635,7 +635,7 @@ const PurchasePage = () => {
     Email: ${emailRef.current.value || 'Not Provided'}
     Date of Birth: ${travelerData.travelers[0].dobDate || 'Not Provided'}/${travelerData.travelers[0].dobMonth || 'Not Provided'}/${travelerData.travelers[0].dobYear || 'Not Provided'}
     Gender: ${travelerData.travelers[0].gender === '1' ? 'Male' : 'Female'} 
-    Phone Code: ${travelerData.travelers[0].phoneCode || 'Not Provided'}
+    Phone Code: ${travelerData.contactDetails.Mobile || 'Not Provided'}
     
     Billing Info:
     Address: ${travelerData.billingInfo.address || 'Not Provided'}
@@ -842,7 +842,6 @@ const PurchasePage = () => {
         // Set the state to false to hide the refund section
         setRefundSectionVisible(false);
     };
-
 
 
     return <>
@@ -3092,7 +3091,7 @@ const PurchasePage = () => {
                                                             <div
                                                                 className="error_text"
                                                                 style={{
-                                                                    display: "block",
+                                                                    display: "none",
                                                                     background: "#fff0e5",
                                                                     border: "1px solid #ff6e03",
                                                                     padding: "5px 5px 5px 27px",
