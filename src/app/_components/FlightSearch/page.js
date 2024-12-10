@@ -378,7 +378,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                     <label className="form-label">Leaving from</label>
                                     <div className="relative">
                                         {/* <img
-                                            src="/assets/images/location-icon.png"
+                                            src="/assets//assets/images/location-icon.png"
                                             className="input-icon"
                                         /> */}
                                         <Select
@@ -420,7 +420,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                     <label className="form-label">Going to</label>
                                     <div className="relative">
                                         {/* <img
-                                            src="/assets/images/location-icon.png"
+                                            src="/assets//assets/images/location-icon.png"
                                             className="input-icon"
                                         /> */}
                                         <Select
@@ -470,7 +470,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                 <div className="calender-txt calender-block">
                                     <span>
                                         <img
-                                            src="/assets/images/calender-icon.png"
+                                            src="/assets/images/location-icon.png"
                                             className="input-icon cal-icon"
                                         />
 
@@ -498,7 +498,7 @@ const FlightSearch = ({ airline, selectedDes }) => {
                                     {tripType === "Round-Trip" && <span>
                                         <img
                                             className="input-icon cal-icon retcal"
-                                            src="/assets/images/calender-icon.png"
+                                            src="/assets/images/location-icon.png"
                                         />
                                         <Flatpickr
                                             value={returnD}

@@ -16,7 +16,8 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
     const cityRef = useRef("");
 
     const postalCodeRef = useRef("");
-    const cardRef = useRef("");
+    const debitCardRef = useRef(null);
+    const creditCardRef = useRef(null);
     const cvcRef = useRef("");
     const cvvRef = useRef("");
 
@@ -72,15 +73,21 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
 
     const handleInputChanges = (e) => {
         const { value } = e.target; // Get the value from the target element
-        if (e.target === cardnoRef.current) {
+        if (e.target === debitCardRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                cardType: 'Debit', // Update card type to Debit
+            }));
+        } else if (e.target === creditCardRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                cardType: 'Credit', // Update card type to Credit
+            }));
+        }
+        else if (e.target === cardnoRef.current) {
             setCardDetails((prevDetails) => ({
                 ...prevDetails,
                 cardNo: value, // Update the cardNo property
-            }));
-        } else if (e.target === cardRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                cardType: value, // Update the cardType property
             }));
         } else if (e.target === cardholdernameRef.current) {
             setCardDetails((prevDetails) => ({
@@ -347,36 +354,55 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                     please select payment method
                 </p>
                 <div className="row" bis_skin_checked={1}>
-                    <div
-                        className="col-sm-12 col-xs-12 relative"
-                        bis_skin_checked={1}
-                    >
-                        <div
-                            className="inputSet paymentradio"
-                            bis_skin_checked={1}
-                        >
+                    <div className="col-sm-12 col-xs-12 relative" bis_skin_checked={1}>
+                        <div className="d-flex flex-wrap justify-content-between align-items-center">
+                        </div>
+                        {/* Debit Card Radio Button */}
+                        <div className="inputSet paymentradio" bis_skin_checked={1}>
                             <img
                                 className="debit-card-logo pull-right"
                                 src="https://www.lookbyfare.com/us/images/card-icon/debitcard-blank.svg?v=1.2"
+                                alt="Debit Card"
                             />
                             <label
                                 className="pcc card_tab payment_tab"
-                                onclick="showcarddata('true');"
                             >
                                 <input
                                     type="radio"
-                                    name="payment"
-                                    defaultValue="true"
-                                    defaultChecked=""
-                                    ref={cardRef}
+                                    name="payment"   // Same 'payment' name ensures only one can be selected
+                                    value="debit"    // Value indicating debit card
+                                    ref={debitCardRef}
+                                    checked={cardDetails.cardType === 'Debit'} // Check if Debit card is selected
+                                    onChange={handleInputChanges}
+
                                 />
                                 <span>
-                                    <b>Debit/Credit Card</b>
+                                    <b>Debit Card</b>
+                                </span>
+                            </label>
+                        </div>
+
+                        {/* Credit Card Radio Button */}
+                        <div className="inputSet paymentradio" bis_skin_checked={1}>
+                            <label
+                                className="pcc card_tab payment_tab"
+                            >
+                                <input
+                                    type="radio"
+                                    name="payment"   // Same 'payment' name ensures only one can be selected
+                                    value="credit"   // Value indicating credit card
+                                    ref={creditCardRef}
+                                    checked={cardDetails.cardType === 'Credit'} // Check if Credit card is selected
+                                    onChange={handleInputChanges}
+                                />
+                                <span>
+                                    <b>Credit Card</b>
                                 </span>
                             </label>
                         </div>
                     </div>
                 </div>
+
                 <div
                     className="row pay-with-cc"
                     style={{ display: "block" }}

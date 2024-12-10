@@ -242,7 +242,7 @@ const AmericanAirlines = () => {
                                                         <label className="form-label">Destination</label>
                                                         <div className="input-city">
                                                             <img
-                                                                src="images/location-icon.png"
+                                                                src="/assets/images/location-icon.png"
                                                                 className="input-icon"
                                                             />
                                                             <input
@@ -281,7 +281,7 @@ const AmericanAirlines = () => {
                                                     <div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
                                                         <div className="input-city">
                                                             <img
-                                                                src="images/location-icon.png"
+                                                                src="/assets/images/location-icon.png"
                                                                 className="input-icon"
                                                             />
                                                             <input
@@ -331,7 +331,7 @@ const AmericanAirlines = () => {
                                                                 <label className="form-label">Pick up Date</label>
                                                                 <div className="input-city">
                                                                     <img
-                                                                        src="images/calender-icon.png"
+                                                                        src="/assets/images/location-icon.png"
                                                                         className="input-icon cal-icon"
                                                                     />
                                                                     <input
@@ -423,7 +423,7 @@ const AmericanAirlines = () => {
                                                                 <label className="form-label">Drop off Date</label>
                                                                 <div className="input-city">
                                                                     <img
-                                                                        src="images/calender-icon.png"
+                                                                        src="/assets/images/location-icon.png"
                                                                         className="input-icon cal-icon"
                                                                     />
                                                                     <input
@@ -873,7 +873,7 @@ const AmericanAirlines = () => {
                                                                             </label>
                                                                             <div className="relative">
                                                                                 <img
-                                                                                    src="/assets/hotel/images/location-icon.png"
+                                                                                    src="/assets/images/location-icon.png"
                                                                                     className="input-icon"
                                                                                 />
                                                                                 <input
@@ -906,7 +906,7 @@ const AmericanAirlines = () => {
                                                                         <div className="calender-txt calender-block">
                                                                             <span className="relative">
                                                                                 <img
-                                                                                    src="/assets/hotel/images/calender-icon.png"
+                                                                                    src="/assets/images/location-icon.png"
                                                                                     className="cal"
                                                                                 />
                                                                                 <input
@@ -945,7 +945,7 @@ const AmericanAirlines = () => {
                                                                             <span className="relative">
                                                                                 <img
                                                                                     className="cal"
-                                                                                    src="/assets/hotel/images/calender-icon.png"
+                                                                                    src="/assets/images/location-icon.png"
                                                                                 />
                                                                                 <input
                                                                                     Value="Sep 03, 2024"
@@ -1000,7 +1000,7 @@ const AmericanAirlines = () => {
                                                                             <div className="relative  drop-errow">
                                                                                 <img
                                                                                     className="input-icon"
-                                                                                    src="/assets/hotel/images/traveller-icon.png"
+                                                                                    src="/assets/images/traveller-icon.png"
                                                                                 />
                                                                                 <input
                                                                                     autoComplete="off"

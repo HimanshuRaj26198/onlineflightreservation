@@ -173,7 +173,7 @@ const confirmationPage = () => {
     // Define dynamic styles based on the transaction status
     let statusColor = '#FF1920';  // Red color for failure
     let statusText = 'Failed';     // Default status is 'Failed'
-    
+
     let stepIcons = [
         "check-icon.png",       // Booking Received - static icon
         "processing-icon.png",  // Payment Verification - static icon
@@ -200,8 +200,6 @@ const confirmationPage = () => {
     }
 
     return <>
-
-
         <div style={{ background: "#fff", margin: 0, padding: 0 }}>
             <style
                 dangerouslySetInnerHTML={{

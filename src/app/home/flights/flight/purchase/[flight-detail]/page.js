@@ -77,7 +77,7 @@ const PurchasePage = () => {
 
     // Card Details
     const [cardDetails, setCardDetails] = useState({
-        cardType: "Debit card",
+        cardType: "Debit",
         cardHolderName: "",
         cardNo: "",
         expiry: {
@@ -483,11 +483,8 @@ const PurchasePage = () => {
                     dobMonth: '',
                     dobDate: '',
                     dobYear: '',
-                    emergencyContactName: '',
-                    phoneCode: '',
                     tsaPrecheckNumber: '',
                     redressNumber: '',
-                    emergencyContactNumber: '',
                     travelerType: 'Child', // Default traveler type (Child)
                 }))
             );
@@ -505,11 +502,8 @@ const PurchasePage = () => {
                     dobMonth: '',
                     dobDate: '',
                     dobYear: '',
-                    emergencyContactName: '',
-                    phoneCode: '',
                     tsaPrecheckNumber: '',
                     redressNumber: '',
-                    emergencyContactNumber: '',
                     travelerType: 'Infant', // Default traveler type (Infant)
                 }))
             );
@@ -2019,64 +2013,65 @@ const PurchasePage = () => {
                                                                                     />
                                                                                 </div>
                                                                             </div>
+                                                                        </div>
+                                                                    </div>
 
-                                                                            <div className="row">
-                                                                                <div className="col-sm-6 col-xs-12">
-                                                                                    <label>
-                                                                                        TSA Precheck
-                                                                                        <span className="tooltip-custom">
-                                                                                            <i className="fa fa-info hand" />
-                                                                                            <div className="promo-detail tsa_tooltip">
-                                                                                                <span className="arrow" />
-                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                                    The Known Traveler Number is also referred to as
-                                                                                                    Pass ID, TSA PreCheck and Global Entry Number.
-                                                                                                    It can be found on the top-left corner on the
-                                                                                                    back of your Trusted Traveler membership card.
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </span>
-                                                                                    </label>
-                                                                                    <input
-                                                                                        className="nonvalidateTxt alphanumericbothwithoutspace"
-                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
-                                                                                        name="tsaPrecheckNumber"
-                                                                                        placeholder="Known Traveler Number (Optional)"
-                                                                                        type="text"
-                                                                                        value={adult.tsaPrecheckNumber}
-                                                                                        onChange={(e) => handleInputChanges(adult.id, e)}
-                                                                                    />
-                                                                                </div>
-                                                                                <div className="col-sm-6 col-xs-12">
-                                                                                    <label>
-                                                                                        Redress number
-                                                                                        <span className="tooltip-custom">
-                                                                                            <i className="fa fa-info hand" />
-                                                                                            <div className="promo-detail tsa_tooltip">
-                                                                                                <span className="arrow" />
-                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                                    A Redress is a unique number that is assigned to
-                                                                                                    a passenger by the Department of Homeland
-                                                                                                    Security (DHS) for the purpose of promoting the
-                                                                                                    resolution with previous watch list alerts.
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </span>
-                                                                                    </label>
-                                                                                    <input
-                                                                                        className="numeric nonvalidateTxt"
-                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
-                                                                                        name="redressNumber"
-                                                                                        placeholder="(Optional)"
-                                                                                        type="number"
-                                                                                        value={adult.redressNumber}
-                                                                                        onChange={(e) => handleInputChanges(adult.id, e)}
-                                                                                    />
-                                                                                </div>
-                                                                            </div>
+                                                                    <div className="row">
+                                                                        <div className="col-sm-6 col-xs-12">
+                                                                            <label>
+                                                                                TSA Precheck
+                                                                                <span className="tooltip-custom">
+                                                                                    <i className="fa fa-info hand" />
+                                                                                    <div className="promo-detail tsa_tooltip">
+                                                                                        <span className="arrow" />
+                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                            The Known Traveler Number is also referred to as
+                                                                                            Pass ID, TSA PreCheck and Global Entry Number.
+                                                                                            It can be found on the top-left corner on the
+                                                                                            back of your Trusted Traveler membership card.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </span>
+                                                                            </label>
+                                                                            <input
+                                                                                className="nonvalidateTxt alphanumericbothwithoutspace"
+                                                                                id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
+                                                                                name="tsaPrecheckNumber"
+                                                                                placeholder="Known Traveler Number (Optional)"
+                                                                                type="text"
+                                                                                value={adult.tsaPrecheckNumber}
+                                                                                onChange={(e) => handleInputChanges(adult.id, e)}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="col-sm-6 col-xs-12">
+                                                                            <label>
+                                                                                Redress number
+                                                                                <span className="tooltip-custom">
+                                                                                    <i className="fa fa-info hand" />
+                                                                                    <div className="promo-detail tsa_tooltip">
+                                                                                        <span className="arrow" />
+                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                            A Redress is a unique number that is assigned to
+                                                                                            a passenger by the Department of Homeland
+                                                                                            Security (DHS) for the purpose of promoting the
+                                                                                            resolution with previous watch list alerts.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </span>
+                                                                            </label>
+                                                                            <input
+                                                                                className="numeric nonvalidateTxt"
+                                                                                id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
+                                                                                name="redressNumber"
+                                                                                placeholder="(Optional)"
+                                                                                type="number"
+                                                                                value={adult.redressNumber}
+                                                                                onChange={(e) => handleInputChanges(adult.id, e)}
+                                                                            />
                                                                         </div>
                                                                     </div>
                                                                 </div>
+
                                                             )}
                                                         </div>
 
@@ -2230,7 +2225,59 @@ const PurchasePage = () => {
                                                             {isMoreInfoVisible && (
                                                                 <div id="pasngrOD_0" className="pasngrOD_0">
                                                                     <div className="row" id="emergency_0">
-                                                                        <div className="col-sm-5 col-xs-12">
+                                                                        <div className="col-sm-6 col-xs-12">
+                                                                            <label>
+                                                                                TSA Precheck
+                                                                                <span className="tooltip-custom">
+                                                                                    <i className="fa fa-info hand" />
+                                                                                    <div className="promo-detail tsa_tooltip">
+                                                                                        <span className="arrow" />
+                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                            The Known Traveler Number is also referred to as
+                                                                                            Pass ID, TSA PreCheck and Global Entry Number.
+                                                                                            It can be found on the top-left corner on the
+                                                                                            back of your Trusted Traveler membership card.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </span>
+                                                                            </label>
+                                                                            <input
+                                                                                className="nonvalidateTxt alphanumericbothwithoutspace"
+                                                                                id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
+                                                                                name="tsaPrecheckNumber"
+                                                                                placeholder="Known Traveler Number (Optional)"
+                                                                                type="text"
+                                                                                value={child.tsaPrecheckNumber}
+                                                                                onChange={(e) => handleInputChanges(child.id, e)}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="col-sm-6 col-xs-12">
+                                                                            <label>
+                                                                                Redress number
+                                                                                <span className="tooltip-custom">
+                                                                                    <i className="fa fa-info hand" />
+                                                                                    <div className="promo-detail tsa_tooltip">
+                                                                                        <span className="arrow" />
+                                                                                        <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                            A Redress is a unique number that is assigned to
+                                                                                            a passenger by the Department of Homeland
+                                                                                            Security (DHS) for the purpose of promoting the
+                                                                                            resolution with previous watch list alerts.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </span>
+                                                                            </label>
+                                                                            <input
+                                                                                className="numeric nonvalidateTxt"
+                                                                                id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
+                                                                                name="redressNumber"
+                                                                                placeholder="(Optional)"
+                                                                                type="number"
+                                                                                value={child.redressNumber}
+                                                                                onChange={(e) => handleInputChanges(child.id, e)}
+                                                                            />
+                                                                        </div>
+                                                                        {/* <div className="col-sm-5 col-xs-12">
                                                                             <label>Emergency contact name</label>
                                                                             <input
                                                                                 className="alphanumeric nonvalidateTxt"
@@ -2241,9 +2288,9 @@ const PurchasePage = () => {
                                                                                 value={child.emergencyContactName}
                                                                                 onChange={(e) => handleInputChanges(child.id, e)}
                                                                             />
-                                                                        </div>
-                                                                        <div className="col-sm-7 col-xs-12">
-                                                                            <div className="row">
+                                                                        </div> */}
+                                                                        {/* <div className="col-sm-7 col-xs-12"> */}
+                                                                        {/* <div className="row">
                                                                                 <div className="col-sm-5 col-xs-12">
                                                                                     <label>Country code</label>
                                                                                     <div className="country-code mb20">
@@ -2295,63 +2342,12 @@ const PurchasePage = () => {
                                                                                         onChange={(e) => handleInputChanges(child.id, e)}
                                                                                     />
                                                                                 </div>
-                                                                            </div>
+                                                                            </div> */}
 
-                                                                            <div className="row">
-                                                                                <div className="col-sm-6 col-xs-12">
-                                                                                    <label>
-                                                                                        TSA Precheck
-                                                                                        <span className="tooltip-custom">
-                                                                                            <i className="fa fa-info hand" />
-                                                                                            <div className="promo-detail tsa_tooltip">
-                                                                                                <span className="arrow" />
-                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                                    The Known Traveler Number is also referred to as
-                                                                                                    Pass ID, TSA PreCheck and Global Entry Number.
-                                                                                                    It can be found on the top-left corner on the
-                                                                                                    back of your Trusted Traveler membership card.
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </span>
-                                                                                    </label>
-                                                                                    <input
-                                                                                        className="nonvalidateTxt alphanumericbothwithoutspace"
-                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
-                                                                                        name="tsaPrecheckNumber"
-                                                                                        placeholder="Known Traveler Number (Optional)"
-                                                                                        type="text"
-                                                                                        value={child.tsaPrecheckNumber}
-                                                                                        onChange={(e) => handleInputChanges(child.id, e)}
-                                                                                    />
-                                                                                </div>
-                                                                                <div className="col-sm-6 col-xs-12">
-                                                                                    <label>
-                                                                                        Redress number
-                                                                                        <span className="tooltip-custom">
-                                                                                            <i className="fa fa-info hand" />
-                                                                                            <div className="promo-detail tsa_tooltip">
-                                                                                                <span className="arrow" />
-                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                                    A Redress is a unique number that is assigned to
-                                                                                                    a passenger by the Department of Homeland
-                                                                                                    Security (DHS) for the purpose of promoting the
-                                                                                                    resolution with previous watch list alerts.
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </span>
-                                                                                    </label>
-                                                                                    <input
-                                                                                        className="numeric nonvalidateTxt"
-                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
-                                                                                        name="redressNumber"
-                                                                                        placeholder="(Optional)"
-                                                                                        type="number"
-                                                                                        value={child.redressNumber}
-                                                                                        onChange={(e) => handleInputChanges(child.id, e)}
-                                                                                    />
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
+                                                                        {/* <div className="row">
+
+                                                                            </div> */}
+                                                                        {/* </div> */}
                                                                     </div>
                                                                 </div>
                                                             )}
@@ -2506,7 +2502,61 @@ const PurchasePage = () => {
                                                             {isMoreInfoVisible && (
                                                                 <div id="pasngrOD_0" className="pasngrOD_0">
                                                                     <div className="row" id="emergency_0">
-                                                                        <div className="col-sm-5 col-xs-12">
+                                                                        <div className="row">
+                                                                            <div className="col-sm-6 col-xs-12">
+                                                                                <label>
+                                                                                    TSA Precheck
+                                                                                    <span className="tooltip-custom">
+                                                                                        <i className="fa fa-info hand" />
+                                                                                        <div className="promo-detail tsa_tooltip">
+                                                                                            <span className="arrow" />
+                                                                                            <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                The Known Traveler Number is also referred to as
+                                                                                                Pass ID, TSA PreCheck and Global Entry Number.
+                                                                                                It can be found on the top-left corner on the
+                                                                                                back of your Trusted Traveler membership card.
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </span>
+                                                                                </label>
+                                                                                <input
+                                                                                    className="nonvalidateTxt alphanumericbothwithoutspace"
+                                                                                    id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
+                                                                                    name="tsaPrecheckNumber"
+                                                                                    placeholder="Known Traveler Number (Optional)"
+                                                                                    type="text"
+                                                                                    value={Infant.tsaPrecheckNumber}
+                                                                                    onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                                />
+                                                                            </div>
+                                                                            <div className="col-sm-6 col-xs-12">
+                                                                                <label>
+                                                                                    Redress number
+                                                                                    <span className="tooltip-custom">
+                                                                                        <i className="fa fa-info hand" />
+                                                                                        <div className="promo-detail tsa_tooltip">
+                                                                                            <span className="arrow" />
+                                                                                            <p className="mb5px" style={{ textAlign: 'left' }}>
+                                                                                                A Redress is a unique number that is assigned to
+                                                                                                a passenger by the Department of Homeland
+                                                                                                Security (DHS) for the purpose of promoting the
+                                                                                                resolution with previous watch list alerts.
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </span>
+                                                                                </label>
+                                                                                <input
+                                                                                    className="numeric nonvalidateTxt"
+                                                                                    id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
+                                                                                    name="redressNumber"
+                                                                                    placeholder="(Optional)"
+                                                                                    type="number"
+                                                                                    value={Infant.redressNumber}
+                                                                                    onChange={(e) => handleInputChanges(Infant.id, e)}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                        {/* <div className="col-sm-5 col-xs-12">
                                                                             <label>Emergency contact name</label>
                                                                             <input
                                                                                 className="alphanumeric nonvalidateTxt"
@@ -2573,61 +2623,8 @@ const PurchasePage = () => {
                                                                                 </div>
                                                                             </div>
 
-                                                                            <div className="row">
-                                                                                <div className="col-sm-6 col-xs-12">
-                                                                                    <label>
-                                                                                        TSA Precheck
-                                                                                        <span className="tooltip-custom">
-                                                                                            <i className="fa fa-info hand" />
-                                                                                            <div className="promo-detail tsa_tooltip">
-                                                                                                <span className="arrow" />
-                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                                    The Known Traveler Number is also referred to as
-                                                                                                    Pass ID, TSA PreCheck and Global Entry Number.
-                                                                                                    It can be found on the top-left corner on the
-                                                                                                    back of your Trusted Traveler membership card.
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </span>
-                                                                                    </label>
-                                                                                    <input
-                                                                                        className="nonvalidateTxt alphanumericbothwithoutspace"
-                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSAPrecheckNumber`}
-                                                                                        name="tsaPrecheckNumber"
-                                                                                        placeholder="Known Traveler Number (Optional)"
-                                                                                        type="text"
-                                                                                        value={Infant.tsaPrecheckNumber}
-                                                                                        onChange={(e) => handleInputChanges(Infant.id, e)}
-                                                                                    />
-                                                                                </div>
-                                                                                <div className="col-sm-6 col-xs-12">
-                                                                                    <label>
-                                                                                        Redress number
-                                                                                        <span className="tooltip-custom">
-                                                                                            <i className="fa fa-info hand" />
-                                                                                            <div className="promo-detail tsa_tooltip">
-                                                                                                <span className="arrow" />
-                                                                                                <p className="mb5px" style={{ textAlign: 'left' }}>
-                                                                                                    A Redress is a unique number that is assigned to
-                                                                                                    a passenger by the Department of Homeland
-                                                                                                    Security (DHS) for the purpose of promoting the
-                                                                                                    resolution with previous watch list alerts.
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </span>
-                                                                                    </label>
-                                                                                    <input
-                                                                                        className="numeric nonvalidateTxt"
-                                                                                        id={`flightBookingRequest_PassengerList_${index}__TSARedressNumber`}
-                                                                                        name="redressNumber"
-                                                                                        placeholder="(Optional)"
-                                                                                        type="number"
-                                                                                        value={Infant.redressNumber}
-                                                                                        onChange={(e) => handleInputChanges(Infant.id, e)}
-                                                                                    />
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
+                                                                           
+                                                                        </div> */}
                                                                     </div>
                                                                 </div>
                                                             )}
@@ -4491,9 +4488,9 @@ const PurchasePage = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>}</>
+                </div >
+            </div >
+        </div >}</>
 }
 
 export default PurchasePage;

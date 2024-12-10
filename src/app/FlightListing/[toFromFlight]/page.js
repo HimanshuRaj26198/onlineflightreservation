@@ -1437,10 +1437,10 @@ const FlightListing = () => {
                 <div className="trigger-wrapper" style={{ display: "none" }}>
                     <div className="trigger-searching">
                         <span className="close-btn" id="tiggerclose">
-                            <img src="/us/images/trigger-mobile/close-icon.svg" />
+                            <img src="/assets/images/trigger-mobile/close-icon.svg" />
                         </span>
                         <img
-                            src="/us/images/trigger-mobile/user-icon.svg"
+                            src="/assets/images/trigger-mobile/user-icon.svg"
                             className="user-icon"
                         />
                         <div className="head">Book before fare goes up!</div>
