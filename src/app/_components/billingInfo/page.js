@@ -14,9 +14,10 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
     const currentYear = new Date().getFullYear();
     const addressRef = useRef("");;
     const cityRef = useRef("");
-    
+
     const postalCodeRef = useRef("");
-    const cardRef = useRef("");
+    const debitCardRef = useRef(null);
+    const creditCardRef = useRef(null);
     const cvcRef = useRef("");
     const cvvRef = useRef("");
 
@@ -72,15 +73,21 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
 
     const handleInputChanges = (e) => {
         const { value } = e.target; // Get the value from the target element
-        if (e.target === cardnoRef.current) {
+        if (e.target === debitCardRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                cardType: 'Debit', // Update card type to Debit
+            }));
+        } else if (e.target === creditCardRef.current) {
+            setCardDetails((prevDetails) => ({
+                ...prevDetails,
+                cardType: 'Credit', // Update card type to Credit
+            }));
+        }
+        else if (e.target === cardnoRef.current) {
             setCardDetails((prevDetails) => ({
                 ...prevDetails,
                 cardNo: value, // Update the cardNo property
-            }));
-        } else if (e.target === cardRef.current) {
-            setCardDetails((prevDetails) => ({
-                ...prevDetails,
-                cardType: value, // Update the cardType property
             }));
         } else if (e.target === cardholdernameRef.current) {
             setCardDetails((prevDetails) => ({
@@ -347,36 +354,55 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                     please select payment method
                 </p>
                 <div className="row" bis_skin_checked={1}>
-                    <div
-                        className="col-sm-12 col-xs-12 relative"
-                        bis_skin_checked={1}
-                    >
-                        <div
-                            className="inputSet paymentradio"
-                            bis_skin_checked={1}
-                        >
+                    <div className="col-sm-12 col-xs-12 relative" bis_skin_checked={1}>
+                        <div className="d-flex flex-wrap justify-content-between align-items-center">
+                        </div>
+                        {/* Debit Card Radio Button */}
+                        <div className="inputSet paymentradio" bis_skin_checked={1}>
                             <img
                                 className="debit-card-logo pull-right"
                                 src="https://www.lookbyfare.com/us/images/card-icon/debitcard-blank.svg?v=1.2"
+                                alt="Debit Card"
                             />
                             <label
                                 className="pcc card_tab payment_tab"
-                                onclick="showcarddata('true');"
                             >
                                 <input
                                     type="radio"
-                                    name="payment"
-                                    defaultValue="true"
-                                    defaultChecked=""
-                                    ref={cardRef}
+                                    name="payment"   // Same 'payment' name ensures only one can be selected
+                                    value="debit"    // Value indicating debit card
+                                    ref={debitCardRef}
+                                    checked={cardDetails.cardType === 'Debit'} // Check if Debit card is selected
+                                    onChange={handleInputChanges}
+
                                 />
                                 <span>
-                                    <b>Debit/Credit Card</b>
+                                    <b>Debit Card</b>
+                                </span>
+                            </label>
+                        </div>
+
+                        {/* Credit Card Radio Button */}
+                        <div className="inputSet paymentradio" bis_skin_checked={1}>
+                            <label
+                                className="pcc card_tab payment_tab"
+                            >
+                                <input
+                                    type="radio"
+                                    name="payment"   // Same 'payment' name ensures only one can be selected
+                                    value="credit"   // Value indicating credit card
+                                    ref={creditCardRef}
+                                    checked={cardDetails.cardType === 'Credit'} // Check if Credit card is selected
+                                    onChange={handleInputChanges}
+                                />
+                                <span>
+                                    <b>Credit Card</b>
                                 </span>
                             </label>
                         </div>
                     </div>
                 </div>
+
                 <div
                     className="row pay-with-cc"
                     style={{ display: "block" }}
@@ -628,7 +654,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                                         bis_skin_checked={1}
                                     >
                                         <select
-                                            className="Payment "
+                                            className="Payment"
                                             data-val="true"
                                             data-val-required="The ExpiryMonth field is required."
                                             id="flightBookingRequest_Payment_ExpiryMonth"
@@ -638,18 +664,11 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                                             onChange={handleInputChanges}
                                         >
                                             <option value="">Select</option>
-                                            <option value={1}>01-Jan</option>
-                                            <option value={2}>02-Feb</option>
-                                            <option value={3}>03-Mar</option>
-                                            <option value={4}>04-Apr</option>
-                                            <option value={5}>05-May</option>
-                                            <option value={6}>06-Jun</option>
-                                            <option value={7}>07-Jul</option>
-                                            <option value={8}>08-Aug</option>
-                                            <option value={9}>09-Sep</option>
-                                            <option value={10}>10-Oct</option>
-                                            <option value={11}>11-Nov</option>
-                                            <option value={12}>12-Dec</option>
+                                            {Array.from({ length: 12 }, (_, i) => (
+                                                <option key={i + 1} value={i + 1}>
+                                                    {String(i + 1).padStart(2, '0')}-{new Date(0, i).toLocaleString('default', { month: 'short' })}
+                                                </option>
+                                            ))}
                                         </select>
                                         <span
                                             className="field-validation-valid"
@@ -735,7 +754,7 @@ const BillingInfo = ({ setBillingInfo, billingInfo, setCardDetails, cardDetails 
                                 id="Four"
                                 bis_skin_checked={1}
                             >
-                                <img src="/assets/images/payment/cvv.png" />
+                                <img src="https://www.lookbyfare.com/us/images/payment/cvv.png" />
                                 <span> 4 Digit number from your card</span>
                                 <span className="cardImg hidden-xs" />
                             </div>

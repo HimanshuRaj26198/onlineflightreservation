@@ -39,7 +39,8 @@ const SignUpComponent = ({ hideSignUp, showSignIn }) => {
                 firstName: firstNameRef.current.value,
                 lastName: lastNameRef.current.value,
                 email: user.email,
-                phone: phoneNumber.current.value
+                phone: phoneNumber.current.value,
+                createdAt: new Date(),
             });
             hideSignUp();
             sessionStorage.setItem('user', true);
@@ -66,9 +67,12 @@ const SignUpComponent = ({ hideSignUp, showSignIn }) => {
             // sessionStorage.setItem('user', JSON.stringify({ uid: user.uid, email: user.email }));
 
             // Optionally, you can add a success message or redirect
+            toast.success("Sign-up successful! Welcome to the Online Flight Reservation!");
             setSuccess(true);
+            showSignIn();
         } catch (e) {
             console.log(e);
+            toast.error("Sign-up failed! Please try again.");
         }
     };
 
@@ -77,10 +81,12 @@ const SignUpComponent = ({ hideSignUp, showSignIn }) => {
             const result = await signInWithPopup(auth, googleAuth);
             const user = result.user;
             console.log("Google sign-in successful", user);
-            sessionStorage.setItem('user', true);
+            toast.success("Google sign-in successful")
+            sessionStorage.setItem('user', JSON.stringify({ uid: user.uid, email: user.email }));
             hideSignUp();
         } catch (error) {
             console.error("Google sign-in error", error);
+            toast.error("Google sign-in error")
         }
     };
 

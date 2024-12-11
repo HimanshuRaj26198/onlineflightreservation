@@ -649,7 +649,7 @@ const FlightCard = ({ flight, setFlightDetailVisible, setSelectedFlight, oneway 
                                                 <div className="mb5px text-center">
                                                     <img
                                                         className="easy-payment-logo"
-                                                        src="/assets/images/card-icon/affirm-logo.png?v=1.2"
+                                                        src="/assets/images/card-icon/affirm-logo.png"
                                                     />
                                                     <div className="textaffirm">
                                                         <strong>Buy now, pay over time</strong>

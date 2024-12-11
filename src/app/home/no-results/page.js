@@ -70,7 +70,7 @@ const NoResults = () => {
                                                 <div className="col-sm-8 ">
                                                     {searchParam.get("tripType") === 'Round-Trip' ? (
                                                         <>
-                                                           {searchParam.get("origin")} &nbsp;
+                                                            {searchParam.get("origin")} &nbsp;
                                                             <b>
                                                                 <i className="fa fa-exchange" />
                                                             </b>
@@ -216,7 +216,7 @@ const NoResults = () => {
                 }}
                 bis_skin_checked={1}
             >
-                <img src="/images/loading.gif" style={{ width: 80 }} />
+                <img src="/assets/images/loading.gif" style={{ width: 80 }} />
                 <span
                     id="loadermsg"
                     style={{ fontSize: 12, color: "rgb(255, 127, 0)", display: "none" }}
@@ -232,7 +232,7 @@ const NoResults = () => {
                         <div className="row" bis_skin_checked={1}>
                             <div className="col-md-12" bis_skin_checked={1}>
                                 <div className="no-result" bis_skin_checked={1}>
-                                    <img src="/us/images/session-expire-icon.png" alt="" />
+                                    <img src="/assets/images/session-expire-icon.png" alt="" />
                                     <div className="oops" bis_skin_checked={1} />
                                     <div className="head" bis_skin_checked={1}>
                                         No result found
@@ -279,10 +279,10 @@ const NoResults = () => {
         >
             <div className="trigger-searching" bis_skin_checked={1}>
                 <span className="close-btn" id="tiggerclose">
-                    <img src="/us/images/trigger-mobile/close-icon.svg" />
+                    <img src="/assets/images/trigger-mobile/close-icon.svg" />
                 </span>
                 <img
-                    src="/us/images/trigger-mobile/user-icon.svg"
+                    src="/assets/images/trigger-mobile/user-icon.svg"
                     className="user-icon"
                 />
                 <div className="head" bis_skin_checked={1}>
